@@ -1,0 +1,87 @@
+
+
+exports.seed = function(knex, Promise) {
+  // Deletes ALL existing entries
+  return knex('events').del()
+    .then(function () {
+      // Inserts seed entries
+      return knex('events').insert([
+        { id: 1,
+          venue: 'Red Rocks',
+          headliner: 'My Morning Jacket',
+          date: '08/08/2019',
+          startTime: '19:00',
+          created_at: '2016-06-26T14:26:16.000Z',
+          updated_at: '2016-06-26T14:26:16.000Z',
+        },
+        { id: 2,
+          venue: 'Red Rocks',
+          headliner: 'Dr. Dog',
+          date: '08/12/2019',
+          startTime: '19:00',
+          created_at: '2016-06-26T14:26:16.000Z',
+          updated_at: '2016-06-26T14:26:16.000Z',
+        },
+        { id: 3,
+          venue: 'Red Rocks',
+          headliner: 'The National',
+          date: '08/14/2019',
+          startTime: '19:00',
+          created_at: '2016-06-26T14:26:16.000Z',
+          updated_at: '2016-06-26T14:26:16.000Z',
+        },
+        { id: 4,
+          venue: 'Red Rocks',
+          headliner: 'Phosphorescent',
+          date: '08/15/2019',
+          startTime: '19:00',
+          created_at: '2016-06-26T14:26:16.000Z',
+          updated_at: '2016-06-26T14:26:16.000Z',
+        },
+        { id: 5,
+          venue: 'Red Rocks',
+          headliner: 'Sohn',
+          date: '08/16/2019',
+          startTime: '19:00',
+          created_at: '2016-06-26T14:26:16.000Z',
+          updated_at: '2016-06-26T14:26:16.000Z',
+        },
+        { id: 6,
+          venue: 'Red Rocks',
+          headliner: 'Wet',
+          date: '08/17/2019',
+          startTime: '19:00',
+          created_at: '2016-06-26T14:26:16.000Z',
+          updated_at: '2016-06-26T14:26:16.000Z',
+        },
+        { id: 7,
+          venue: 'Red Rocks',
+          headliner: 'Ween',
+          date: '08/18/2019',
+          startTime: '19:00',
+          created_at: '2016-06-26T14:26:16.000Z',
+          updated_at: '2016-06-26T14:26:16.000Z',
+        },
+        { id: 8,
+          venue: 'Red Rocks',
+          headliner: 'Sam Widges',
+          date: '08/19/2019',
+          startTime: '19:00',
+          created_at: '2016-06-26T14:26:16.000Z',
+          updated_at: '2016-06-26T14:26:16.000Z',
+        },
+        { id: 9,
+          venue: 'Red Rocks',
+          headliner: 'Seth Brown and the Brown Notes',
+          date: '08/20/2019',
+          startTime: '19:00',
+          created_at: '2016-06-26T14:26:16.000Z',
+          updated_at: '2016-06-26T14:26:16.000Z',
+        }
+
+      ])
+      .then(() => {
+        return knex.raw("SELECT setval('events_id_seq', (SELECT MAX(id) FROM events))")
+      })
+    })
+}
