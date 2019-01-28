@@ -4,9 +4,11 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var dotenv = require('dotenv').config()
 
-var indexRouter = require('./routes/index');
-var eventsRouter = require('./routes/events')
-var pickupLocationsRouter = require('./routes/pickup_locations')
+//var indexRouter = require('./routes/index');
+var eventsRouter = require('./routes/events');
+var pickupLocationsRouter = require('./routes/pickup_locations');
+var usersRouter = require('./routes/users');
+
 
 
 var app = express();
@@ -22,9 +24,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
+//app.use('/', indexRouter);
 app.use('/events', eventsRouter);
 app.use('/pickup_locations', pickupLocationsRouter);
+app.use('/users', usersRouter);
+
 
 
 
