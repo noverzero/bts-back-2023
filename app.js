@@ -6,6 +6,8 @@ var dotenv = require('dotenv').config()
 
 var indexRouter = require('./routes/index');
 var eventsRouter = require('./routes/events')
+var pickupLocationsRouter = require('./routes/pickup_locations')
+
 
 var app = express();
 app.use(function(req, res, next) {
@@ -22,7 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/events', eventsRouter);
-
+app.use('/pickup_locations', pickupLocationsRouter);
 
 
 
