@@ -14,5 +14,5 @@ exports.up = (knex) => {
 //user types = {standard, staff, driver, admin, deactivated}
 
 exports.down = (knex) => {
-  return knex.schema.dropTable("events")
+  return knex.schema.dropTable("users")
 }
