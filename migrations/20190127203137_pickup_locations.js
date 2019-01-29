@@ -6,7 +6,7 @@ exports.up = (knex, Promise) => {
     table.text("city").notNullable()
     table.text("locationName").notNullable()
     table.float("latitude").defaultTo()
-    table.float("longitude").defaultsTo()
+    table.float("longitude").defaultTo()
     table.string("type").defaultTo("standard")
     table.timestamps(true,true)
   })
