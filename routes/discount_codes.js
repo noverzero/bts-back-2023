@@ -9,7 +9,7 @@ const knex = require('../knex.js')
 //List (get all of the resource)
 router.get('/', function(req, res, next){
 knex('discount_codes')
-.select('id', 'percentage', 'exipresOn', 'issuedOn', 'issuedTo', 'issuedBy', 'issuedBecause', 'eventId', 'eventId', 'appliesTo', 'timesUsed', 'type')
+.select('id', 'discountCode', 'percentage', 'exipresOn', 'issuedOn', 'issuedTo', 'issuedBy', 'issuedBecause', 'eventId', 'eventId', 'appliesTo', 'timesUsed', 'type')
 .then((data) => {
 res.status(200).json(data)
   })
@@ -19,7 +19,7 @@ res.status(200).json(data)
 // Get One
 router.get('/:id', function(req, res, next){
 knex('discount_codes')
-.select('id', 'percentage', 'exipresOn', 'issuedOn', 'issuedTo', 'issuedBy', 'issuedBecause', 'eventId', 'eventId', 'appliesTo', 'timesUsed', 'type')
+.select('id', 'discountCode', 'percentage', 'exipresOn', 'issuedOn', 'issuedTo', 'issuedBy', 'issuedBecause', 'eventId', 'eventId', 'appliesTo', 'timesUsed', 'type')
 .where('id', req.params.id)
 .then((data) => {
   res.status(200).json(data[0])
@@ -31,7 +31,7 @@ router.post('/', function(req, res, next){
 // use req.body
 knex('discount_codes')
 .insert(req.body)
-.returning(['id', 'percentage', 'exipresOn', 'issuedOn', 'issuedTo', 'issuedBy', 'issuedBecause', 'eventId', 'eventId', 'appliesTo', 'timesUsed', 'type'])
+.returning(['id', 'discountCode', 'percentage', 'exipresOn', 'issuedOn', 'issuedTo', 'issuedBy', 'issuedBecause', 'eventId', 'eventId', 'appliesTo', 'timesUsed', 'type'])
 .then((data) => {
   res.status(200).json(data[0])
 })
@@ -41,7 +41,7 @@ router.patch('/:id', function(req, res, next){
 knex('discount_codes')
 .where('id', req.params.id)
 .update(req.body)
-.returning(['id', 'percentage', 'exipresOn', 'issuedOn', 'issuedTo', 'issuedBy', 'issuedBecause', 'eventId', 'eventId', 'appliesTo', 'timesUsed', 'type'])
+.returning(['id', 'discountCode', 'percentage', 'exipresOn', 'issuedOn', 'issuedTo', 'issuedBy', 'issuedBecause', 'eventId', 'eventId', 'appliesTo', 'timesUsed', 'type'])
 .then((data) => {
   res.status(200).json(data[0])
 })
@@ -52,7 +52,7 @@ router.delete('/:id', function(req, res, next){
 knex('discount_codes')
 .where('id', req.params.id)
 .del('*')
-.returning(['id', 'percentage', 'exipresOn', 'issuedOn', 'issuedTo', 'issuedBy', 'issuedBecause', 'eventId', 'eventId', 'appliesTo', 'timesUsed', 'type'])
+.returning(['id', 'discountCode', 'percentage', 'exipresOn', 'issuedOn', 'issuedTo', 'issuedBy', 'issuedBecause', 'eventId', 'eventId', 'appliesTo', 'timesUsed', 'type'])
 .then((data) => {
   res.status(200).json(data[0])
 })
