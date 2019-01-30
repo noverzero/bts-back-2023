@@ -8,6 +8,10 @@ var dotenv = require('dotenv').config()
 var eventsRouter = require('./routes/events');
 var pickupLocationsRouter = require('./routes/pickup_locations');
 var usersRouter = require('./routes/users');
+var discountCodesRouter = require('./routes/discount_codes');
+var ordersRouter = require('./routes/orders');
+var pickupPartiesRouter = require('./routes/pickup_parties');
+
 
 
 
@@ -27,6 +31,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/events', eventsRouter);
 app.use('/pickup_locations', pickupLocationsRouter);
 app.use('/users', usersRouter);
+app.use('/discount_codes', discountCodesRouter);
+app.use('/orders', ordersRouter);
+app.use('/pickup_parties', pickupPartiesRouter);
 
 
 
