@@ -1,7 +1,7 @@
 
 exports.up = (knex, Promise) => {
   return knex.schema.createTable("pickup_locations",(table)=>{
-    table.increments()
+    table.increments('id')
     table.text("streetAddress").notNullable()
     table.text("city").notNullable()
     table.text("locationName").notNullable()

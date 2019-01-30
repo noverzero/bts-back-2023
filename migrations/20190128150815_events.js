@@ -1,6 +1,6 @@
 exports.up = (knex, Promise) => {
   return knex.schema.createTable("events",(table)=>{
-    table.increments()
+    table.increments('id')
     table.date("date").notNullable()
     table.time("startTime").notNullable()
     table.string("venue").notNullable().defaultTo("")
