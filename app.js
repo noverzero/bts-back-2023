@@ -3,8 +3,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var dotenv = require('dotenv').config()
-var schedule = require('node-schedule')
-
+var cron = require('node-cron')
 //var indexRouter = require('./routes/index');
 var eventsRouter = require('./routes/events');
 var pickupLocationsRouter = require('./routes/pickup_locations');
@@ -12,11 +11,15 @@ var usersRouter = require('./routes/users');
 var discountCodesRouter = require('./routes/discount_codes');
 var ordersRouter = require('./routes/orders');
 var pickupPartiesRouter = require('./routes/pickup_parties');
-
-
-
-
+var apiCalls = require('./apiCalls')
 var app = express();
+
+
+cron.schedule('1 * * * * *', () => {
+  console.log('Ping!')
+  return apiCalls.pingSongKick()
+})
+
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET,POST,DELETE,PATCH,PUT");
@@ -35,8 +38,5 @@ app.use('/users', usersRouter);
 app.use('/discount_codes', discountCodesRouter);
 app.use('/orders', ordersRouter);
 app.use('/pickup_parties', pickupPartiesRouter);
-
-
-
 
 module.exports = app;
