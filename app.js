@@ -36,7 +36,9 @@ app.use('/discount_codes', discountCodesRouter);
 app.use('/orders', ordersRouter);
 app.use('/pickup_parties', pickupPartiesRouter);
 
-
+app.use(function(req, res) {
+  res.status(404).send('Not Found');
+});
 
 
 module.exports = app;

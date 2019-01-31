@@ -32,6 +32,7 @@ const generatePartiesSeeds = (num) => {
           orderId: random10digits(),
           ordersReservationId: random10digits(),
           ordersWillCallName: fullNameSeed(),
+          inCart: 0,
         }
       )
   }

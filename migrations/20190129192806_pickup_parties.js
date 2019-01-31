@@ -16,6 +16,7 @@ exports.up = function(knex, Promise) {
     table.integer('checkedInPasscode')
     table.integer('sold').notNullable().defaultTo(0)
     table.integer('capacity').notNullable().defaultTo(44)
+    table.integer('inCart').notNullable().defaultTo(0)
     table.timestamps(true, true)
   })
 };
