@@ -4,6 +4,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var dotenv = require('dotenv').config()
 var cron = require('node-cron')
+
 //var indexRouter = require('./routes/index');
 var eventsRouter = require('./routes/events');
 var pickupLocationsRouter = require('./routes/pickup_locations');
@@ -15,10 +16,11 @@ var apiCalls = require('./apiCalls')
 var app = express();
 
 
-cron.schedule('1 * * * * *', () => {
+// cron.schedule('59 * * * * *', () => {
   console.log('Ping!')
-  return apiCalls.pingSongKick()
-})
+  apiCalls.pingSongKick()
+  
+// })
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
