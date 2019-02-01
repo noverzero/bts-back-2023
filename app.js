@@ -36,8 +36,10 @@ app.use('/discount_codes', discountCodesRouter);
 app.use('/orders', ordersRouter);
 app.use('/pickup_parties', pickupPartiesRouter);
 
-cron.schedule('30 * * * * *', async () => {
-  console.log('Cron!')
+let time = new Date()
+
+cron.schedule('* 1 * * * *', async () => {
+  console.log('Cron!', time.getMinutes())
   const allShowsObj = await eventDataHandler.getApiData()
   eventDataHandler.insertEventData(allShowsObj)
 })
