@@ -31,7 +31,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/events', eventsRouter);
 app.use('/pickup_locations', pickupLocationsRouter);
-app.use('/users', usersRouter);
+// app.use('/users', usersRouter);
 app.use('/discount_codes', discountCodesRouter);
 app.use('/orders', ordersRouter);
 app.use('/pickup_parties', pickupPartiesRouter);
