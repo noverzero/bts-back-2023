@@ -12,15 +12,10 @@ var usersRouter = require('./routes/users');
 var discountCodesRouter = require('./routes/discount_codes');
 var ordersRouter = require('./routes/orders');
 var pickupPartiesRouter = require('./routes/pickup_parties');
-var apiCalls = require('./apiCalls')
+var eventDataHandler = require('./eventDataHandler')
 var app = express();
 
 
-// cron.schedule('59 * * * * *', () => {
-  console.log('Ping!')
-  apiCalls.pingSongKick()
-  
-// })
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -40,5 +35,11 @@ app.use('/users', usersRouter);
 app.use('/discount_codes', discountCodesRouter);
 app.use('/orders', ordersRouter);
 app.use('/pickup_parties', pickupPartiesRouter);
+
+cron.schedule('10 * * * * *', async () => {
+  console.log('Cron!')
+  const allShowsObj = await eventDataHandler.getApiData()
+  eventDataHandler.insertEventData(allShowsObj)
+})
 
 module.exports = app;
