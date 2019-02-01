@@ -36,7 +36,7 @@ app.use('/discount_codes', discountCodesRouter);
 app.use('/orders', ordersRouter);
 app.use('/pickup_parties', pickupPartiesRouter);
 
-cron.schedule('10 * * * * *', async () => {
+cron.schedule('30 * * * * *', async () => {
   console.log('Cron!')
   const allShowsObj = await eventDataHandler.getApiData()
   eventDataHandler.insertEventData(allShowsObj)

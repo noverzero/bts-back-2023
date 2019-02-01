@@ -81,9 +81,7 @@ const getApiData = async () => {
         support2: support2,
         support3: support3,
         headlinerImgLink: 'headlinerImg',
-        headlinerBio: '',
-        meetsCriteria: true,
-        isDenied: false
+        headlinerBio: ''
       }
     })
   } catch (err) {
@@ -108,13 +106,23 @@ console.log('combine')
 
 const insertEventData = (allShowsObj) => {
   console.log('insert!')
-  
-  console.log(allShowsObj.filter(show=> show.startTime === null))
+// pull event id's from the table, compare all current id's to all id's in allShowsObj, 
+// filter out objects where the id already exists in db
   knex('events')
-  .insert(allShowsObj)
-  .returning(['id', 'date', 'startTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied'])
-  .then(data=>console.log('done!',data))
-}
+    .select('id')
+    .returning('id')
+    .then(result=>{
+      result = result.map(elem => elem.id)
+      let newShowsArr = allShowsObj.filter(show=>{
+        if (!result.includes(show.id)) {
+          return show
+        }
+      })
 
+      knex('events')
+        .insert(newShowsArr)
+        .returning('*').then(result=>console.log('inserted:',result))
+      })
+}
 
 module.exports = {getApiData, insertEventData}
