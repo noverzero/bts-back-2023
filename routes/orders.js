@@ -8,7 +8,7 @@ const knex = require('../knex.js')
 //List (get all of the resource)
 router.get('/', function(req, res, next){
 knex('orders')
-.select('id', 'pickupLocationId', 'eventId', 'reservationId', 'reservationWillCallName', 'discountCodeId', 'status')
+.select('id', 'orderedByFirstName', 'orderedByLastName', 'orderedByEmail')
 .then((data) => {
 res.status(200).json(data)
   })
@@ -18,7 +18,7 @@ res.status(200).json(data)
 // Get One
 router.get('/:id', function(req, res, next){
 knex('orders')
-.select('id', 'pickupLocationId', 'eventId', 'reservationId', 'reservationWillCallName', 'discountCodeId', 'status')
+.select('id', 'orderedByFirstName', 'orderedByLastName', 'orderedByEmail')
 .where('id', req.params.id)
 .then((data) => {
   res.status(200).json(data[0])
@@ -30,7 +30,7 @@ router.post('/', function(req, res, next){
 // use req.body
 knex('orders')
 .insert(req.body)
-.returning(['id', 'pickupLocationId', 'eventId', 'reservationId', 'reservationWillCallName', 'discountCodeId', 'status'])
+.returning(['id', 'orderedByFirstName', 'orderedByLastName', 'orderedByEmail'])
 .then((data) => {
   res.status(200).json(data[0])
 })
@@ -40,7 +40,7 @@ router.patch('/:id', function(req, res, next){
 knex('orders')
 .where('id', req.params.id)
 .update(req.body)
-.returning(['id', 'pickupLocationId', 'eventId', 'reservationId', 'reservationWillCallName', 'discountCodeId', 'status'])
+.returning(['id', 'orderedByFirstName', 'orderedByLastName', 'orderedByEmail'])
 .then((data) => {
   res.status(200).json(data[0])
 })
@@ -51,7 +51,7 @@ router.delete('/:id', function(req, res, next){
 knex('orders')
 .where('id', req.params.id)
 .del('*')
-.returning(['id', 'pickupLocationId', 'eventId', 'reservationId', 'reservationWillCallName', 'discountCodeId', 'status'])
+.returning(['id', 'orderedByFirstName', 'orderedByLastName', 'orderedByEmail'])
 .then((data) => {
   res.status(200).json(data[0])
 })
