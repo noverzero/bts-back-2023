@@ -38,7 +38,7 @@ app.use('/pickup_parties', pickupPartiesRouter);
 
 let time = new Date()
 
-cron.schedule('* 1 * * * *', async () => {
+cron.schedule('* 24 * * * *', async () => {
   console.log('Cron!', time.getMinutes())
   const allShowsObj = await eventDataHandler.getApiData()
   eventDataHandler.insertEventData(allShowsObj)
