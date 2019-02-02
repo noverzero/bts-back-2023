@@ -8,7 +8,7 @@ const knex = require('../knex.js')
 //List (get all of the resource)
 router.get('/', function(req, res, next){
 knex('pickup_parties')
-.select('id', 'pickupLocationId', 'eventId', 'eventDate', 'eventVenue', 'lastBusDeparts', 'orderId', 'ordersReservationId', 'ordersWillCallName', 'checkedInPasscode', 'sold', 'capacity')
+.select('id', 'eventId', 'pickupLocationId', 'inCart', 'capacity')
 .then((data) => {
 res.status(200).json(data)
   })
@@ -18,7 +18,7 @@ res.status(200).json(data)
 // Get One
 router.get('/:id', function(req, res, next){
 knex('pickup_parties')
-.select('id', 'pickupLocationId', 'eventId', 'eventDate', 'eventVenue', 'lastBusDeparts', 'orderId', 'ordersReservationId', 'ordersWillCallName', 'checkedInPasscode', 'sold', 'capacity')
+.select('id', 'eventId', 'pickupLocationId', 'inCart', 'capacity')
 .where('id', req.params.id)
 .then((data) => {
   res.status(200).json(data[0])
@@ -30,7 +30,7 @@ router.post('/', function(req, res, next){
 // use req.body
 knex('pickup_parties')
 .insert(req.body)
-.returning(['id', 'pickupLocationId', 'eventId', 'eventDate', 'eventVenue', 'lastBusDeparts', 'orderId', 'ordersReservationId', 'ordersWillCallName', 'checkedInPasscode', 'sold', 'capacity'])
+.returning(['id', 'eventId', 'pickupLocationId', 'inCart', 'capacity'])
 .then((data) => {
   res.status(200).json(data[0])
 })
@@ -61,7 +61,7 @@ router.delete('/:id', function(req, res, next){
 knex('pickup_parties')
 .where('id', req.params.id)
 .del('*')
-.returning(['id', 'pickupLocationId', 'eventId', 'eventDate', 'eventVenue', 'lastBusDeparts', 'orderId', 'ordersReservationId', 'ordersWillCallName', 'checkedInPasscode', 'sold', 'capacity'])
+.returning(['id', 'eventId', 'pickupLocationId', 'inCart', 'capacity'])
 .then((data) => {
   res.status(200).json(data[0])
 })
