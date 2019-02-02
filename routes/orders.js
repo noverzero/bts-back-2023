@@ -114,44 +114,44 @@ knex('orders')
 })
 
 
-// router.post("/charge", async (req, res) => {
-//   try {
-//     // stripe.customers.create(JSON.stringify({
-//     //   email: req.body.stripeEmail,
-//     //   source: token
-//     // })).then(customer => {
-//       // return
-//       stripe.charges.create({
-//         amount: req.body.totalCost,
-//         currency: "usd",
-//         description: "An example charge",
-//         source: token
-//       })
-//     // })
-//     .then(status => {
-//       res.json({
-//         ...status
-//       })
-//     })
-//   } catch (err) {
-//     res.status(500).end();
-//   }
-// });
-
-router.post('/charge', async(req, res) => {
-  const amount = 2500;
-  console.log(req.body)
-  stripe.customers.create({
-    email: req.body.stripeEmail,
-    source: req.body.stripeToken
-  })
-  .then(customer => stripe.charges.create({
-    amount,
-    description: 'example charge',
-    currency: 'usd',
-    customer: customer.id
-  }))
-  .then(charge => res.json(charge));
+router.post("/charge", async (req, res) => {
+  try {
+    stripe.customers.create(JSON.stringify({
+      email: req.body.stripeEmail,
+      source: token
+    })).then(customer => {
+      return
+      stripe.charges.create({
+        amount: req.body.totalCost,
+        currency: "usd",
+        description: "You bought tickets to a thing",
+        source: token
+      })
+    })
+    .then(status => {
+      res.json({
+        ...status
+      })
+    })
+  } catch (err) {
+    res.status(500).end();
+  }
 });
+
+// router.post('/charge', async(req, res) => {
+//   const amount = 2500;
+//   console.log(req.body)
+//   stripe.customers.create({
+//     email: req.body.stripeEmail,
+//     source: req.body.stripeToken
+//   })
+//   .then(customer => stripe.charges.create({
+//     amount,
+//     description: 'example charge',
+//     currency: 'usd',
+//     customer: customer.id
+//   }))
+//   .then(charge => res.json(charge));
+// });
 
 module.exports = router;
