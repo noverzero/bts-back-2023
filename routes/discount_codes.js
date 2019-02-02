@@ -86,46 +86,87 @@ knex('discount_codes')
 //   res.status(200).json(data[0])
 // })
 // })
-
-
 //
 
 router.patch('/:discountCode', function(req, res, next){
   let discountCode = req.params.discountCode
+  let totalPrice = req.body.totalPrice
+  let ticketQuantity = req.body.ticketQuantity
+  console.log('wreq.body', req.body)
 knex('discount_codes')
 .join('discount_codes_events', 'discount_codes.id', 'discount_codes_events.discountCodeId')
 .join('events', 'discount_codes_events.eventsId', 'events.id')
 .select('*')
 .where('discountCode', discountCode)
-.then((match) => {
+.then((match, x) => {
   if(!match){
     next({status:400, message: 'Code not found.'})
   }
-
-  let chicken = []
-  match.forEach( (matchElement, i) => {
-    let isExpired
-    if(matchElement.expiresOn.toLocaleString('en-US') < new Date().toLocaleString('en-US', {timeZone: 'America/Denver'})){
-      return "this code has expired"
+  console.log('inside .then', totalPrice)
+  let codeDetails = []
+  match.forEach( (matchElement) => {
+    let isExpired = true
+    if(matchElement.expiresOn.toLocaleString('en-US') > new Date().toLocaleString('en-US', {timeZone: 'America/Denver'})){
+      codeDetails.push('expired')
+      return
     }
      let newObject={}
       newObject.percentage=matchElement.percentage
       newObject.remainingUses=matchElement.remainingUses
-
-      chicken.push(newObject)
-
+      codeDetails.push(newObject)
   })
+  console.log('codeDetailsArray:::', codeDetails)
 
-console.log('chicken:::::', chicken)
+  codeDetails.forEach((codeDetail, i) => {
+    let priceWithoutFees = totalPrice * 10 / 11
+    //check to see if code is expired
+    if(codeDetail === "expired"){
+      return
+    }
+    let currentUses = 0
+    if (ticketQuantity>=codeDetail.remainingUses) {
+        currentUses=codeDetail.remainingUses
+        }
+    else if(ticketQuantity<codeDetail.remainingUses){
+        currentUses=cartQuantity
+        }
+    let quantityWithDiscount=currentUses
+    let quantityWithoutDiscount=ticketQuantity-codeDetail.remainingUses
+    let effectiveRate=(100 - codeDetail.percentage)/100
+    let totalPriceWithoutDiscountsAndFees=priceWithoutFees
+    let nonDiscountedPricePerTicket=totalPriceWithoutDiscountsAndFees/ticketQuantity
+    let discountedPricePerTicket=nonDiscountedPricePerTicket*effectiveRate
+    let totalPriceWithDiscount=quantityWithDiscount*discountedPricePerTicket
+    let totalPriceWithoutDiscount=quantityWithoutDiscount*nonDiscountedPricePerTicket
+    let cumulativeFinalPrice=totalPriceWithDiscount+totalPriceWithoutDiscount
+    return cummulativeFinalPrice
+    //console.log('cumulativeFinalPrice', cumulativeFinalPrice)
+    // console.log('quantityWithDiscount', quantityWithDiscount)
+    // console.log('quantityWithoutDiscount', quantityWithoutDiscount)
+    // // console.log('perTicketWithoutFeesWithoutDiscount', perTicketWithoutFeesWithoutDiscount)
+    // console.log('priceWithDiscountPerTicket', priceWithDiscountPerTicket)
+    // console.log('currentUses', currentUses)
+    // console.log('priceWithoutFees', priceWithoutFees)
+
+})
+console.log('codeDetails:::::', codeDetails)
+console.log("total price:::", totalPrice)
+
 
 
 
 })
+.then((currentUses) => {
+  knex('discount_codes')
+  .decrement('remainingUses', currentUses)
+  .returning(['remainingUses'])
+//})
 // .update(req.body)
 // .returning(['id', 'discountCode', 'percentage', 'expiresOn', 'issuedOn', 'issuedTo', 'issuedBy', 'issuedBecause', 'timesUsed', 'type', 'remainingUses', 'usesPerEvent'])
-// .then((data) => {
-//   res.status(200).json(data[0])
-// })
+.then((data) => {
+  res.status(200).json(data[0])
+})
+})
 })
 
 //Delete (delete one of the resource)
