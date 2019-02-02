@@ -87,20 +87,7 @@ knex('orders')
   })
 })
 
-
-
-
-
-
-
-
-
-
 })
-
-
-
-
 
 
 
@@ -162,7 +149,9 @@ router.post('/charge', async(req, res) => {
     currency: 'usd',
     customer: customer.id
   }))
-  .then(charge => res.json(charge));
+  .then(charge => {console.log(res) 
+    return res.json(charge)}
+  );
 });
 
 module.exports = router;
