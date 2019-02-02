@@ -1,3 +1,11 @@
+
+if (process.env.NODE_ENV !== 'production'){
+  require('dotenv').load();
+}
+
+var stripeSecretKey = process.env.STRIPE_SECRETKEY;
+var stripePublicKey = process.env.STRIPE_PUBLICKEY;
+var stripe = require('stripe')(stripeSecretKey);
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -42,10 +50,16 @@ app.use('/reservations', reservationsRouter);
 
 let time = new Date()
 
+
+app.use(function(req, res) {
+  res.status(404).send('Not Found');
+});
+
 cron.schedule('* 24 * * * *', async () => {
   console.log('Cron!', time.getMinutes())
   const allShowsObj = await eventDataHandler.getApiData()
   eventDataHandler.insertEventData(allShowsObj)
 })
+
 
 module.exports = app;
