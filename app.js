@@ -57,6 +57,7 @@ app.use(function(req, res) {
 
 apiDataFunction = async () => {
   const allShowsObj = await eventDataHandler.getApiData()
+  console.log(allShowsObj[0])
   eventDataHandler.insertEventData(allShowsObj)
 }
 

@@ -6,7 +6,7 @@ exports.seed = function(knex, Promise) {
       // Inserts seed entries
       return knex('events').insert([
         { id: 1,
-          dateTime: '',
+          dateTime: '18:00:00',
           venue: '',
           headliner: '',
           support1: '',
