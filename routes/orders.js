@@ -129,11 +129,11 @@ knex('orders')
 
 // router.post("/charge", async (req, res) => {
 //   try {
-//     // stripe.customers.create(JSON.stringify({
-//     //   email: req.body.stripeEmail,
-//     //   source: token
-//     // })).then(customer => {
-//       // return
+//     stripe.customers.create(JSON.stringify({
+//       email: req.body.stripeEmail,
+//       source: token
+//     })).then(customer => {
+//       return
 //       stripe.charges.create({
 //         amount: req.body.totalCost,
 //         currency: "usd",
@@ -146,20 +146,18 @@ knex('orders')
 //         ...status
 //       })
 //     })
-//   } catch (err) {
+//   }).catch (err) =>{
 //     res.status(500).end();
 //   }
 // });
 
 router.post('/charge', async(req, res) => {
-  const amount = 2500;
-  console.log(req.body)
   stripe.customers.create({
     email: req.body.stripeEmail,
-    source: req.body.stripeToken
+    source: req.body.stripeToken.id,
   })
   .then(customer => stripe.charges.create({
-    amount,
+    amount: req.body.amount,
     description: 'example charge',
     currency: 'usd',
     customer: customer.id
