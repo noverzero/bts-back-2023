@@ -27,11 +27,15 @@ knex('orders')
 
 //POST ROUTE ORDERS
 router.post('/', function(req, res, next){
-const {pickupLocationId, eventId, firstName, lastName, willCallFirstName, willCallLastName, email, orderId, pickupPartiesId, discountCodeId, status, ticketQuantity, totalPrice, discountCode}= req.body
-let newPickupPartyId
+// use req.body
+const {pickupLocationId, eventId, firstName, lastName, willCallFirstName, willCallLastName, email, orderId, pickupPartiesId, discountCodeId, status, ticketQuantity, totalPrice}= req.body
+// const insertOrder={firstName, lastName, email}
+// const insertReservation={orderId, pickupPartiesId, willCallFirstName, willCallLastName, status, discountCodeId }
+let currentPickupPartyId
 let newOrderId
-const currentEventId=req.body.eventId
-let userDiscountCode=req.body.discountCode
+let currentDiscountCode
+
+const currentEventId=Number.parseInt(req.body.eventId)
 if(!firstName || !lastName || !email){
     return next({ status: 400, message: 'Please include first name, last name, and email!'})
 }
@@ -42,59 +46,42 @@ knex('orders')
   orderedByEmail: email
 })
 .returning(['id', 'orderedByFirstName', 'orderedByLastName', 'orderedByEmail'])
-.then((newOrder) => {
-  // res.status(200).json(newOrder[0])
-  newOrderId=newOrder[0].id
-  // console.log(newOrder)
-  return newOrderId
-})
-.then((newOrderId)=>{
-  console.log('NEWORDERID', newOrderId)
+.then((data) => {
+  res.status(200).json(data[0])
+  newOrderId=data[0].id
   knex ('pickup_parties')
-  .where({
+  .insert({
     eventId: eventId,
     pickupLocationId: pickupLocationId,
+    inCart: ticketQuantity
   })
-  .decrement("capacity", ticketQuantity)
   .returning(['id', 'eventId', 'pickupLocationId', 'inCart', 'capacity'])
-  .then((newPickupParty)=>{
-    console.log("NEWPICKUPPARTY", newPickupParty[0])
-    newPickupPartyId=newPickupParty[0].id
-    console.log('NEWPICKPUPARTYID', newPickupPartyId)
-    let newObject=[newOrderId, newPickupPartyId]
-
-    console.log("newobject", newObject)
-    return (newObject)
-  })
-.then((newObject)=>{
-    knex('reservations')
-    .insert({
-      orderId: newObject[0],
-      pickupPartiesId: newObject[1],
-      willCallFirstName: req.body.willCallFirstName,
-      willCallLastName: req.body.willCallLastName,
-      // status:,
-      discountCodeId: userDiscountCode
+  .then((data)=>{
+    res.status(200).json(data[0])
+    currentPickupPartyId=data[0].id
+    knex('discount_codes_events')
+    .where('currentEventId', eventsId)
+    .then((data)=>{
+      currentDiscountCode=data[0].discountCodeId
+      knex('reservations')
+      .insert({
+        orderId: newOrderId,
+        pickupPartiesId: currentPickupPartyId,
+        willCallFirstName: req.body.willCallFirstName,
+        willCallLastName: req.body.willCallLastName,
+        // status:,
+        discountCodeId: currentDiscountCode
+        })
+      .returning(['id', 'pickupPartiesId', 'willCallFirstName', 'willCallLastName', 'status', 'discountCodeId'])
+      .then((data)=>{
+        res.status(200).json(data[0])
+        
       })
-    .returning(['id', 'pickupPartiesId', 'willCallFirstName', 'willCallLastName', 'status', 'discountCodeId'])
-    .then((newReservation)=>{
-      res.status(200).json(newReservation[0])
-      console.log(newReservation)
     })
   })
 })
 
-
-
-
-
-
-
-
-
-
 })
-
 
 
 

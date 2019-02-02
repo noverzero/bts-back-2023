@@ -5,16 +5,17 @@ var logger = require('morgan');
 var dotenv = require('dotenv').config()
 var cron = require('node-cron')
 
-//var indexRouter = require('./routes/index');
-var eventsRouter = require('./routes/events');
-var pickupLocationsRouter = require('./routes/pickup_locations');
-var usersRouter = require('./routes/users');
+// var usersRouter = require('./routes/users');
+var discountCodesEventsRouter = require('./routes/discount_codes_events')
 var discountCodesRouter = require('./routes/discount_codes');
+var eventsRouter = require('./routes/events');
 var ordersRouter = require('./routes/orders');
+var pickupLocationsRouter = require('./routes/pickup_locations');
 var pickupPartiesRouter = require('./routes/pickup_parties');
 var eventDataHandler = require('./eventDataHandler')
 var app = express();
 
+var reservationsRouter = require('./routes/reservations')
 
 
 app.use(function(req, res, next) {
@@ -29,12 +30,15 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/events', eventsRouter);
-app.use('/pickup_locations', pickupLocationsRouter);
-app.use('/users', usersRouter);
+// app.use('/users', usersRouter);
+app.use('/discount_codes_events', discountCodesEventsRouter);
 app.use('/discount_codes', discountCodesRouter);
+app.use('/events', eventsRouter);
 app.use('/orders', ordersRouter);
+app.use('/pickup_locations', pickupLocationsRouter);
 app.use('/pickup_parties', pickupPartiesRouter);
+app.use('/reservations', reservationsRouter);
+
 
 let time = new Date()
 

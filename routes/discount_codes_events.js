@@ -5,10 +5,11 @@ const router = express.Router();
 const knex = require('../knex.js')
 
 
+
 //List (get all of the resource)
 router.get('/', function(req, res, next){
-knex('events')
-.select('id', 'dateTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied')
+knex('discount_codes_events')
+.select('id', 'eventsId', 'discountCodeId')
 .then((data) => {
 res.status(200).json(data)
   })
@@ -17,8 +18,8 @@ res.status(200).json(data)
 //Read (get one of the resource)
 // Get One
 router.get('/:id', function(req, res, next){
-knex('events')
-.select('id', 'dateTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied')
+knex('discount_codes_events')
+.select('id', 'eventsId', 'discountCodeId')
 .where('id', req.params.id)
 .then((data) => {
   res.status(200).json(data[0])
@@ -28,19 +29,19 @@ knex('events')
 //Create (create one of the resource)
 router.post('/', function(req, res, next){
 // use req.body
-knex('events')
+knex('discount_codes_events')
 .insert(req.body)
-.returning(['id', 'dateTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied'])
+.returning(['id', 'eventsId', 'discountCodeId'])
 .then((data) => {
   res.status(200).json(data[0])
 })
 })
 
 router.patch('/:id', function(req, res, next){
-knex('events')
+knex('discount_codes_events')
 .where('id', req.params.id)
 .update(req.body)
-.returning(['id', 'dateTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied'])
+.returning(['id', 'eventsId', 'discountCodeId'])
 .then((data) => {
   res.status(200).json(data[0])
 })
@@ -48,10 +49,10 @@ knex('events')
 
 //Delete (delete one of the resource)
 router.delete('/:id', function(req, res, next){
-knex('users')
+knex('discount_codes_events')
 .where('id', req.params.id)
 .del('*')
-.returning(['id', 'dateTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied'])
+.returning(['id', 'eventsId', 'discountCodeId'])
 .then((data) => {
   res.status(200).json(data[0])
 })
