@@ -55,10 +55,16 @@ app.use(function(req, res) {
   res.status(404).send('Not Found');
 });
 
-cron.schedule('* 24 * * * *', async () => {
-  console.log('Cron!', time.getMinutes())
+apiDataFunction = async () => {
   const allShowsObj = await eventDataHandler.getApiData()
   eventDataHandler.insertEventData(allShowsObj)
+}
+
+apiDataFunction()
+
+cron.schedule('* 24 * * * *', async () => {
+  console.log('Cron!', time.getMinutes())
+  apiDataFunction()
 })
 
 
