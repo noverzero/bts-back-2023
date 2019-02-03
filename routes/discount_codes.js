@@ -98,7 +98,7 @@ knex('discount_codes')
 .join('events', 'discount_codes_events.eventsId', 'events.id')
 .select('*')
 .where('discountCode', discountCode)
-.then((match, x) => {
+.then((match) => {
   if(!match){
     next({status:400, message: 'Code not found.'})
   }
@@ -117,7 +117,7 @@ knex('discount_codes')
   })
   console.log('codeDetailsArray:::', codeDetails)
 
-  codeDetails.forEach((codeDetail, i) => {
+  codeDetails.forEach((codeDetail) => {
     let priceWithoutFees = totalPrice * 10 / 11
     //check to see if code is expired
     if(codeDetail === "expired"){
@@ -149,6 +149,7 @@ knex('discount_codes')
     // console.log('priceWithoutFees', priceWithoutFees)
 
 })
+console.log('boooooo', cumulativeFinalPrice)
 console.log('codeDetails:::::', codeDetails)
 console.log("total price:::", totalPrice)
 
