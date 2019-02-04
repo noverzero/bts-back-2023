@@ -8,7 +8,7 @@ const knex = require('../knex.js')
 //List (get all of the resource)
 router.get('/', function(req, res, next){
 knex('events')
-.select('id', 'dateTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied')
+.select('id', 'date', 'startTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied')
 .then((data) => {
 res.status(200).json(data)
   })
@@ -18,7 +18,7 @@ res.status(200).json(data)
 // Get One
 router.get('/:id', function(req, res, next){
 knex('events')
-.select('id', 'dateTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied')
+.select('id', 'date', 'startTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied')
 .where('id', req.params.id)
 .then((data) => {
   res.status(200).json(data[0])
@@ -30,7 +30,7 @@ router.post('/', function(req, res, next){
 // use req.body
 knex('events')
 .insert(req.body)
-.returning(['id', 'dateTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied'])
+.returning(['id', 'date', 'startTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied'])
 .then((data) => {
   res.status(200).json(data[0])
 })
@@ -40,7 +40,7 @@ router.patch('/:id', function(req, res, next){
 knex('events')
 .where('id', req.params.id)
 .update(req.body)
-.returning(['id', 'dateTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied'])
+.returning(['id', 'date', 'startTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied'])
 .then((data) => {
   res.status(200).json(data[0])
 })
@@ -51,7 +51,7 @@ router.delete('/:id', function(req, res, next){
 knex('users')
 .where('id', req.params.id)
 .del('*')
-.returning(['id', 'dateTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied'])
+.returning(['id', 'date', 'startTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied'])
 .then((data) => {
   res.status(200).json(data[0])
 })

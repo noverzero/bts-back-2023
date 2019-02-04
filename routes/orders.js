@@ -3,15 +3,18 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('../knex.js')
+var stripeSecretKey = process.env.STRIPE_SECRETKEY;
+var stripePublicKey = process.env.STRIPE_PUBLICKEY;
+const stripe = require('stripe')(stripeSecretKey);
 
 
 //List (get all of the resource)
-router.get('/', function(req, res, next){
-knex('orders')
-.select('id', 'orderedByFirstName', 'orderedByLastName', 'orderedByEmail')
-.then((data) => {
-res.status(200).json(data)
-  })
+router.get('/', function (req, res, next) {
+  knex('orders')
+    .select('id', 'pickupLocationId', 'eventId', 'reservationId', 'reservationWillCallName', 'discountCodeId', 'status')
+    .then((data) => {
+      res.status(200).json(data)
+    })
 })
 
 //Read (get one of the resource)
@@ -27,7 +30,7 @@ knex('orders')
 
 //POST ROUTE ORDERS
 router.post('/', function(req, res, next){
-const {pickupLocationId, eventId, firstName, lastName, willCallFirstName, willCallLastName, email, orderId, pickupPartiesId, discountCodeId, status, ticketQuantity, totalPrice, discountCode}= req.body
+const {pickupLocationId, eventId, firstName, lastName, willCallFirstName, willCallLastName, email, ticketQuantity, discountCode}= req.body
 let newPickupPartyId
 let newOrderId
 const currentEventId=req.body.eventId
@@ -36,6 +39,8 @@ let userDiscountCode=req.body.discountCode
 if(!firstName || !lastName || !email){
     return next({ status: 400, message: 'Please include first name, last name, and email!'})
 }
+console.log('req.body', req.body)
+console.log('\n',pickupLocationId, eventId, firstName, lastName, willCallFirstName, willCallLastName, email, ticketQuantity, discountCode)
 knex('orders')
 .insert({
   orderedByFirstName: firstName,
@@ -86,20 +91,7 @@ knex('orders')
   })
 })
 
-
-
-
-
-
-
-
-
-
 })
-
-
-
-
 
 
 
@@ -124,4 +116,46 @@ knex('orders')
   res.status(200).json(data[0])
 })
 })
+
+
+// router.post("/charge", async (req, res) => {
+//   try {
+//     stripe.customers.create(JSON.stringify({
+//       email: req.body.stripeEmail,
+//       source: token
+//     })).then(customer => {
+//       return
+//       stripe.charges.create({
+//         amount: req.body.totalCost,
+//         currency: "usd",
+//         description: "An example charge",
+//         source: token
+//       })
+//     // })
+//     .then(status => {
+//       res.json({
+//         ...status
+//       })
+//     })
+//   }).catch (err) =>{
+//     res.status(500).end();
+//   }
+// });
+
+router.post('/charge', async(req, res) => {
+  stripe.customers.create({
+    email: req.body.stripeEmail,
+    source: req.body.stripeToken.id,
+  })
+  .then(customer => stripe.charges.create({
+    amount: req.body.amount,
+    description: 'example charge',
+    currency: 'usd',
+    customer: customer.id
+  }))
+  .then(charge => {console.log(res) 
+    return res.json(charge)}
+  );
+});
+
 module.exports = router;

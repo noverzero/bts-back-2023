@@ -40,7 +40,18 @@ router.patch('/:id', function(req, res, next){
 knex('pickup_parties')
 .where('id', req.params.id)
 .update(req.body)
-.returning(['id', 'eventId', 'pickupLocationId', 'inCart', 'capacity'])
+.returning(['id', 'pickupLocationId', 'eventId', 'eventDate', 'eventVenue', 'lastBusDeparts', 'orderId', 'ordersReservationId', 'ordersWillCallName', 'checkedInPasscode', 'sold', 'capacity', 'inCart'])
+.then((data) => {
+  res.status(200).json(data[0])
+})
+})
+
+router.patch('/', function(req, res, next){
+console.log(req.body)
+knex('pickup_parties')
+.where({'pickupLocationId': req.body.pickupLocationId, 'eventId': req.body.eventId})
+.increment('inCart', req.body.ticketQuantity)
+.returning(['id', 'pickupLocationId', 'eventId', 'eventDate', 'eventVenue', 'lastBusDeparts', 'orderId', 'ordersReservationId', 'ordersWillCallName', 'checkedInPasscode', 'sold', 'capacity', 'inCart'])
 .then((data) => {
   res.status(200).json(data[0])
 })
@@ -56,4 +67,6 @@ knex('pickup_parties')
   res.status(200).json(data[0])
 })
 })
+
+
 module.exports = router;
