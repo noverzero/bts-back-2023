@@ -35,6 +35,7 @@ let newPickupPartyId
 let newOrderId
 const currentEventId=req.body.eventId
 let userDiscountCode=req.body.discountCode
+//if(!userDiscountCode){} IF USER DOESN'T ENTER DISCOUNT CODE, PROCEED
 if(!firstName || !lastName || !email){
     return next({ status: 400, message: 'Please include first name, last name, and email!'})
 }
@@ -50,7 +51,7 @@ knex('orders')
 .then((newOrder) => {
   // res.status(200).json(newOrder[0])
   newOrderId=newOrder[0].id
-  // console.log(newOrder)
+  console.log("NEWORDER",newOrder)
   return newOrderId
 })
 .then((newOrderId)=>{
@@ -64,6 +65,7 @@ knex('orders')
   .returning(['id', 'eventId', 'pickupLocationId', 'inCart', 'capacity'])
   .then((newPickupParty)=>{
     console.log("NEWPICKUPPARTY", newPickupParty)
+
     newPickupPartyId=newPickupParty[0].id
     console.log('NEWPICKPUPARTYID', newPickupPartyId)
     let newObject=[newOrderId, newPickupPartyId]

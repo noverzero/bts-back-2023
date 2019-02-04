@@ -47,9 +47,29 @@ router.patch('/return/:id', function(req, res, next){
     .select('*')
     .first()
     .then((match) => {
-      console.log('heydy')
+
+      let currentRemainingUses=match.remainingUses
+      let timesUsed=req.body.timesUsed
+      // let ticketsForfeited=req.body.ticketQuantity
+      // console.log("tickets forfeited:::",ticketsForfeited)
+      console.log("timesUsed",timesUsed)
+      console.log("current remaining uses:::",currentRemainingUses)
+      knex('discount_codes')
+      .where('id', id)
+      .increment('remainingUses', timesUsed)
+      .then(data=>{
+        res.status(200).json(data)
+        console.log(data)
+      })
+      })
+      .catch(error=>{
+
+        return res.status(500).json({message: 'internal server error, discount code:Patch'})
+        // console.error(error)
+      })
     })
-})
+
+
 
 //check user entered discount code against database then return code id, new price, and remaining uses.
 router.patch('/:discountCode', function(req, res, next) {
