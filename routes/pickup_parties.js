@@ -36,6 +36,20 @@ knex('pickup_parties')
 })
 })
 
+router.post('/findId', function(req, res, next){
+// use req.body
+knex('pickup_parties')
+.select('*')
+.where({'eventId': req.body.eventId, 'pickupLocationId':req.body.pickupLocationId})
+.then((data) => {
+  if(data[0]){
+  res.status(200).json(data[0])
+} else {
+  res.status(404).send("Pickup Party does not exist")
+}
+})
+})
+
 router.patch('/:id', function(req, res, next){
 knex('pickup_parties')
 .where('id', req.params.id)

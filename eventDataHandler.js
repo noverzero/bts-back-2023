@@ -5,7 +5,8 @@ const knex = require('./knex.js')
 const pingLastFm = (artistsObj) => {
     // console.log('lastfm')
     const headlinerInfo = artistsObj.map((artist) => {
-    const lastFmApi = encodeURI(`http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${artist}&autocorrect=1&api_key=bb5f39887cc93aa41c362ba1b8bbaccd&format=json`) //encodeURI allows for UTF-8 conversion of special letters in band name
+    const lastFmApi = encodeURI(`http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${artist}&autocorrect=1&api_key=bb5f39887cc93aa41c362ba1b8bbaccd&format=json`) 
+    //encodeURI allows for UTF-8 conversion of special letters in band name
     
     return axios.get(lastFmApi)
     .then(data=>{
@@ -131,6 +132,36 @@ const insertEventData = (allShowsObj) => {
 
 const addPickupParties = (newShowsIdArr) => {
   let newPickupParties = []
+  // let times = {
+  //   id:1,
+  //   locationName: ‘UNIV. HILL CHEBA HUT’,
+  //   last bus depart Time = Show Start Time -  1.5 hours.
+    
+  //   id:2,
+  //   locationName: ‘DU ILLEGAL PETE’S’,
+  //   last bus depart Time = Show Start Time -  2 hours.
+    
+  //   id:3,
+  //   locationName: ‘COLFAX CAP HILL CHEBA HUT’,
+  //   last bus depart Time = Show Start Time -  1.5 hours.
+    
+  //   id:4,
+  //   locationName: ‘CHAMPA DOWNTOWN CHEBA HUT’
+  //   last bus depart Time = Show Start Time -  1.5 hours.
+    
+  //   id:5,
+  //   locationName: ‘RiNo EPIC BREWING’,
+  //   last bus depart Time = Show Start Time -  1.25hours.
+    
+  //   id:6,
+  //   locationName: ‘MAIN ST. CHEBA HUT’,
+  //   last bus depart Time = Show Start Time -  1.5 hours.
+    
+  //   id:7,
+  //   locationName: ‘OLD TOWN ILLEGAL PETE’S’,
+  //   last bus depart Time = Show Start Time -  3.5 hours.
+  // }
+
   newShowsIdArr.forEach(showId => {
     for (let ii = 1; ii < 8; ii++) {
       newPickupParties.push({
