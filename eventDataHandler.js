@@ -146,4 +146,35 @@ const addPickupParties = (newShowsIdArr) => {
   .returning('*').then(result=>console.log('pickup parties updated'))
 }
 
+// let times = {
+  //   id:1,
+  //   locationName: ‘UNIV. HILL CHEBA HUT’,
+  //   last bus depart Time = Show Start Time -  1.5 hours.
+    
+  //   id:2,
+  //   locationName: ‘DU ILLEGAL PETE’S’,
+  //   last bus depart Time = Show Start Time -  2 hours.
+    
+  //   id:3,
+  //   locationName: ‘COLFAX CAP HILL CHEBA HUT’,
+  //   last bus depart Time = Show Start Time -  1.5 hours.
+    
+  //   id:4,
+  //   locationName: ‘CHAMPA DOWNTOWN CHEBA HUT’
+  //   last bus depart Time = Show Start Time -  1.5 hours.
+    
+  //   id:5,
+  //   locationName: ‘RiNo EPIC BREWING’,
+  //   last bus depart Time = Show Start Time -  1.25hours.
+    
+  //   id:6,
+  //   locationName: ‘MAIN ST. CHEBA HUT’,
+  //   last bus depart Time = Show Start Time -  1.5 hours.
+    
+  //   id:7,
+  //   locationName: ‘OLD TOWN ILLEGAL PETE’S’,
+  //   last bus depart Time = Show Start Time -  3.5 hours.
+  // }
+
+
 module.exports = {getApiData, insertEventData}
