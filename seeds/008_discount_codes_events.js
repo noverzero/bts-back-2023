@@ -29,17 +29,17 @@ exports.seed = (knex) => {
         [
           {
             id:1,
-            eventsId:1,
+            eventsId:2,
             discountCodeId:1
           },
           {
             id:2,
-            eventsId:2,
+            eventsId:3,
             discountCodeId:2
           },
           {
             id:3,
-            eventsId:3,
+            eventsId:4,
             discountCodeId:3
           }
         ]

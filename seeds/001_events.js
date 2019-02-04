@@ -5,7 +5,7 @@ exports.seed = function(knex, Promise) {
     .then(function () {
       // Inserts seed entries
       return knex('events').insert([
-        { id: 1,
+        { id: 2,
           date: '01/01/2020',
           startTime: '18:00:00',
           venue: '',
@@ -16,6 +16,28 @@ exports.seed = function(knex, Promise) {
           headlinerBio: ``,
           headlinerImgLink: ``
         },
+        { id: 3,
+          date: '01/01/2020',
+          startTime: '18:00:00',
+          venue: '',
+          headliner: '',
+          support1: '',
+          support2: '',
+          support3: '',
+          headlinerBio: ``,
+          headlinerImgLink: ``
+        },
+        { id: 4,
+          date: '01/01/2020',
+          startTime: '18:00:00',
+          venue: '',
+          headliner: '',
+          support1: '',
+          support2: '',
+          support3: '',
+          headlinerBio: ``,
+          headlinerImgLink: ``
+        }
       ])
       .then(() => {
         return knex.raw("SELECT setval('events_id_seq', (SELECT MAX(id) FROM events))")

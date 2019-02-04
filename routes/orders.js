@@ -30,7 +30,7 @@ knex('orders')
 
 //POST ROUTE ORDERS
 router.post('/', function(req, res, next){
-const {pickupLocationId, eventId, firstName, lastName, willCallFirstName, willCallLastName, email, orderId, pickupPartiesId, discountCodeId, status, ticketQuantity, totalPrice, discountCode}= req.body
+const {pickupLocationId, eventId, firstName, lastName, willCallFirstName, willCallLastName, email, ticketQuantity, discountCode}= req.body
 let newPickupPartyId
 let newOrderId
 const currentEventId=req.body.eventId
@@ -38,6 +38,8 @@ let userDiscountCode=req.body.discountCode
 if(!firstName || !lastName || !email){
     return next({ status: 400, message: 'Please include first name, last name, and email!'})
 }
+console.log('req.body', req.body)
+console.log('\n',pickupLocationId, eventId, firstName, lastName, willCallFirstName, willCallLastName, email, ticketQuantity, discountCode)
 knex('orders')
 .insert({
   orderedByFirstName: firstName,
