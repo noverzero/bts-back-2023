@@ -57,14 +57,13 @@ app.use(function(req, res) {
 
 apiDataFunction = async () => {
   const allShowsObj = await eventDataHandler.getApiData()
-  console.log(allShowsObj[0])
   eventDataHandler.insertEventData(allShowsObj)
 }
 
 apiDataFunction()
 
 cron.schedule('00 04 * * * *', async () => {
-  console.log('Cron!', time.getMinutes())
+  // console.log('Cron!', time.getMinutes())
   apiDataFunction()
 })
 
