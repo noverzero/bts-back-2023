@@ -64,33 +64,41 @@ router.patch('/:discountCode', function(req, res, next) {
     .where('discountCode', discountCode)
     .first()
     .then((match) => {
-      console.log('totalPrice from req.body inside .then', totalPrice)
+      // console.log('totalPrice from req.body inside .then', totalPrice)
       if (!match) {
-        next({
-          status: 400,
-          message: 'This code is not in our database.'
-        })
+        next(res.status(400).json({message:"code does not exist"}))
+        return
       }
-      if (match.expiresOn.toLocaleString('en-US') > new Date().toLocaleString('en-US', {
+    })
+      else if (match && match.expiresOn.toLocaleString('en-US') < new Date().toLocaleString('en-US', {
           timeZone: 'America/Denver'
         })) {
-        next({
-          status: 400,
-          message: 'This code has expired.'
-        })
+          console.log(match.expiresOn.toLocaleString('en-US'))
+          console.log(new Date().toLocaleString('en-US', {
+              timeZone: 'America/Denver'
+            }))
+            console.log("EXPIRED CODE")
+        next(res.status(400).json({message:"code exists but has expired"}))
       }
-      if (match.remainingUses <= 0) {
-        next({
-          status: 400,
-          message: 'This code is all used up.'
-        })
+      else if ( match &&
+          match.expiresOn.toLocaleString('en-US') < new Date().toLocaleString('en-US', {
+          timeZone: 'America/Denver'}) &&
+          match.remainingUses === 0) {
+            next(res.status(400).json({message:"code exists and has not expired but has 0 remaining uses left"}))
       }
+      else if(match &&
+              match.expiresOn.toLocaleString('en-US') > new Date().toLocaleString('en-US', {
+              timeZone: 'America/Denver'}) &&
+              match.remainingUses>0){
+      let expiry=match.expiresOn.toLocaleString('en-US')
+      let date=new Date().toLocaleString('en-US', {
+      timeZone: 'America/Denver'})
+      console.log(expiry, date)
       let priceWithoutFeesPerTicket = totalPrice * 10 / 11 / ticketQuantity
       console.log('priceWithoutFeesPerTicket', priceWithoutFeesPerTicket)
       let effectiveRate = (100 - match.percentage) / 100
-      let afterDiscountObj = {
-        'ticketQuantity': ticketQuantity
-      }
+      let afterDiscountObj = {}
+      afterDiscountObj.ticketQuantity=ticketQuantity
 
       if (match.remainingUses >= ticketQuantity) {
         afterDiscountObj.timesUsed = ticketQuantity
@@ -109,8 +117,10 @@ router.patch('/:discountCode', function(req, res, next) {
       console.log('afterDiscountObj.newRemainingUses::', afterDiscountObj.newRemainingUses)
       console.log('afterDiscountObj.totalPriceAfterDiscount::', afterDiscountObj.totalPriceAfterDiscount)
       console.log('afterDiscountObj.ticketQuantity::', afterDiscountObj.ticketQuantity)
+    }
     })
     .then((afterDiscountObj) => {
+      console.log("AFTERDISCOUNTOBJET", afterDiscountObj)
       console.log("what's going on in here?", afterDiscountObj)
       knex('discount_codes')
         .select('*')
@@ -127,6 +137,8 @@ router.patch('/:discountCode', function(req, res, next) {
         })
     })
 })
+
+
 
 //Delete (delete one of the resource)
 router.delete('/:id', function(req, res, next) {
