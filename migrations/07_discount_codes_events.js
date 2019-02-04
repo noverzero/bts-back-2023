@@ -5,6 +5,7 @@ exports.up = (knex, Promise) => {
     table.foreign('eventsId').references('events.id')
     table.integer('discountCodeId')
     table.foreign('discountCodeId').references('discount_codes.id')
+    table.integer('usesPerEvent')
   })
 }
 

@@ -61,7 +61,7 @@ apiDataFunction = async () => {
   eventDataHandler.insertEventData(allShowsObj)
 }
 
-apiDataFunction()
+//apiDataFunction()
 
 cron.schedule('00 04 * * * *', async () => {
   console.log('Cron!', time.getMinutes())
