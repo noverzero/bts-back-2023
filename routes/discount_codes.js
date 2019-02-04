@@ -76,14 +76,16 @@ router.patch('/:discountCode', function(req, res, next) {
         'newRemainingUses': match.remainingUses
       }
       console.log('totalPrice from req.body inside .then', totalPrice)
-      if (match.expiresOn.toLocaleString('en-US') > new Date().toLocaleString('en-US', {
+      let expiration = Date.parse(match.expiresOn.toLocaleString('en-US'))
+      let today = Date.parse(new Date().toLocaleString('en-US', {
           timeZone: 'America/Denver'
-        })) {
+        }))
+      if (expiration < today){
           console.log("expired return")
           console.log("coupon expiration date:", match.expiresOn.toLocaleString('en-US'))
           console.log("current date:", new Date().toLocaleString('en-US', {
               timeZone: 'America/Denver'
-            }))
+        }))
 
         return res.status(400).json({message: 'This code has expired.'})
 
@@ -117,10 +119,10 @@ router.patch('/:discountCode', function(req, res, next) {
       // console.log('afterDiscountObj.ticketQuantity::', afterDiscountObj.ticketQuantity)
     })
     .then((afterDiscountObj) => {
-      console.log("what's going on in here?", afterDiscountObj)
-      console.log("afterdiscountobject", afterDiscountObj)
+      //console.log("what's going on in here?", afterDiscountObj)
+      //console.log("afterdiscountobject", afterDiscountObj)
 
-      if(afterDiscountObj.newRemainingUses && afterDiscountObj.totalPriceAfterDiscount && afterDiscountObj.timesUsed  ){
+      if(afterDiscountObj.newRemainingUses || afterDiscountObj.newRemainingUses === 0 && afterDiscountObj.totalPriceAfterDiscount && afterDiscountObj.timesUsed  ){
         knex('discount_codes')
           .select('*')
           .where('discountCode', discountCode)
