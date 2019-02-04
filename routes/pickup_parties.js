@@ -65,7 +65,7 @@ console.log(req.body)
 knex('pickup_parties')
 .where({'pickupLocationId': req.body.pickupLocationId, 'eventId': req.body.eventId})
 .increment('inCart', req.body.ticketQuantity)
-.returning(['id', 'pickupLocationId', 'eventId', 'eventDate', 'eventVenue', 'lastBusDeparts', 'orderId', 'ordersReservationId', 'ordersWillCallName', 'checkedInPasscode', 'sold', 'capacity', 'inCart'])
+.returning('*')
 .then((data) => {
   res.status(200).json(data[0])
 })

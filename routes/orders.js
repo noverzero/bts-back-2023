@@ -34,12 +34,15 @@ const {pickupLocationId, eventId, firstName, lastName, willCallFirstName, willCa
 let newPickupPartyId
 let newOrderId
 const currentEventId=req.body.eventId
-let userDiscountCode=req.body.discountCode
+let userDiscountCode = req.body.discountCode? req.body.discountCode : null
 if(!firstName || !lastName || !email){
-    return next({ status: 400, message: 'Please include first name, last name, and email!'})
+    res.status(404).send('Please include first name, last name, and email!')
+    return null
 }
-// console.log('req.body', req.body)
-// console.log('\n',pickupLocationId, eventId, firstName, lastName, willCallFirstName, willCallLastName, email, ticketQuantity, discountCode)
+if(!pickupLocationId || !eventId || !ticketQuantity){
+    res.status(404).send('Please include pickup location, event, and ticket quantity!')
+    return null
+}
 knex('orders')
 .insert({
   orderedByFirstName: firstName,
@@ -48,13 +51,10 @@ knex('orders')
 })
 .returning(['id', 'orderedByFirstName', 'orderedByLastName', 'orderedByEmail'])
 .then((newOrder) => {
-  // res.status(200).json(newOrder[0])
   newOrderId=newOrder[0].id
-  // console.log(newOrder)
   return newOrderId
 })
 .then((newOrderId)=>{
-  console.log('NEWORDERID', newOrderId)
   knex ('pickup_parties')
   .where({
     eventId: eventId,
@@ -63,30 +63,28 @@ knex('orders')
   .decrement("capacity", ticketQuantity)
   .returning(['id', 'eventId', 'pickupLocationId', 'inCart', 'capacity'])
   .then((newPickupParty)=>{
-    console.log("NEWPICKUPPARTY", newPickupParty)
     newPickupPartyId=newPickupParty[0].id
-    console.log('NEWPICKPUPARTYID', newPickupPartyId)
-    let newObject=[newOrderId, newPickupPartyId]
-
-    console.log("newobject", newObject)
-    return (newObject)
+    let newOrdersArr=[newOrderId, newPickupPartyId]
+    return newOrdersArr
   })
-.then((newObject)=>{
+.then((ordersArr)=>{
+
     knex('reservations')
     .insert({
-      orderId: newObject[0],
-      pickupPartiesId: newObject[1],
+      orderId: ordersArr[0],
+      pickupPartiesId: ordersArr[1],
       willCallFirstName: req.body.willCallFirstName,
       willCallLastName: req.body.willCallLastName,
-      // status:,
       discountCodeId: userDiscountCode
       })
     .returning(['id', 'pickupPartiesId', 'willCallFirstName', 'willCallLastName', 'status', 'discountCodeId'])
     .then((newReservation)=>{
       res.status(200).json(newReservation[0])
-      console.log(newReservation)
     })
   })
+.catch(err=>{
+  res.status(400).json(err)
+})
 })
 
 })
