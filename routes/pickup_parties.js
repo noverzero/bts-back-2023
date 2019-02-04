@@ -47,6 +47,7 @@ knex('pickup_parties')
 })
 
 router.patch('/', function(req, res, next){
+console.log(req.body)
 knex('pickup_parties')
 .where({'pickupLocationId': req.body.pickupLocationId, 'eventId': req.body.eventId})
 .increment('inCart', req.body.ticketQuantity)
