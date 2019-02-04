@@ -54,6 +54,13 @@ exports.seed = (knex) => {
           pickupLocationId:3,
           inCart:6,
           capacity:40,
+        },
+        {
+          id:4,
+          eventId:2,
+          pickupLocationId:2,
+          inCart:4,
+          capacity:30,
         }
 
         ])
