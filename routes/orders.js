@@ -39,8 +39,8 @@ let userDiscountCode=req.body.discountCode
 if(!firstName || !lastName || !email){
     return next({ status: 400, message: 'Please include first name, last name, and email!'})
 }
-console.log('req.body', req.body)
-console.log('\n',pickupLocationId, eventId, firstName, lastName, willCallFirstName, willCallLastName, email, ticketQuantity, discountCode)
+// console.log('req.body', req.body)
+// console.log('\n',pickupLocationId, eventId, firstName, lastName, willCallFirstName, willCallLastName, email, ticketQuantity, discountCode)
 knex('orders')
 .insert({
   orderedByFirstName: firstName,
@@ -153,7 +153,7 @@ router.post('/charge', async(req, res) => {
     currency: 'usd',
     customer: customer.id
   }))
-  .then(charge => {console.log(res) 
+  .then(charge => {console.log(res)
     return res.json(charge)}
   );
 });

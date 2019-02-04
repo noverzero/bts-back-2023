@@ -3,9 +3,9 @@ if (process.env.NODE_ENV !== 'production'){
   require('dotenv').load();
 }
 
-var stripeSecretKey = process.env.STRIPE_SECRETKEY;
-var stripePublicKey = process.env.STRIPE_PUBLICKEY;
-var stripe = require('stripe')(stripeSecretKey);
+var stripe = require("stripe")("sk_test_UpJeVveXeyBBKiiJUcE4SWm6");
+// var stripePublicKey = process.env.STRIPE_PUBLICKEY;
+// var stripe = require('stripe')(stripeSecretKey);
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -24,7 +24,6 @@ var eventDataHandler = require('./eventDataHandler')
 var app = express();
 
 var reservationsRouter = require('./routes/reservations')
-
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -57,14 +56,13 @@ app.use(function(req, res) {
 
 apiDataFunction = async () => {
   const allShowsObj = await eventDataHandler.getApiData()
-  console.log(allShowsObj[0])
   eventDataHandler.insertEventData(allShowsObj)
 }
 
-//apiDataFunction()
+// apiDataFunction()
 
 cron.schedule('00 04 * * * *', async () => {
-  console.log('Cron!', time.getMinutes())
+  // console.log('Cron!', time.getMinutes())
   apiDataFunction()
 })
 
