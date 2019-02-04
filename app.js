@@ -25,7 +25,6 @@ var app = express();
 
 var reservationsRouter = require('./routes/reservations')
 
-
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET,POST,DELETE,PATCH,PUT");
@@ -57,14 +56,13 @@ app.use(function(req, res) {
 
 apiDataFunction = async () => {
   const allShowsObj = await eventDataHandler.getApiData()
-  console.log(allShowsObj[0])
   eventDataHandler.insertEventData(allShowsObj)
 }
 
-// apiDataFunction()
+apiDataFunction()
 
 cron.schedule('00 04 * * * *', async () => {
-  console.log('Cron!', time.getMinutes())
+  // console.log('Cron!', time.getMinutes())
   apiDataFunction()
 })
 

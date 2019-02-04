@@ -6,6 +6,8 @@ exports.up = function(knex, Promise) {
     table.foreign('eventId').references('events.id').onDelete('CASCADE')
     table.integer('pickupLocationId').notNullable()
     table.foreign('pickupLocationId').references('pickup_locations.id').onDelete('CASCADE')
+    table.time('lastBusDepartureTime')
+    table.time('firstBusLoadTime')
     table.integer('inCart').notNullable().defaultTo(0)
     table.integer('capacity').notNullable().defaultTo(44)
     table.timestamps(true, true)
