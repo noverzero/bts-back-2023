@@ -3,9 +3,10 @@ const knex = require('./knex.js')
 
 // make the api call to last.fm
 const pingLastFm = (artistsObj) => {
-    console.log('lastfm')
+    // console.log('lastfm')
     const headlinerInfo = artistsObj.map((artist) => {
-    const lastFmApi = encodeURI(`http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${artist}&autocorrect=1&api_key=bb5f39887cc93aa41c362ba1b8bbaccd&format=json`) //encodeURI allows for UTF-8 conversion of special letters in band name
+    const lastFmApi = encodeURI(`http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${artist}&autocorrect=1&api_key=bb5f39887cc93aa41c362ba1b8bbaccd&format=json`) 
+    //encodeURI allows for UTF-8 conversion of special letters in band name
     
     return axios.get(lastFmApi)
     .then(data=>{
@@ -39,7 +40,7 @@ const pingLastFm = (artistsObj) => {
 // make the api call to songkick
 const getApiData = async () => {
   try {
-    console.log("songkick")
+    // console.log("songkick")
     const responseSongKick = await axios.get('https://api.songkick.com/api/3.0/venues/591/calendar.json?per_page=100&apikey=8ViJ6NJZPEwjp3Cp')
     const showsFromSongkick = responseSongKick.data.resultsPage.results.event // grab just the events objects
     // console.log(showsFromSongkick[0])
@@ -59,6 +60,7 @@ const getApiData = async () => {
       let support2 = ''
       let support3 = ''
       let time = show.start.time
+      let date = show.start.date.split('-').splice(1, 3).concat(show.start.date.split(`-`)[0]).join('/')
       if (show.performance[1]) {
         support1 = show.performance[1].displayName
       } 
@@ -73,7 +75,7 @@ const getApiData = async () => {
       }
       return {
         id: show.id, 
-        date: show.start.date.split('-').splice(1, 3).concat(show.start.date.split(`-`)[0]).join('/'),
+        date: date,
         startTime: time,
         venue: show.venue.displayName.split(' Ampitheatre')[0],
         headliner: headlinerName,
@@ -93,7 +95,7 @@ const getApiData = async () => {
 
 const combineObjects = async (lastFmObj, showsObj) => {
 // combine data from the two objects
-console.log('combine')
+// console.log('combine')
   const data = showsObj.map((show, i) => {
     return {
       ...show, 
@@ -106,8 +108,7 @@ console.log('combine')
 
 const insertEventData = (allShowsObj) => {
   console.log('insert!')
-// pull event id's from the table, compare all current id's to all id's in allShowsObj, 
-// filter out objects where the id already exists in db
+// pull event id's from the table, compare all current id's to all id's in allShowsObj, filter out objects where the id already exists in db
   knex('events')
     .select('id')
     .returning('id')
@@ -118,11 +119,34 @@ const insertEventData = (allShowsObj) => {
           return show
         }
       })
+      let newShowsIdArr = newShowsArr.map(show=>show.id)
+      console.log('!',newShowsIdArr)
 
       knex('events')
-        .insert(newShowsArr)
-        .returning('*').then(result=>console.log('inserted:',result))
+      .insert(newShowsArr)
+      .returning('*').then(result=>addPickupParties(newShowsIdArr)) 
+      // console.log('inserted:',result)
+      
+    })
+}
+
+const addPickupParties = (newShowsIdArr) => {
+  let newPickupParties = []
+  
+
+  newShowsIdArr.forEach(showId => {
+    for (let ii = 1; ii < 8; ii++) {
+      newPickupParties.push({
+        eventId: showId,
+        pickupLocationId: ii
       })
+    }
+  })
+  // console.log(newPickupParties)
+
+  knex('pickup_parties')
+  .insert(newPickupParties)
+  .returning('*').then(result=>console.log('pickup parties updated'))
 }
 
 module.exports = {getApiData, insertEventData}

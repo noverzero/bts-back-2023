@@ -54,7 +54,7 @@ router.patch('/:id', function(req, res, next){
 knex('pickup_parties')
 .where('id', req.params.id)
 .update(req.body)
-.returning(['id', 'pickupLocationId', 'eventId', 'eventDate', 'eventVenue', 'lastBusDeparts', 'orderId', 'ordersReservationId', 'ordersWillCallName', 'checkedInPasscode', 'sold', 'capacity', 'inCart'])
+.returning(['id', 'eventId', 'pickupLocationId', 'inCart', 'capacity'])
 .then((data) => {
   res.status(200).json(data[0])
 })

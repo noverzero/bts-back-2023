@@ -2,7 +2,7 @@
 exports.up = (knex, Promise) => {
   return knex.schema.createTable("discount_codes",(table)=>{
     table.increments('id')
-    table.string("discountCode").notNullable()
+    table.string("discountCode").unique().notNullable()
     table.integer("percentage").notNullable().defaultTo(0)
     table.date("expiresOn").notNullable().defaultTo(20190101)
     table.date("issuedOn")
@@ -13,6 +13,9 @@ exports.up = (knex, Promise) => {
     table.integer("type").notNullable().defaultTo(1)
     table.integer("remainingUses").notNullable().defaultTo(0)
     table.integer("usesPerEvent").notNullable().defaultTo(0)
+    table.float("totalPriceAfterDiscount")
+    table.date("autoAddStartDate")
+    table.date("autoAddEndDate")
     table.timestamps(true,true)
   })
 }
