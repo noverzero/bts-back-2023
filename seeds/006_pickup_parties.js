@@ -36,21 +36,21 @@ exports.seed = (knex) => {
         [
         {
           id:1,
-          eventId:1,
+          eventId:2,
           pickupLocationId:1,
           inCart:4,
           capacity:30,
         },
         {
           id:2,
-          eventId:1,
+          eventId:3,
           pickupLocationId:2,
           inCart:5,
           capacity:35,
         },
         {
           id:3,
-          eventId:1,
+          eventId:4,
           pickupLocationId:3,
           inCart:6,
           capacity:40,
