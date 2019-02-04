@@ -43,8 +43,8 @@ router.patch('/return/:id', function(req, res, next){
   knex('discount_codes')
     .join('discount_codes_events', 'discount_codes.id', 'discount_codes_events.discountCodeId')
     .join('events', 'discount_codes_events.eventsId', 'events.id')
+    .where('discount_codes.id', id)
     .select('*')
-    .where('id', id)
     .first()
     .then((match) => {
       console.log('heydy')
@@ -56,6 +56,7 @@ router.patch('/:discountCode', function(req, res, next) {
   let discountCode = req.params.discountCode
   let totalPrice = req.body.totalPrice
   let ticketQuantity = req.body.ticketQuantity
+  let afterDiscountObj={}
   console.log('req.it.ralph>>>', req.body, "<<<END")
   knex('discount_codes')
     .join('discount_codes_events', 'discount_codes.id', 'discount_codes_events.discountCodeId')
@@ -64,33 +65,38 @@ router.patch('/:discountCode', function(req, res, next) {
     .where('discountCode', discountCode)
     .first()
     .then((match) => {
-      console.log('totalPrice from req.body inside .then', totalPrice)
       if (!match) {
-        next({
-          status: 400,
-          message: 'This code is not in our database.'
-        })
+        console.log("no match return")
+        return res.status(400).json({message: 'This code is not in our database.'})
+
       }
+
+      afterDiscountObj = {
+        'ticketQuantity': ticketQuantity,
+        'newRemainingUses': match.remainingUses
+      }
+      console.log('totalPrice from req.body inside .then', totalPrice)
       if (match.expiresOn.toLocaleString('en-US') > new Date().toLocaleString('en-US', {
           timeZone: 'America/Denver'
         })) {
-        next({
-          status: 400,
-          message: 'This code has expired.'
-        })
+          console.log("expired return")
+          console.log("coupon expiration date:", match.expiresOn.toLocaleString('en-US'))
+          console.log("current date:", new Date().toLocaleString('en-US', {
+              timeZone: 'America/Denver'
+            }))
+
+        return res.status(400).json({message: 'This code has expired.'})
+
       }
       if (match.remainingUses <= 0) {
-        next({
-          status: 400,
-          message: 'This code is all used up.'
-        })
+        console.log("no more uses return")
+
+        next(res.status(400).json({message: 'This code is all used up.'}))
+        return
       }
       let priceWithoutFeesPerTicket = totalPrice * 10 / 11 / ticketQuantity
       console.log('priceWithoutFeesPerTicket', priceWithoutFeesPerTicket)
       let effectiveRate = (100 - match.percentage) / 100
-      let afterDiscountObj = {
-        'ticketQuantity': ticketQuantity
-      }
 
       if (match.remainingUses >= ticketQuantity) {
         afterDiscountObj.timesUsed = ticketQuantity
@@ -104,29 +110,45 @@ router.patch('/:discountCode', function(req, res, next) {
         afterDiscountObj.totalPriceAfterDiscount = (priceWithoutFeesPerTicket * (ticketQuantity - match.remainingUses) + priceWithoutFeesPerTicket * effectiveRate * match.remainingUses) * 1.10
         afterDiscountObj.newRemainingUses = 0
         console.log("more tickets than codes (bottom one)")
-        return (afterDiscountObj)
+        return afterDiscountObj
       }
-      console.log('afterDiscountObj.newRemainingUses::', afterDiscountObj.newRemainingUses)
-      console.log('afterDiscountObj.totalPriceAfterDiscount::', afterDiscountObj.totalPriceAfterDiscount)
-      console.log('afterDiscountObj.ticketQuantity::', afterDiscountObj.ticketQuantity)
+      // console.log('afterDiscountObj.newRemainingUses::', afterDiscountObj.newRemainingUses)
+      // console.log('afterDiscountObj.totalPriceAfterDiscount::', afterDiscountObj.totalPriceAfterDiscount)
+      // console.log('afterDiscountObj.ticketQuantity::', afterDiscountObj.ticketQuantity)
     })
     .then((afterDiscountObj) => {
       console.log("what's going on in here?", afterDiscountObj)
-      knex('discount_codes')
-        .select('*')
-        .where('discountCode', discountCode)
-        .update({
-          remainingUses: afterDiscountObj.newRemainingUses,
-          totalPriceAfterDiscount: afterDiscountObj.totalPriceAfterDiscount,
-          timesUsed: afterDiscountObj.timesUsed
-        })
-        .returning(['id', 'remainingUses', 'totalPriceAfterDiscount', 'timesUsed'])
-        .then((data) => {
-          console.log('data', data)
-          res.status(200).json(data)
-        })
+      console.log("afterdiscountobject", afterDiscountObj)
+
+      if(afterDiscountObj.newRemainingUses && afterDiscountObj.totalPriceAfterDiscount && afterDiscountObj.timesUsed  ){
+        knex('discount_codes')
+          .select('*')
+          .where('discountCode', discountCode)
+          .update({
+            remainingUses: afterDiscountObj.newRemainingUses,
+            totalPriceAfterDiscount: afterDiscountObj.totalPriceAfterDiscount,
+            timesUsed: afterDiscountObj.timesUsed
+          })
+          .returning(['id', 'remainingUses', 'totalPriceAfterDiscount', 'timesUsed'])
+          .then((data) => {
+            console.log('data', data)
+            res.status(200).json(data)
+          })
+      }
+      // if(afterDiscountObj.){
+      // knex('discount_codes')
+      //
+      //   .select('*')
+      //
+      //   .returning(['id', 'remainingUses', 'totalPriceAfterDiscount', 'timesUsed'])
+      //   .then((data) => {
+      //     console.log('data', data)
+      //     res.status(200).json(data)
+      //   })
+      // }
     })
 })
+
 
 //Delete (delete one of the resource)
 router.delete('/:id', function(req, res, next) {
