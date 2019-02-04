@@ -134,13 +134,14 @@ const insertEventData = (allShowsObj) => {
       
     })
 }
-
+// math from "hh:mm:ss" to minutes as a number
 const convertTimeToMinutes = (time = 0) => {
   let newTime = time.split(':')
   newTime = parseInt(newTime[0])*60+parseInt(newTime[1])
   return newTime
 }
 
+// calculate last bus departure time in minutes then format back to "hh:mm"
 const calcDepartTime = (time = 0, diff = 0) => {
   let result = ""
   if (time === 0) {
@@ -155,6 +156,7 @@ const calcDepartTime = (time = 0, diff = 0) => {
   return result
 }
 
+// format each pickup location with its unique last bus departure times and aggregate into an array of objects
 const addPickupParties = (newShowsIdAndStartTime) => {
   let newPickupParties = []
 
