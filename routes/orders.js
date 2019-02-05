@@ -86,6 +86,7 @@ knex('orders')
   res.status(400).json(err)
 })
 })
+})
 
 //POST ROUTE ORDERS
 router.patch('/:id', function(req, res, next){

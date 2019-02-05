@@ -69,8 +69,11 @@ router.patch('/:discountCode', function(req, res, next) {
   let discountCode = req.params.discountCode
   let totalPrice = req.body.totalPrice
   let ticketQuantity = req.body.ticketQuantity
-  
+  let ticketsAndUses=[]
+  let afterDiscountObj={}
+  afterDiscountObj.ticketQuantity=ticketQuantity
   knex('discount_codes')
+
     .join('discount_codes_events', 'discount_codes.id', 'discount_codes_events.discountCodeId')
     .join('events', 'discount_codes_events.eventsId', 'events.id')
     .select('*')
@@ -81,10 +84,10 @@ router.patch('/:discountCode', function(req, res, next) {
       console.log("no match return")
       return res.status(400).json({message: 'This code is not in our database.'})
     }
-    let afterDiscountObj = {
-      'ticketQuantity': ticketQuantity,
-      'newRemainingUses': match.remainingUses
-    }
+    else if(match){
+
+    afterDiscountObj.newRemainingUses=match.remainingUses
+    console.log("afterdiscountobject", afterDiscountObj)
 
     let expiration = Date.parse(match.expiresOn.toLocaleString('en-US'))
     let today = Date.parse(new Date().toLocaleString('en-US', {
@@ -95,8 +98,8 @@ router.patch('/:discountCode', function(req, res, next) {
       return res.status(400).json({message: 'This code has expired.'})
     }
     if (match.remainingUses <= 0) {
-      next(res.status(400).json({message: 'This code is all used up.'}))
-      return
+      return res.status(400).json({message: 'This code is all used up.'})
+
     }
     let priceWithoutFeesPerTicket = totalPrice * 10 / 11 / ticketQuantity
     let effectiveRate = (100 - match.percentage) / 100
@@ -113,6 +116,7 @@ router.patch('/:discountCode', function(req, res, next) {
       afterDiscountObj.newRemainingUses = 0
       return afterDiscountObj
     }
+  }
   })
   .then((afterDiscountObj) => {
     if(afterDiscountObj.newRemainingUses || afterDiscountObj.newRemainingUses === 0 && afterDiscountObj.totalPriceAfterDiscount && afterDiscountObj.timesUsed  ){
