@@ -1,52 +1,20 @@
 var axios = require('axios')
 const knex = require('./knex.js')
-
+const lastFmApiKey = 'bb5f39887cc93aa41c362ba1b8bbaccd'
+const songKickApiKey = '8ViJ6NJZPEwjp3Cp'
 // make the api call to last.fm
-const pingLastFm = (artistsObj) => {
-    const headlinerInfo = artistsObj.map((artist) => {
-    const lastFmApi = encodeURI(`http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${artist}&autocorrect=1&api_key=bb5f39887cc93aa41c362ba1b8bbaccd&format=json`) 
-    //encodeURI allows for UTF-8 conversion of special letters in band name
-    
-    return axios.get(lastFmApi)
-    .then(data=>{
-      return data.data
-    })
-    .catch(err=>{
-      console.log('error!', err)
-    })
-  })
-  // map over array of band names, assign a promise to each one
-  return Promise.all(headlinerInfo).then((headlinerObj)=>{
-    const headlinerInfoObj1 = headlinerObj.map(data=>{
-      if(data.error){
-        return new Error("artist does not exist in Last.fm")
-      }
-      
-      const headlinerName = data.artist.name
-      const headlinerImg = data.artist.image[2]['#text']
-      const headlinerBio = data.artist.bio.content 
-      return { headlinerName, headlinerImg, headlinerBio  }
-    })
-    // after promise fulfilled, populate an object with the fields above and return it to the previous function
-    return headlinerInfoObj1
-  })
-  .catch(err=>{
-    console.log(err)
-  })
-  
-}
+
 
 // make the api call to songkick
 const getApiData = async () => {
   try {
-    const responseSongKick = await axios.get('https://api.songkick.com/api/3.0/venues/591/calendar.json?per_page=100&apikey=8ViJ6NJZPEwjp3Cp')
+    const responseSongKick = await axios.get(`https://api.songkick.com/api/3.0/venues/591/calendar.json?per_page=100&apikey=${songKickApiKey}`)
     const showsFromSongkick = responseSongKick.data.resultsPage.results.event // grab just the events objects
-    // console.log(showsFromSongkick[0])
     const artistsObj = showsFromSongkick.map(show => { // filter out most punctuation that breaks urls
       show = show.performance[0].displayName
       show = show.replace(/[&]/g, 'and')
-                .replace(/[\/\\#,+()$~%.":*?<>{}]/g, '')
-                .replace(/' /g, ' ')
+      .replace(/[\/\\#,+()$~%.":*?<>{}]/g, '')
+      .replace(/' /g, ' ')
       return show.split(' ').join('+')
     })
     
@@ -91,8 +59,41 @@ const getApiData = async () => {
   return finalShowsObj
 }
 
+const pingLastFm = (artistsObj) => {
+    const headlinerInfo = artistsObj.map((artist) => {
+    const lastFmApi = encodeURI(`http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${artist}&autocorrect=1&api_key=${lastFmApiKey}&format=json`) 
+    //encodeURI allows for UTF-8 conversion of special letters in band name
+    
+    return axios.get(lastFmApi)
+    .then(data=>{
+      return data.data
+    })
+    .catch(err=>{
+      console.log('error!', err)
+    })
+  })
+  // map over array of band names, assign a promise to each one
+  return Promise.all(headlinerInfo).then((headlinerObj)=>{
+    const headlinerInfoObj1 = headlinerObj.map(data=>{
+      if(data.error){
+        return new Error("artist does not exist in Last.fm")
+      }
+      const headlinerName = data.artist.name
+      const headlinerImg = data.artist.image[2]['#text']
+      const headlinerBio = data.artist.bio.content 
+      
+      return { headlinerName, headlinerImg, headlinerBio  }
+    })
+    // after promise fulfilled, populate an object with the fields above and return it to the previous function
+    return headlinerInfoObj1
+  })
+  .catch(err=>{
+    console.log(err)
+  })  
+}
+
 const combineObjects = async (lastFmObj, showsObj) => {
-// combine data from the two objects
+  // combine data from the two objects
   const data = showsObj.map((show, i) => {
     return {
       ...show, 
