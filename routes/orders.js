@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const knex = require('../knex.js')
 var stripeSecretKey =  process.env.STRIPE_SECRETKEY;
-var stripe = require("stripe")("sk_test_UpJeVveXeyBBKigit puiJUcE4SWm6")
+var stripe = require("stripe")("sk_test_UpJeVveXeyBBKiiJUcE4SWm6")
 // const stripe = require('stripe')(stripeSecretKey);
 
 
