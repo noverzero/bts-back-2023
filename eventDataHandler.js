@@ -1,54 +1,20 @@
 var axios = require('axios')
 const knex = require('./knex.js')
-
+const lastFmApiKey = process.env.LASTFM_KEY
+const songKickApiKey = process.env.SONGKICK_KEY
 // make the api call to last.fm
-const pingLastFm = (artistsObj) => {
-    // console.log('lastfm')
-    const headlinerInfo = artistsObj.map((artist) => {
-    const lastFmApi = encodeURI(`http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${artist}&autocorrect=1&api_key=bb5f39887cc93aa41c362ba1b8bbaccd&format=json`) 
-    //encodeURI allows for UTF-8 conversion of special letters in band name
-    
-    return axios.get(lastFmApi)
-    .then(data=>{
-      return data.data
-    })
-    .catch(err=>{
-      console.log('error!', err)
-    })
-  })
-  // map over array of band names, assign a promise to each one
-  return Promise.all(headlinerInfo).then((headlinerObj)=>{
-    const headlinerInfoObj1 = headlinerObj.map(data=>{
-      if(data.error){
-        return new Error("artist does not exist in Last.fm")
-      }
-      
-      const headlinerName = data.artist.name
-      const headlinerImg = data.artist.image[2]['#text']
-      const headlinerBio = data.artist.bio.content 
-      return { headlinerName, headlinerImg, headlinerBio  }
-    })
-    // after promise fulfilled, populate an object with the fields above and return it to the previous function
-    return headlinerInfoObj1
-  })
-  .catch(err=>{
-    console.log(err)
-  })
-  
-}
+
 
 // make the api call to songkick
 const getApiData = async () => {
   try {
-    // console.log("songkick")
-    const responseSongKick = await axios.get('https://api.songkick.com/api/3.0/venues/591/calendar.json?per_page=100&apikey=8ViJ6NJZPEwjp3Cp')
+    const responseSongKick = await axios.get(`https://api.songkick.com/api/3.0/venues/591/calendar.json?per_page=100&apikey=${songKickApiKey}`)
     const showsFromSongkick = responseSongKick.data.resultsPage.results.event // grab just the events objects
-    // console.log(showsFromSongkick[0])
     const artistsObj = showsFromSongkick.map(show => { // filter out most punctuation that breaks urls
       show = show.performance[0].displayName
       show = show.replace(/[&]/g, 'and')
-                .replace(/[\/\\#,+()$~%.":*?<>{}]/g, '')
-                .replace(/' /g, ' ')
+      .replace(/[\/\\#,+()$~%.":*?<>{}]/g, '')
+      .replace(/' /g, ' ')
       return show.split(' ').join('+')
     })
     
@@ -93,9 +59,41 @@ const getApiData = async () => {
   return finalShowsObj
 }
 
+const pingLastFm = (artistsObj) => {
+    const headlinerInfo = artistsObj.map((artist) => {
+    const lastFmApi = encodeURI(`http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${artist}&autocorrect=1&api_key=${lastFmApiKey}&format=json`) 
+    //encodeURI allows for UTF-8 conversion of special letters in band name
+    
+    return axios.get(lastFmApi)
+    .then(data=>{
+      return data.data
+    })
+    .catch(err=>{
+      console.log('error!', err)
+    })
+  })
+  // map over array of band names, assign a promise to each one
+  return Promise.all(headlinerInfo).then((headlinerObj)=>{
+    const headlinerInfoObj1 = headlinerObj.map(data=>{
+      if(data.error){
+        return new Error("artist does not exist in Last.fm")
+      }
+      const headlinerName = data.artist.name
+      const headlinerImg = data.artist.image[2]['#text']
+      const headlinerBio = data.artist.bio.content 
+      
+      return { headlinerName, headlinerImg, headlinerBio  }
+    })
+    // after promise fulfilled, populate an object with the fields above and return it to the previous function
+    return headlinerInfoObj1
+  })
+  .catch(err=>{
+    console.log(err)
+  })  
+}
+
 const combineObjects = async (lastFmObj, showsObj) => {
-// combine data from the two objects
-// console.log('combine')
+  // combine data from the two objects
   const data = showsObj.map((show, i) => {
     return {
       ...show, 
@@ -107,7 +105,6 @@ const combineObjects = async (lastFmObj, showsObj) => {
 }
 
 const insertEventData = (allShowsObj) => {
-  console.log('insert!')
 // pull event id's from the table, compare all current id's to all id's in allShowsObj, filter out objects where the id already exists in db
   knex('events')
     .select('id')
@@ -119,34 +116,73 @@ const insertEventData = (allShowsObj) => {
           return show
         }
       })
-      let newShowsIdArr = newShowsArr.map(show=>show.id)
-      console.log('!',newShowsIdArr)
+      let newShowsIdAndStartTime = newShowsArr.map(show=>{
+        return {
+          'id': show.id, 
+          'startTime': convertTimeToMinutes(show.startTime)
+        }})
 
       knex('events')
       .insert(newShowsArr)
-      .returning('*').then(result=>addPickupParties(newShowsIdArr)) 
-      // console.log('inserted:',result)
+      .returning('*').then(result=>{
+        addPickupParties(newShowsIdAndStartTime)
+      }) 
       
     })
 }
+// math from "hh:mm:ss" to minutes as a number
+const convertTimeToMinutes = (time = 0) => {
+  let newTime = time.split(':')
+  newTime = parseInt(newTime[0])*60+parseInt(newTime[1])
+  return newTime
+}
 
-const addPickupParties = (newShowsIdArr) => {
+// calculate last bus departure time in minutes then format back to "hh:mm"
+const calcDepartTime = (time = 0, diff = 0) => {
+  let result = ""
+  if (time === 0) {
+    result = `00:00`
+  }
+  else {
+    let newTime = Number(time) - Number(diff)
+    let hours = parseInt(newTime / 60)
+    let minutes = (newTime % 60).toString().padStart(2,"0")
+    result = `${hours}:${minutes}`
+  }
+  return result
+}
+
+// format each pickup location with its unique last bus departure times and aggregate into an array of objects
+const addPickupParties = (newShowsIdAndStartTime) => {
   let newPickupParties = []
+
+  newShowsIdAndStartTime.forEach(show=>{
+    return newPickupParties.push({ pickupLocationId:1,
+        eventId: show.id,
+        lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
+      { pickupLocationId:2,
+        eventId: show.id,
+        lastBusDepartureTime: calcDepartTime(show.startTime, 120) },
+      { pickupLocationId:3,
+        eventId: show.id,
+        lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
+      { pickupLocationId:4,
+        eventId: show.id,
+        lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
+      { pickupLocationId:5,
+        eventId: show.id,
+        lastBusDepartureTime: calcDepartTime(show.startTime, 75) },
+      { pickupLocationId:6,
+        eventId: show.id,
+        lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
+      { pickupLocationId:7,
+        eventId: show.id,
+        lastBusDepartureTime: calcDepartTime(show.startTime, 210) })
+    })
   
-
-  newShowsIdArr.forEach(showId => {
-    for (let ii = 1; ii < 8; ii++) {
-      newPickupParties.push({
-        eventId: showId,
-        pickupLocationId: ii
-      })
-    }
-  })
-  // console.log(newPickupParties)
-
   knex('pickup_parties')
   .insert(newPickupParties)
-  .returning('*').then(result=>console.log('pickup parties updated'))
+  .returning('*').then(result=>console.log('pickup parties updated', typeof result, result.length))
 }
 
 module.exports = {getApiData, insertEventData}
