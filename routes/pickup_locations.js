@@ -18,7 +18,7 @@ const knex = require('../knex.js')
 router.get('/', function(req,res, next){
   knex('pickup_locations')
   // .select('streetAddress', 'city', 'locationName')
-  .join('pickup_parties', 'pickup_locations.id', 'pickup_parties.pickupLocationId')
+  //.join('pickup_parties', 'pickup_locations.id', 'pickup_parties.pickupLocationId')
   .select('*')
 //currently selecting all rows/ figure out which ones to keep later (obviously capacity and locationid :)
   .then((data)=>{
