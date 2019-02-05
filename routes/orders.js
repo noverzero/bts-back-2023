@@ -115,7 +115,7 @@ router.post('/charge', async(req, res) => {
     description: 'example charge',
     currency: 'usd',
     customer: customer.id,
-    receipt_email: req.body.stripeEmail
+    receipt_email: customer.email
   }))
   .then(charge => {console.log(res)
     return res.json(charge)}
