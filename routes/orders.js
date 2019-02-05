@@ -60,6 +60,7 @@ router.post('/', function(req, res, next){
       .decrement("capacity", ticketQuantity)
       .returning(['id', 'eventId', 'pickupLocationId', 'inCart', 'capacity'])
     .then((newPickupParty)=>{
+      console.log(newPickupParty)
       newPickupPartyId=newPickupParty[0].id
       let newObject=[newOrderId, newPickupPartyId]
       return (newObject)
@@ -113,7 +114,8 @@ router.post('/charge', async(req, res) => {
     amount: req.body.amount,
     description: 'example charge',
     currency: 'usd',
-    customer: customer.id
+    customer: customer.id,
+    receipt_email: req.body.stripeEmail
   }))
   .then(charge => {console.log(res)
     return res.json(charge)}
