@@ -38,7 +38,7 @@ router.post('/', function(req, res, next) {
 //restore discount code remaining uses after timer expires on abandoned checkout.
 router.patch('/return/:id', function(req, res, next){
   let id = req.params.id
-  
+
   knex('discount_codes')
     .join('discount_codes_events', 'discount_codes.id', 'discount_codes_events.discountCodeId')
     .join('events', 'discount_codes_events.eventsId', 'events.id')
@@ -48,7 +48,7 @@ router.patch('/return/:id', function(req, res, next){
   .then((match) => {
     let currentRemainingUses=match.remainingUses
     let timesUsed=req.body.timesUsed
-    
+
     knex('discount_codes')
       .where('id', id)
       .increment('remainingUses', timesUsed)
@@ -69,7 +69,6 @@ router.patch('/:discountCode', function(req, res, next) {
   let discountCode = req.params.discountCode
   let totalPrice = req.body.totalPrice
   let ticketQuantity = req.body.ticketQuantity
-  let afterDiscountObj={}
   
   knex('discount_codes')
     .join('discount_codes_events', 'discount_codes.id', 'discount_codes_events.discountCodeId')
@@ -82,11 +81,11 @@ router.patch('/:discountCode', function(req, res, next) {
       console.log("no match return")
       return res.status(400).json({message: 'This code is not in our database.'})
     }
-    afterDiscountObj = {
+    let afterDiscountObj = {
       'ticketQuantity': ticketQuantity,
       'newRemainingUses': match.remainingUses
     }
-    
+
     let expiration = Date.parse(match.expiresOn.toLocaleString('en-US'))
     let today = Date.parse(new Date().toLocaleString('en-US', {
         timeZone: 'America/Denver'
