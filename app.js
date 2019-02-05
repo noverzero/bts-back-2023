@@ -59,12 +59,11 @@ apiDataFunction = async () => {
   eventDataHandler.insertEventData(allShowsObj)
 }
 
-// apiDataFunction()
+// apiDataFunction() // commented out until we go live
 
 cron.schedule('00 04 * * * *', async () => {
   // console.log('Cron!', time.getMinutes())
   apiDataFunction()
 })
-
 
 module.exports = app;

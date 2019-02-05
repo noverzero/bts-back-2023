@@ -3,7 +3,6 @@ const knex = require('./knex.js')
 
 // make the api call to last.fm
 const pingLastFm = (artistsObj) => {
-    console.log('fetching from lastfm')
     const headlinerInfo = artistsObj.map((artist) => {
     const lastFmApi = encodeURI(`http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${artist}&autocorrect=1&api_key=bb5f39887cc93aa41c362ba1b8bbaccd&format=json`) 
     //encodeURI allows for UTF-8 conversion of special letters in band name
@@ -40,7 +39,6 @@ const pingLastFm = (artistsObj) => {
 // make the api call to songkick
 const getApiData = async () => {
   try {
-    console.log("fetching from songkick")
     const responseSongKick = await axios.get('https://api.songkick.com/api/3.0/venues/591/calendar.json?per_page=100&apikey=8ViJ6NJZPEwjp3Cp')
     const showsFromSongkick = responseSongKick.data.resultsPage.results.event // grab just the events objects
     // console.log(showsFromSongkick[0])
@@ -95,7 +93,6 @@ const getApiData = async () => {
 
 const combineObjects = async (lastFmObj, showsObj) => {
 // combine data from the two objects
-console.log('combining show data')
   const data = showsObj.map((show, i) => {
     return {
       ...show, 
@@ -107,7 +104,6 @@ console.log('combining show data')
 }
 
 const insertEventData = (allShowsObj) => {
-  console.log('insert!', typeof allShowsObj, allShowsObj.length)
 // pull event id's from the table, compare all current id's to all id's in allShowsObj, filter out objects where the id already exists in db
   knex('events')
     .select('id')
@@ -128,7 +124,6 @@ const insertEventData = (allShowsObj) => {
       knex('events')
       .insert(newShowsArr)
       .returning('*').then(result=>{
-        console.log('events inserted:', typeof result, result.length)
         addPickupParties(newShowsIdAndStartTime)
       }) 
       
@@ -162,28 +157,27 @@ const addPickupParties = (newShowsIdAndStartTime) => {
 
   newShowsIdAndStartTime.forEach(show=>{
     return newPickupParties.push({ pickupLocationId:1,
-      eventId: show.id,
-      lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
+        eventId: show.id,
+        lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
       { pickupLocationId:2,
-      eventId: show.id,
-      lastBusDepartureTime: calcDepartTime(show.startTime, 120) },
+        eventId: show.id,
+        lastBusDepartureTime: calcDepartTime(show.startTime, 120) },
       { pickupLocationId:3,
-      eventId: show.id,
-      lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
+        eventId: show.id,
+        lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
       { pickupLocationId:4,
-      eventId: show.id,
-      lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
+        eventId: show.id,
+        lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
       { pickupLocationId:5,
-      eventId: show.id,
-      lastBusDepartureTime: calcDepartTime(show.startTime, 75) },
+        eventId: show.id,
+        lastBusDepartureTime: calcDepartTime(show.startTime, 75) },
       { pickupLocationId:6,
-      eventId: show.id,
-      lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
+        eventId: show.id,
+        lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
       { pickupLocationId:7,
-      eventId: show.id,
-      lastBusDepartureTime: calcDepartTime(show.startTime, 210) })
+        eventId: show.id,
+        lastBusDepartureTime: calcDepartTime(show.startTime, 210) })
     })
-    console.log('pickup party info ready!', typeof newPickupParties, newPickupParties.length)  
   
   knex('pickup_parties')
   .insert(newPickupParties)
