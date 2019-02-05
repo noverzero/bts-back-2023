@@ -30,61 +30,61 @@ router.get('/:id', function(req, res, next){
 
 //POST ROUTE ORDERS
 router.post('/', function(req, res, next){
-const {pickupLocationId, eventId, firstName, lastName, willCallFirstName, willCallLastName, email, ticketQuantity, discountCode}= req.body
-let newPickupPartyId
-let newOrderId
-const currentEventId=req.body.eventId
-let userDiscountCode = req.body.discountCode? req.body.discountCode : null
-if(!firstName || !lastName || !email){
-    res.status(404).send('Please include first name, last name, and email!')
-    return null
-}
-if(!pickupLocationId || !eventId || !ticketQuantity){
-    res.status(404).send('Please include pickup location, event, and ticket quantity!')
-    return null
-}
-knex('orders')
-.insert({
-  orderedByFirstName: firstName,
-  orderedByLastName: lastName,
-  orderedByEmail: email
-})
-.returning(['id', 'orderedByFirstName', 'orderedByLastName', 'orderedByEmail'])
-.then((newOrder) => {
-  newOrderId=newOrder[0].id
-  return newOrderId
-})
-.then((newOrderId)=>{
-  knex ('pickup_parties')
-  .where({
-    eventId: eventId,
-    pickupLocationId: pickupLocationId,
-  })
-  .decrement("capacity", ticketQuantity)
-  .returning(['id', 'eventId', 'pickupLocationId', 'inCart', 'capacity'])
-  .then((newPickupParty)=>{
-    newPickupPartyId=newPickupParty[0].id
-    let newOrdersArr=[newOrderId, newPickupPartyId]
-    return newOrdersArr
-  })
-.then((ordersArr)=>{
-
-    knex('reservations')
+  const {pickupLocationId, eventId, firstName, lastName, willCallFirstName, willCallLastName, email, ticketQuantity, discountCode}= req.body
+  let newPickupPartyId
+  let newOrderId
+  const currentEventId=req.body.eventId
+  let userDiscountCode = req.body.discountCode? req.body.discountCode : null
+  if(!firstName || !lastName || !email){
+      res.status(404).send('Please include first name, last name, and email!')
+      return null
+  }
+  if(!pickupLocationId || !eventId || !ticketQuantity){
+      res.status(404).send('Please include pickup location, event, and ticket quantity!')
+      return null
+  }
+  knex('orders')
     .insert({
-      orderId: ordersArr[0],
-      pickupPartiesId: ordersArr[1],
-      willCallFirstName: req.body.willCallFirstName,
-      willCallLastName: req.body.willCallLastName,
-      discountCodeId: userDiscountCode
+      orderedByFirstName: firstName,
+      orderedByLastName: lastName,
+      orderedByEmail: email
+    })
+    .returning(['id', 'orderedByFirstName', 'orderedByLastName', 'orderedByEmail'])
+  .then((newOrder) => {
+    newOrderId=newOrder[0].id
+    return newOrderId
+  })
+  .then((newOrderId)=>{
+    knex ('pickup_parties')
+      .where({
+        eventId: eventId,
+        pickupLocationId: pickupLocationId,
       })
-    .returning(['id', 'pickupPartiesId', 'willCallFirstName', 'willCallLastName', 'status', 'discountCodeId'])
-    .then((newReservation)=>{
-      res.status(200).json(newReservation[0])
+      .decrement("capacity", ticketQuantity)
+      .returning(['id', 'eventId', 'pickupLocationId', 'inCart', 'capacity'])
+    .then((newPickupParty)=>{
+      newPickupPartyId=newPickupParty[0].id
+      let newOrdersArr=[newOrderId, newPickupPartyId]
+      return newOrdersArr
+    })
+    .then((ordersArr)=>{
+      knex('reservations')
+        .insert({
+          orderId: ordersArr[0],
+          pickupPartiesId: ordersArr[1],
+          willCallFirstName: req.body.willCallFirstName,
+          willCallLastName: req.body.willCallLastName,
+          discountCodeId: userDiscountCode
+          })
+        .returning(['id', 'pickupPartiesId', 'willCallFirstName', 'willCallLastName', 'status', 'discountCodeId'])
+      .then((newReservation)=>{
+        res.status(200).json(newReservation[0])
+      })
+    })
+    .catch(err=>{
+      res.status(400).json(err)
     })
   })
-.catch(err=>{
-  res.status(400).json(err)
-})
 })
 })
 
@@ -110,21 +110,27 @@ router.delete('/:id', function(req, res, next){
   })
 })
 
-
 router.post('/charge', async(req, res) => {
   stripe.customers.create({
     email: req.body.stripeEmail,
     source: req.body.stripeToken.id,
   })
-  .then(customer => stripe.charges.create({
-    amount: req.body.amount,
-    description: 'example charge',
-    currency: 'usd',
-    customer: customer.id
-  }))
-  .then(charge => {console.log(res)
-    return res.json(charge)}
-  );
-});
+  .then(customer =>{ 
+    stripe.charges.create({
+        amount: req.body.amount,
+        description: 'example charge',
+        currency: 'usd',
+        customer: customer.id,
+        receipt_email: customer.email
+      }, (err, charge) => {
+        if (err) {
+          return err
+        }
+        console.log(res)
+        return res.json(charge)
+      }
+    )
+  })
+})
 
 module.exports = router;
