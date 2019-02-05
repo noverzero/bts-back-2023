@@ -86,7 +86,6 @@ router.post('/', function(req, res, next){
     })
   })
 })
-})
 
 //POST ROUTE ORDERS
 router.patch('/:id', function(req, res, next){
