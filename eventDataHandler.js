@@ -195,7 +195,6 @@ const addPickupParties = (newShowsIdAndStartTime) => {
         eventId: show.id,
         lastBusDepartureTime: calcDepartTime(show.startTime, 210) })
     })
-  console.log(newPickupParties)
   knex('pickup_parties')
   .insert(newPickupParties)
   .returning('*').then(result=>console.log('pickup parties updated', typeof result, result.length))
