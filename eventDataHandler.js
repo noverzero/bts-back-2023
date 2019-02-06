@@ -12,17 +12,8 @@ const getApiData = async () => {
   try {
     const responseSongKick = await axios.get(`https://api.songkick.com/api/3.0/venues/591/calendar.json?per_page=100&apikey=${songKickApiKey}`)
     const showsFromSongkick = responseSongKick.data.resultsPage.results.event // grab just the events objects
-    const artistsObj = showsFromSongkick.map(show => { // filter out most punctuation that breaks urls
-      show = show.performance[0].displayName
-      show = show.replace(/[&]/g, 'and')
-      .replace(/[\/\\#,+()$~%.":*?<>{}]/g, '')
-      .replace(/' /g, ' ')
-      return show.split(' ').join('+')
-    })
     
-    lastFmObj = await pingLastFm(artistsObj).then(data => data)
-        
-    showsObj = showsFromSongkick.map( (show) =>{ 
+    showsObj = showsFromSongkick.map(show=>{ 
       let headlinerName = show.performance[0].displayName
       let support1 = ''
       let support2 = ''
@@ -54,13 +45,36 @@ const getApiData = async () => {
         headlinerBio: ''
       }
     })
+    
+    filteredShowsObj = filterShowsObj(showsObj)
+    artistsObj = filterArtists(filteredShowsObj)
+    
+    lastFmObj = await pingLastFm(artistsObj).then(data => data)
+    
   } catch (err) {
     console.error(err)
   }
-  const finalShowsObj = combineObjects(lastFmObj, showsObj)
+  
+  
+  const finalShowsObj = combineObjects(lastFmObj, filteredShowsObj)
   return finalShowsObj
 }
 
+const filterShowsObj = (showsObj) => {
+  return showsObj.reduce((newShows, currShow) => { 
+    return newShows.find(show => show.date === currShow.date && show.venue === currShow.venue) ? newShows : newShows.push(currShow) && newShows
+  }, [])
+}
+
+const filterArtists = (filteredShowsObj) =>{
+  return filteredShowsObj.map(show => { // filter out most punctuation that breaks urls
+    show = show.headliner
+    show = show.replace(/[&]/g, 'and')
+    .replace(/[\/\\#,+()$~%.":*?<>{}]/g, '')
+    .replace(/' /g, ' ')
+    return show.split(' ').join('+')  
+  })
+}
 const pingLastFm = (artistsObj) => {
     const headlinerInfo = artistsObj.map((artist) => {
     const lastFmApi = encodeURI(`http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${artist}&autocorrect=1&api_key=${lastFmApiKey}&format=json`) 
@@ -181,7 +195,7 @@ const addPickupParties = (newShowsIdAndStartTime) => {
         eventId: show.id,
         lastBusDepartureTime: calcDepartTime(show.startTime, 210) })
     })
-  
+  console.log(newPickupParties)
   knex('pickup_parties')
   .insert(newPickupParties)
   .returning('*').then(result=>console.log('pickup parties updated', typeof result, result.length))
