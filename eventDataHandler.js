@@ -85,7 +85,7 @@ const pingLastFm = (artistsObj) => {
       return data.data
     })
     .catch(err=>{
-      console.log('error!', err)
+      console.error('error!', err)
     })
   })
   // map over array of band names, assign a promise to each one
@@ -104,7 +104,7 @@ const pingLastFm = (artistsObj) => {
     return headlinerInfoObj1
   })
   .catch(err=>{
-    console.log(err)
+    console.error(err)
   })  
 }
 

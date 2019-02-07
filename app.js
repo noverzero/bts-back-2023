@@ -55,7 +55,6 @@ apiDataFunction() // commented out until we go live
 
 let time = new Date()
 cron.schedule('00 04 * * * *', async () => {
-  // console.log('Cron!', time.getMinutes())
   apiDataFunction()
 })
 
