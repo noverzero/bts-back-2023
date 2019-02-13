@@ -12,8 +12,8 @@ const getApiData = async () => {
   try {
     const responseSongKick = await axios.get(`https://api.songkick.com/api/3.0/venues/591/calendar.json?per_page=100&apikey=${songKickApiKey}`)
     const showsFromSongkick = responseSongKick.data.resultsPage.results.event // grab just the events objects
-    
-    showsObj = showsFromSongkick.map(show=>{ 
+
+    showsObj = showsFromSongkick.map(show=>{
       let headlinerName = show.performance[0].displayName
       let support1 = ''
       let support2 = ''
@@ -22,18 +22,18 @@ const getApiData = async () => {
       let date = show.start.date.split('-').splice(1, 3).concat(show.start.date.split(`-`)[0]).join('/')
       if (show.performance[1]) {
         support1 = show.performance[1].displayName
-      } 
+      }
       if (show.performance[2]) {
-        support1 = show.performance[2].displayName
-      } 
+        support2 = show.performance[2].displayName
+      }
       if (show.performance[3]) {
-        support1 = show.performance[3].displayName
-      } 
+        support3 = show.performance[3].displayName
+      }
       if (show.start.time === null) {
         time = '00:00:00'
       }
       return {
-        id: show.id, 
+        id: show.id,
         date: date,
         startTime: time,
         venue: show.venue.displayName.split(' Ampitheatre')[0],
@@ -45,23 +45,23 @@ const getApiData = async () => {
         headlinerBio: ''
       }
     })
-    
+
     filteredShowsObj = filterShowsObj(showsObj)
     artistsObj = filterArtists(filteredShowsObj)
-    
+
     lastFmObj = await pingLastFm(artistsObj).then(data => data)
-    
+
   } catch (err) {
     console.error(err)
   }
-  
-  
+
+
   const finalShowsObj = combineObjects(lastFmObj, filteredShowsObj)
   return finalShowsObj
 }
 
 const filterShowsObj = (showsObj) => {
-  return showsObj.reduce((newShows, currShow) => { 
+  return showsObj.reduce((newShows, currShow) => {
     return newShows.find(show => show.date === currShow.date && show.venue === currShow.venue) ? newShows : newShows.push(currShow) && newShows
   }, [])
 }
@@ -72,14 +72,14 @@ const filterArtists = (filteredShowsObj) =>{
     show = show.replace(/[&]/g, 'and')
     .replace(/[\/\\#,+()$~%.":*?<>{}]/g, '')
     .replace(/' /g, ' ')
-    return show.split(' ').join('+')  
+    return show.split(' ').join('+')
   })
 }
 const pingLastFm = (artistsObj) => {
     const headlinerInfo = artistsObj.map((artist) => {
-    const lastFmApi = encodeURI(`http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${artist}&autocorrect=1&api_key=${lastFmApiKey}&format=json`) 
+    const lastFmApi = encodeURI(`http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${artist}&autocorrect=1&api_key=${lastFmApiKey}&format=json`)
     //encodeURI allows for UTF-8 conversion of special letters in band name
-    
+
     return axios.get(lastFmApi)
     .then(data=>{
       return data.data
@@ -96,8 +96,8 @@ const pingLastFm = (artistsObj) => {
       }
       const headlinerName = data.artist.name
       const headlinerImg = data.artist.image[2]['#text']
-      const headlinerBio = data.artist.bio.content 
-      
+      const headlinerBio = data.artist.bio.content
+
       return { headlinerName, headlinerImg, headlinerBio  }
     })
     // after promise fulfilled, populate an object with the fields above and return it to the previous function
@@ -105,14 +105,14 @@ const pingLastFm = (artistsObj) => {
   })
   .catch(err=>{
     console.error(err)
-  })  
+  })
 }
 
 const combineObjects = async (lastFmObj, showsObj) => {
   // combine data from the two objects
   const data = showsObj.map((show, i) => {
     return {
-      ...show, 
+      ...show,
       headlinerImgLink: lastFmObj[i].headlinerImg,
       headlinerBio: lastFmObj[i].headlinerBio
     }
@@ -134,7 +134,7 @@ const insertEventData = (allShowsObj) => {
       })
       let newShowsIdAndStartTime = newShowsArr.map(show=>{
         return {
-          'id': show.id, 
+          'id': show.id,
           'startTime': convertTimeToMinutes(show.startTime)
         }})
 
@@ -142,8 +142,8 @@ const insertEventData = (allShowsObj) => {
       .insert(newShowsArr)
       .returning('*').then(result=>{
         addPickupParties(newShowsIdAndStartTime)
-      }) 
-      
+      })
+
     })
 }
 // math from "hh:mm:ss" to minutes as a number
@@ -193,7 +193,8 @@ const addPickupParties = (newShowsIdAndStartTime) => {
         lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
       { pickupLocationId:7,
         eventId: show.id,
-        lastBusDepartureTime: calcDepartTime(show.startTime, 210) })
+        lastBusDepartureTime: calcDepartTime(show.startTime, 210),
+        partyPrice: 30.00})
     })
   knex('pickup_parties')
   .insert(newPickupParties)

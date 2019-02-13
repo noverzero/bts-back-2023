@@ -71,7 +71,7 @@ exports.seed = (knex) => {
           latitude: '40.588001',
           longitude: '-105.074547',
           type: 'standard',
-          basePrice: '25.00'
+          basePrice: '30.00'
         },
       ])
     })
