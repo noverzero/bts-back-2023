@@ -79,6 +79,7 @@ router.post('/', function (req, res, next) {
           return newOrdersArr
         })
         .then((ordersArr) => {
+          console.log('ordersArr', ordersArr)
           knex('reservations')
             .insert({
               orderId: ordersArr[0],
