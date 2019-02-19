@@ -26,6 +26,7 @@ router.get('/:id', function(req, res, next){
 
 //Create (create one of the resource)
 router.post('/', function(req, res, next){
+  console.log('req.body inside reservations', req.body)
   knex('reservations')
     .insert(req.body)
     .returning(['id', 'orderId', 'pickupPartiesId', 'willCallFirstName', 'willCallLastName', 'status', 'discountCodeId'])

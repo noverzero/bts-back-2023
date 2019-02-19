@@ -79,19 +79,25 @@ router.post('/', function (req, res, next) {
           return newOrdersArr
         })
         .then((ordersArr) => {
-          knex('reservations')
-            .insert({
-              orderId: ordersArr[0],
-              pickupPartiesId: ordersArr[1],
-              willCallFirstName: req.body.willCallFirstName,
-              willCallLastName: req.body.willCallLastName,
-              discountCodeId: null
-            })
-            .returning('*')
-            .then((newReservation) => {
-              res.status(200).json(newReservation[0])
-            })
-        })
+        	let ticketQuantity = req.body.ticketQuantity
+        	let reservationsArr=[]
+         	for(let ii = 0; ii < ticketQuantity; ii++){
+        		reservationsArr.push({
+                  orderId: ordersArr[0],
+                  pickupPartiesId: ordersArr[1],
+                  willCallFirstName: req.body.willCallFirstName,
+                  willCallLastName: req.body.willCallLastName,
+                  discountCodeId: null
+                })
+  			         }
+              knex('reservations')
+                .insert(reservationsArr)
+                .returning('*')
+                .then((newReservation) => {
+                  console.log('newResssssss', newReservation)
+                  res.status(200).json(newReservation[0])
+                })
+              })
         .catch(err => {
           res.status(400).json(err)
         })
@@ -127,6 +133,8 @@ router.post('/charge', async(req, res) => {
     source: req.body.stripeToken.id,
   })
   .then(customer =>{
+    console.log('stripe customer::', customer)
+    console.log('stripe req.body::', req.body)
     stripe.charges.create({
         amount: req.body.amount,
         description: req.body.eventId,
