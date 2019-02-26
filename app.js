@@ -11,6 +11,7 @@ var dotenv = require('dotenv').config()
 var cron = require('node-cron')
 const ORIGIN_URL = process.env.ORIGIN_URL
 var cors = require('cors');
+var helmet = require('helmet')
 
 var discountCodesEventsRouter = require('./routes/discount_codes_events')
 var discountCodesRouter = require('./routes/discount_codes');
@@ -29,7 +30,7 @@ var reservationsRouter = require('./routes/reservations')
 //   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 //   next();
 // });
-
+app.use(helmet())
 app.use(cors({
   origin: ORIGIN_URL
 }))
