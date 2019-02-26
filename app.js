@@ -32,7 +32,8 @@ var reservationsRouter = require('./routes/reservations')
 // });
 app.use(helmet())
 app.use(cors({
-  origin: ORIGIN_URL
+  origin: ORIGIN_URL,
+  credentials: false
 }))
 app.use(logger('dev'));
 app.use(express.json());
