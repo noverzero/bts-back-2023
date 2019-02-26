@@ -31,6 +31,7 @@ router.get('/:id', function(req, res, next){
 
 //POST ROUTE ORDERS
 router.post('/', function (req, res, next) {
+  console.log('Orders Post req.body before destructure::',req.body)
   const {
     pickupLocationId,
     eventId,
