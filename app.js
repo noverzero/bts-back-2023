@@ -23,7 +23,7 @@ var app = express();
 var reservationsRouter = require('./routes/reservations')
 
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "localhost:3001/");
+  res.header("Access-Control-Allow-Origin", "http://roomy-move.surge.sh/");
   res.header("Access-Control-Allow-Methods", "GET,POST,DELETE,PATCH,PUT");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
