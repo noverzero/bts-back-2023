@@ -30,7 +30,9 @@ var reservationsRouter = require('./routes/reservations')
 //   next();
 // });
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://roomy-move.surge.sh/'
+}))
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
