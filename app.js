@@ -33,7 +33,7 @@ var app = express();
 // });
 app.use(helmet())
 app.use(cors({
-  origin: ORIGIN_URL,
+  origin: '*',
   credentials: false
 }))
 app.use(logger('dev'));
