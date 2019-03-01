@@ -94,7 +94,7 @@ const pingLastFm = (artistsObj) => {
       if(data.error){
         return new Error("artist does not exist in Last.fm")
       }
-      const headlinerName = data.artist.name
+      const headlinerName = data.artist.name // || "Headliner Name"  //not sure why this doesn't default to the string in the absence of data.artist.name
       const headlinerImg = data.artist.image[2]['#text']
       const headlinerBio = data.artist.bio.content
 
