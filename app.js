@@ -32,10 +32,7 @@ var app = express();
 //   next();
 // });
 app.use(helmet())
-app.use(cors({
-  origin: '*',
-  credentials: false
-}))
+app.use(cors())
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
