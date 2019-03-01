@@ -1,7 +1,6 @@
 var axios = require('axios')
 const knex = require('./knex.js')
 const lastFmApiKey = process.env.LASTFM_KEY
-
 const songKickApiKey = process.env.SONGKICK_KEY
 
 // make the api call to last.fm
