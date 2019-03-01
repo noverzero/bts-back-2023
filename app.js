@@ -40,8 +40,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // app.use('/users', usersRouter);
-app.use(`/${ACCESS_URL}/pickup_locations`'/discount_codes_events', discountCodesEventsRouter);
-app.use(`/${ACCESS_URL}/pickup_locations`'/discount_codes', discountCodesRouter);
+app.use(`/${ACCESS_URL}/discount_codes_events`, discountCodesEventsRouter);
+app.use(`/${ACCESS_URL}/discount_codes`, discountCodesRouter);
 app.use(`/${ACCESS_URL}/events`, eventsRouter);
 app.use(`/${ACCESS_URL}/orders`, ordersRouter);
 app.use(`/${ACCESS_URL}/pickup_locations`, pickupLocationsRouter);
