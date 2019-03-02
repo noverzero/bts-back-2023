@@ -12,6 +12,7 @@ exports.up = (knex, Promise) => {
     table.string("headlinerImgLink").defaultTo(``)
     table.boolean("meetsCriteria").notNullable().defaultTo(true)
     table.boolean("isDenied").notNullable().defaultTo(false)
+    table.string("external").defaultTo("")
     table.timestamps(true,true)
   })
 }
