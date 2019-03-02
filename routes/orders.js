@@ -31,7 +31,6 @@ router.get('/:id', function(req, res, next){
 
 //POST ROUTE ORDERS
 router.post('/', function (req, res, next) {
-  console.log('Orders Post req.body before destructure::',req.body)
   const {
     pickupLocationId,
     eventId,
@@ -95,7 +94,7 @@ router.post('/', function (req, res, next) {
             .insert(reservationsArr)
             .returning('*')
             .then((newReservation) => {
-              console.log('newResssssss', newReservation)
+              console.log('newRes', newReservation)
               res.status(200).json(newReservation[0])
             })
           })
@@ -134,7 +133,6 @@ router.post('/charge', async(req, res) => {
     source: req.body.stripeToken.id,
   })
   .then(customer =>{
-    console.log('stripe req.body::', req.body)
     stripe.charges.create({
         amount: req.body.amount,
         description: req.body.eventId,
@@ -143,7 +141,7 @@ router.post('/charge', async(req, res) => {
         metadata: req.body.metadata
       }, (err, charge) => {
         if (err) {
-          return err
+          return res.json(err)
         }
 
         return res.json(charge)
