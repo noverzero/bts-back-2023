@@ -126,7 +126,7 @@ router.post('/charge', async(req, res) => {
         if (err) {
           return err
         }
-        console.log(res)
+        // console.log(res)
         return res.json(charge)
       }
     )
