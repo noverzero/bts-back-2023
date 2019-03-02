@@ -144,7 +144,7 @@ router.post('/charge', async(req, res) => {
         console.log("charge outcome", charge)
         console.log('error', err);
         if (err) {
-          return err
+          return res.json(err)
         }
 
         return res.json(charge)
