@@ -8,6 +8,7 @@ exports.up = function(knex, Promise) {
     table.foreign('pickupLocationId').references('pickup_locations.id').onDelete('CASCADE')
     table.string('lastBusDepartureTime')
     table.string('firstBusLoadTime')
+    table.float("partyPrice").defaultTo(25.00)
     table.integer('inCart').notNullable().defaultTo(0)
     table.integer('capacity').notNullable().defaultTo(44)
     table.timestamps(true, true)
