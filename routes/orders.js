@@ -31,7 +31,6 @@ router.get('/:id', function(req, res, next){
 
 //POST ROUTE ORDERS
 router.post('/', function (req, res, next) {
-  console.log('Orders Post req.body before destructure::',req.body)
   const {
     pickupLocationId,
     eventId,
@@ -95,7 +94,7 @@ router.post('/', function (req, res, next) {
             .insert(reservationsArr)
             .returning('*')
             .then((newReservation) => {
-              console.log('newResssssss', newReservation)
+              console.log('newRes', newReservation)
               res.status(200).json(newReservation[0])
             })
           })
@@ -142,6 +141,7 @@ router.post('/charge', async(req, res) => {
         customer: customer.id,
         metadata: req.body.metadata
       }, (err, charge) => {
+        console.log(charge.outcome);
         if (err) {
           return err
         }
