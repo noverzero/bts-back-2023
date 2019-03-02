@@ -33,7 +33,7 @@ var app = express();
 // });
 app.use(helmet())
 app.use(cors({
-  origin: 'http://localhost:3002/'
+  origin: '*'
 }))
 app.use(logger('dev'));
 app.use(express.json());
