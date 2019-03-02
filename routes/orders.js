@@ -140,7 +140,6 @@ router.post('/charge', async(req, res) => {
         description: req.body.eventId,
         currency: 'usd',
         customer: customer.id,
-        receipt_email: customer.email,
         metadata: req.body.metadata
       }, (err, charge) => {
         if (err) {
