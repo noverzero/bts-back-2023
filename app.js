@@ -32,7 +32,9 @@ var app = express();
 //   next();
 // });
 app.use(helmet())
-app.use(cors())
+app.use(cors({
+  origin: 'http://localhost:3002/'
+}))
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -40,13 +42,13 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // app.use('/users', usersRouter);
-app.use(`/${ACCESS_URL}/discount_codes_events`, discountCodesEventsRouter);
-app.use(`/${ACCESS_URL}/discount_codes`, discountCodesRouter);
-app.use(`/${ACCESS_URL}/events`, eventsRouter);
-app.use(`/${ACCESS_URL}/orders`, ordersRouter);
-app.use(`/${ACCESS_URL}/pickup_locations`, pickupLocationsRouter);
-app.use(`/${ACCESS_URL}/pickup_parties`, pickupPartiesRouter);
-app.use(`/${ACCESS_URL}/reservations`, reservationsRouter);
+app.use(`/discount_codes_events`, discountCodesEventsRouter);
+app.use(`/discount_codes`, discountCodesRouter);
+app.use(`/events`, eventsRouter);
+app.use(`/orders`, ordersRouter);
+app.use(`/pickup_locations`, pickupLocationsRouter);
+app.use(`/pickup_parties`, pickupPartiesRouter);
+app.use(`/reservations`, reservationsRouter);
 
 app.use(function(req, res) {
   res.status(404).send('Not Found');
