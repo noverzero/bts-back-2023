@@ -141,7 +141,7 @@ router.post('/charge', async(req, res) => {
         customer: customer.id,
         metadata: req.body.metadata
       }, (err, charge) => {
-        console.log(charge.outcome);
+        console.log("charge outcome", charge);
         if (err) {
           return err
         }
