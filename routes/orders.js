@@ -134,6 +134,7 @@ router.post('/charge', async(req, res) => {
     source: req.body.stripeToken.id,
   })
   .then(customer =>{
+    console.log('customeeeeer', customer)
     stripe.charges.create({
         amount: req.body.amount,
         description: req.body.eventId,
