@@ -87,7 +87,7 @@ router.patch('/:discountCode', function(req, res, next) {
     else if(match){
 
     afterDiscountObj.newRemainingUses=match.remainingUses
-    console.log("afterdiscountobject", afterDiscountObj)
+    // console.log("afterdiscountobject", afterDiscountObj)
 
     let expiration = Date.parse(match.expiresOn.toLocaleString('en-US'))
     let today = Date.parse(new Date().toLocaleString('en-US', {
