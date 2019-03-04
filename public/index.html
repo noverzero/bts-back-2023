@@ -7,21 +7,6 @@
 <body>
   <h1>BTS q3 backend</h1>
   <script src="main.js" charset="utf-8"></script>
-  <form action="/orders/charge" method="POST">
-    <script
-      src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-      data-key="pk_test_J0CdRMCGmBlrlOiGKnGgUEwT"
-      data-amount="7500"
-      data-name="Web Development Ebook"
-      data-description="Ebook written by Brad Traversy"
-      data-locale="auto">
-    </script>
-    <script>
-      // Hide default stripe button
-      document.getElementsByClassName('stripe-button-el')[0].style.display = 'none';
-    </script>
-    <button type="submit" class="btn btn-outline-dark text-white btn-lg">Purchase For $25</button>
-  </form>
 </body>
 
 </html>

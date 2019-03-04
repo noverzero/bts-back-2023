@@ -5,7 +5,7 @@ const router = express.Router();
 const knex = require('../knex.js')
 //var stripeSecretKey = process.env.STRIPE_SECRETKEY;
 var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
-var stripeTestKey="pk_test_J0CdRMCGmBlrlOiGKnGgUEwT"
+//var stripeTestKey="pk_test_J0CdRMCGmBlrlOiGKnGgUEwT"
 var stripePublicKey = 'pk_live_WZRwtpLAFcufugeQKbtwKobm'
 const stripe = require('stripe')(stripeSecretKey);
 
