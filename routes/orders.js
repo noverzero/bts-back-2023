@@ -133,7 +133,7 @@ router.post('/charge', async(req, res) => {
   stripe.customers.create({
     email: req.body.stripeEmail,
     source: req.body.stripeToken.id,
-    description: req.body.description
+    description: req.body.metadata.eventId
   })
   .then(customer =>{
     console.log('customer inside post /charge', customer)
