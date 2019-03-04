@@ -129,14 +129,11 @@ router.delete('/:id', function(req, res, next){
 })
 
 router.post('/charge', async(req, res) => {
-  console.log("req.body inside post /charge", req.body)
   stripe.customers.create({
     email: req.body.stripeEmail,
     source: req.body.stripeToken.id,
-    description: req.body.metadata.eventId
   })
   .then(customer =>{
-    console.log('customer inside post /charge', customer)
     stripe.charges.create({
         amount: req.body.amount,
         description: req.body.eventId,
