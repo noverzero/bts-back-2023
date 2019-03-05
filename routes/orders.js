@@ -3,11 +3,16 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('../knex.js')
+const nodemailer = require('nodemailer')
+const EMAIL_PASS = process.env.EMAIL_PASS
 //var stripeSecretKey = process.env.STRIPE_SECRETKEY;
 var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
 //var stripeTestKey="pk_test_J0CdRMCGmBlrlOiGKnGgUEwT"
 var stripePublicKey = 'pk_live_WZRwtpLAFcufugeQKbtwKobm'
 const stripe = require('stripe')(stripeSecretKey);
+
+
+
 
 
 //List (get all of the resource)
@@ -32,6 +37,7 @@ router.get('/:id', function(req, res, next){
 
 //POST ROUTE ORDERS
 router.post('/', function (req, res, next) {
+  console.log('ORDERS REQ.BODY', req.body)
   const {
     pickupLocationId,
     eventId,
@@ -43,6 +49,34 @@ router.post('/', function (req, res, next) {
     ticketQuantity,
     discountCode
   } = req.body
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'updates@bustoshow.org',
+      pass: EMAIL_PASS
+    }
+  });
+
+  const deets = {
+  query: knex('pickup_parties')
+  .join('events', 'events.id', '=', 'pickup_parties.eventId')
+  .join('pickup_locations', 'pickup_locations.id', '=', 'pickup_parties.pickupLocationId')
+  .where('eventId', eventId)
+  .where('pickupLocationId', pickupLocationId)
+  .select('events.date', 'events.headliner', 'events.venue', 'pickup_locations.locationName', 'pickup_locations.streetAddress', 'firstBusLoadTime', 'lastBusDepartureTime')
+  .then((data)=>{
+    return data[0]
+    })
+  }
+
+  const mailOptions = {
+    from: 'updates@bustoshow.org',
+    to: email,
+    subject: 'Your Bus to Show Order Confirmation',
+    text: `Thank you for riding with Bus to Show!  You have reserved ${ticketQuantity} seat(s) from pick up location #: ${pickupLocationId} to event #: ${eventId}, which I know doesn't mean much to you, but don't worry...I will send you another email in a couple days with these numbers decoded. The most recently updated departure time ranges are always current on the website.  So when the event gets closer, please go to the website again and check the times.  We will never move last call times earlier, unless it is an  emergency, and if that happens, we will send lots of communication with lots of notice, and give you an opportunity to cancel. Otherwise, just bring your ID to check-in at the date and time and place you reserved for, and be ready to have a great time! ${console.log('deets-',deets)}`
+  }
+
   let newPickupPartyId
   let newOrderId
   const currentEventId = req.body.eventId
@@ -95,13 +129,19 @@ router.post('/', function (req, res, next) {
             .insert(reservationsArr)
             .returning('*')
             .then((newReservation) => {
-              console.log('newRes', newReservation)
               res.status(200).json(newReservation[0])
             })
           })
         .catch(err => {
           res.status(400).json(err)
         })
+        .then(transporter.sendMail(mailOptions, function(error, info){
+          if (error) {
+            console.log(error);
+          } else {
+            console.log('Email sent: ' + info.response);
+          }
+        }))
       })
     })
 
