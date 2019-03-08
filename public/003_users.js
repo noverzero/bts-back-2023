@@ -8,7 +8,7 @@ const generateUsersSeeds = (num) => {
   let users = []
   for (let i = 0; i < num; i++) {
       users.push(
-        {firstName: firstNameSeed(), lastName: lastNameSeed(), email: seedEmail(), preferredLocation: preferredLocationSeed(['Denver', 'Boulder', 'Fort Collins', 'Longmont', ''])}
+        {firstName: firstNameSeed(), lastName: lastNameSeed(), email: seedEmail(), preferredLocation: preferredLocationSeed(['Denver', 'Boulder', 'Fort Collins', 'Longmont', '']), isCheckin: false, isDriver: false, isAdmin: false, isDeactivated: false}
       )
   }
   return users
