@@ -17,7 +17,7 @@ const stripe = require('stripe')(stripeSecretKey);
 //List (get all of the resource)
 router.get('/', function (req, res, next) {
   knex('orders')
-    .select('id', 'pickupLocationId', 'eventId', 'reservationId', 'reservationWillCallName', 'discountCodeId', 'status')
+    .select('id', 'orderedByFirstName', 'orderedByLastName', 'orderedByEmail')
   .then((data) => {
     res.status(200).json(data)
   })
