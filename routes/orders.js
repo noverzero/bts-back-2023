@@ -32,6 +32,7 @@ router.get('/:id', function(req, res, next){
   .join('pickup_parties', 'reservations.pickupPartiesId', '=', 'pickup_parties.id')
   .join('pickup_locations', 'pickup_locations.id', '=', 'pickup_parties.pickupLocationId')
   .join('events', 'events.id', '=', 'pickup_parties.eventId')
+  .orderBy('date')
   .where('orders.user_id', req.params.id)
   .then((data) => {
     res.status(200).json(data)
@@ -56,6 +57,7 @@ router.get('/:id', function(req, res, next){
 //POST ROUTE ORDERS
 router.post('/', function (req, res, next) {
   const {
+    user_id,
     pickupLocationId,
     eventId,
     firstName,
@@ -100,6 +102,7 @@ return knex('pickup_parties')
   }
   knex('orders')
     .insert({
+      user_id: user_id,
       orderedByFirstName: firstName,
       orderedByLastName: lastName,
       orderedByEmail: email
