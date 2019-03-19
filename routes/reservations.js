@@ -40,10 +40,10 @@ router.patch('/findOrders', function(req, res, next){
   console.log('findOrders');
   knex('reservations')
     .join('orders', 'orders.id', '=', 'reservations.orderId')
-    .select('reservations.orderId', 'reservations.willCallFirstName', 'reservations.willCallLastName', 'orders.orderedByFirstName', 'orders.orderedByLastName', 'reservations.status')
+    .select('reservations.id', 'reservations.orderId', 'reservations.willCallFirstName', 'reservations.willCallLastName', 'orders.orderedByFirstName', 'orders.orderedByLastName', 'reservations.status')
     .where('pickupPartiesId', req.body.pickupPartiesId)
   .then(data=>{
-    if (data[0]) return res.status(200).json(data[0])
+    if (data) return res.status(200).json(data)
     else return res.status(404).send('No reservations yet')
   })
 })

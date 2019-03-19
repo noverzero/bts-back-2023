@@ -4,7 +4,6 @@ const express = require('express');
 const router = express.Router();
 const knex = require('../knex.js')
 
-
 //List (get all of the resource)
 router.get('/', function(req, res, next){
   knex('pickup_parties')
@@ -64,7 +63,6 @@ router.patch('/', function(req, res, next){
     res.status(200).json(data[0])
   })
 })
-
 
 //Delete (delete one of the resource)
 router.delete('/:id', function(req, res, next){
