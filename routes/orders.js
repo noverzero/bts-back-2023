@@ -27,13 +27,13 @@ router.get('/', function (req, res, next) {
 //Get All reservations associated with a userId (passed in as req.params.id)
 router.get('/:id', function(req, res, next){
   knex('orders')
-  .select('orderedByFirstName', 'orderedByLastName', 'orderedByEmail', 'user_id', 'orderId', 'willCallFirstName', 'willCallLastName', 'status', 'lastBusDepartureTime', 'firstBusLoadTime', 'city', 'locationName', 'streetAddress', 'date', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerBio', 'headlinerImgLink' )
+  .select('orderedByFirstName', 'orderedByLastName', 'orderedByEmail', 'userId', 'orderId', 'willCallFirstName', 'willCallLastName', 'status', 'lastBusDepartureTime', 'firstBusLoadTime', 'city', 'locationName', 'streetAddress', 'date', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerBio', 'headlinerImgLink' )
   .join('reservations', 'orders.id', '=', 'reservations.orderId')
   .join('pickup_parties', 'reservations.pickupPartiesId', '=', 'pickup_parties.id')
   .join('pickup_locations', 'pickup_locations.id', '=', 'pickup_parties.pickupLocationId')
   .join('events', 'events.id', '=', 'pickup_parties.eventId')
   .orderBy('date')
-  .where('orders.user_id', req.params.id)
+  .where('orders.userId', req.params.id)
   .then((data) => {
     res.status(200).json(data)
   })
@@ -42,22 +42,23 @@ router.get('/:id', function(req, res, next){
 
 //Read (get one of the resource)
 // Get One
-router.get('/:id', function(req, res, next){
-  knex('orders')
-    .select('id', 'orderedByFirstName', 'orderedByLastName', 'orderedByEmail')
-    .where('id', req.params.id)
-  .then((data) => {
-    res.status(200).json(data[0])
-  })
-  .catch(err => {
-    res.status(400).json(err)
-  })
-})
+// router.get('/:id', function(req, res, next){
+//   knex('orders')
+//     .select('id', 'orderedByFirstName', 'orderedByLastName', 'orderedByEmail')
+//     .where('id', req.params.id)
+//   .then((data) => {
+//     res.status(200).json(data[0])
+//   })
+//   .catch(err => {
+//     res.status(400).json(err)
+//   })
+// })
 
 //POST ROUTE ORDERS
 router.post('/', function (req, res, next) {
+  console.log('req.body insde orders post route', req.body)
   const {
-    user_id,
+    userId,
     pickupLocationId,
     eventId,
     firstName,
@@ -102,7 +103,7 @@ return knex('pickup_parties')
   }
   knex('orders')
     .insert({
-      user_id: user_id,
+      userId: userId,
       orderedByFirstName: firstName,
       orderedByLastName: lastName,
       orderedByEmail: email
@@ -179,15 +180,15 @@ router.patch('/:id', function(req, res, next){
 })
 
 //Delete (delete one of the resource)
-router.delete('/:id', function(req, res, next){
-  knex('orders')
-    .where('id', req.params.id)
-    .del('*')
-    .returning(['id', 'orderedByFirstName', 'orderedByLastName', 'orderedByEmail'])
-  .then((data) => {
-    res.status(200).json(data[0])
-  })
-})
+// router.delete('/:id', function(req, res, next){
+//   knex('orders')
+//     .where('id', req.params.id)
+//     .del('*')
+//     .returning(['id', 'orderedByFirstName', 'orderedByLastName', 'orderedByEmail'])
+//   .then((data) => {
+//     res.status(200).json(data[0])
+//   })
+// })
 
 router.post('/charge', async(req, res) => {
   stripe.customers.create({

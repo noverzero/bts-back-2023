@@ -58,25 +58,25 @@ router.patch('/:id', function(req, res, next){
   })
 })
 
-router.patch('/', function(req, res, next){
-  knex('pickup_parties')
-    .where({'pickupLocationId': req.body.pickupLocationId, 'eventId': req.body.eventId})
-    .increment('inCart', req.body.ticketQuantity)
-    .returning(['*'])
-  .then((data) => {
-    res.status(200).json(data[0])
-  })
-})
+// router.patch('/', function(req, res, next){
+//   knex('pickup_parties')
+//     .where({'pickupLocationId': req.body.pickupLocationId, 'eventId': req.body.eventId})
+//     .increment('inCart', req.body.ticketQuantity)
+//     .returning(['*'])
+//   .then((data) => {
+//     res.status(200).json(data[0])
+//   })
+// })
 
 //Delete (delete one of the resource)
-router.delete('/:id', function(req, res, next){
-  knex('pickup_parties')
-    .where('id', req.params.id)
-    .del('*')
-    .returning(['*'])
-  .then((data) => {
-    res.status(200).json(data[0])
-  })
-})
+// router.delete('/:id', function(req, res, next){
+//   knex('pickup_parties')
+//     .where('id', req.params.id)
+//     .del('*')
+//     .returning(['*'])
+//   .then((data) => {
+//     res.status(200).json(data[0])
+//   })
+// })
 
 module.exports = router;
