@@ -46,13 +46,13 @@ router.patch('/:id', function(req, res, next){
 })
 
 //Delete (delete one of the resource)
-router.delete('/:id', function(req, res, next){
-  knex('users')
-    .where('id', req.params.id)
-    .del('*')
-    .returning(['id', 'date', 'startTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied', 'external'])
-  .then((data) => {
-    res.status(200).json(data[0])
-  })
-})
+// router.delete('/:id', function(req, res, next){
+//   knex('users')
+//     .where('id', req.params.id)
+//     .del('*')
+//     .returning(['id', 'date', 'startTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied', 'external'])
+//   .then((data) => {
+//     res.status(200).json(data[0])
+//   })
+// })
 module.exports = router;

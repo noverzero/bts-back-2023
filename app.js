@@ -22,8 +22,8 @@ var pickupLocationsRouter = require('./routes/pickup_locations');
 var pickupPartiesRouter = require('./routes/pickup_parties');
 var eventDataHandler = require('./eventDataHandler')
 var reservationsRouter = require('./routes/reservations')
+var usersRouter = require('./routes/users')
 var app = express();
-
 
 // app.use(function(req, res, next) {
 //   res.header("Access-Control-Allow-Origin", "http://roomy-move.surge.sh/");
@@ -31,6 +31,7 @@ var app = express();
 //   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 //   next();
 // });
+
 app.use(helmet())
 app.use(cors({
   origin: '*'
@@ -41,7 +42,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// app.use('/users', usersRouter);
+app.use('/users', usersRouter);
 app.use(`/discount_codes_events`, discountCodesEventsRouter);
 app.use(`/discount_codes`, discountCodesRouter);
 app.use(`/events`, eventsRouter);

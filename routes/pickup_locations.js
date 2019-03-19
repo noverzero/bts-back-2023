@@ -34,25 +34,25 @@ router.post('/', function(req, res, next){
   })
 })
 
-router.patch('/:id', function(req, res, next){
-  knex('pickup_locations')
-    .where('id', req.params.id)
-    .update(req.body)
-    .returning(['id', 'streetAddress', 'city', 'locationName', 'latitude', 'longitude', 'type', 'basePrice'])
-  .then((data) => {
-    res.status(200).json(data[0])
-  })
-})
-
-//Delete (delete one of the resource)
-router.delete('/:id', function(req, res, next){
-  knex('pickup_locations')
-    .where('id', req.params.id)
-    .del('*')
-    .returning(['id', 'streetAddress', 'city', 'locationName', 'latitude', 'longitude', 'type', 'basePrice'])
-  .then((data) => {
-    res.status(200).json(data[0])
-  })
-})
+// router.patch('/:id', function(req, res, next){
+//   knex('pickup_locations')
+//     .where('id', req.params.id)
+//     .update(req.body)
+//     .returning(['id', 'streetAddress', 'city', 'locationName', 'latitude', 'longitude', 'type', 'basePrice'])
+//   .then((data) => {
+//     res.status(200).json(data[0])
+//   })
+// })
+//
+// //Delete (delete one of the resource)
+// router.delete('/:id', function(req, res, next){
+//   knex('pickup_locations')
+//     .where('id', req.params.id)
+//     .del('*')
+//     .returning(['id', 'streetAddress', 'city', 'locationName', 'latitude', 'longitude', 'type', 'basePrice'])
+//   .then((data) => {
+//     res.status(200).json(data[0])
+//   })
+// })
 
 module.exports = router;
