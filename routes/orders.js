@@ -33,6 +33,7 @@ router.get('/:id', function(req, res, next){
   .join('pickup_parties', 'reservations.pickupPartiesId', '=', 'pickup_parties.id')
   .join('pickup_locations', 'pickup_locations.id', '=', 'pickup_parties.pickupLocationId')
   .join('events', 'events.id', '=', 'pickup_parties.eventId')
+  .select('events.id as eventsId')
   .orderBy('date')
   .where('orders.userId', req.params.id)
   .then((data) => {
