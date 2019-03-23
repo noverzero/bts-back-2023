@@ -29,6 +29,7 @@ router.get('/:id', function(req, res, next){
   knex('orders')
   .select('orderedByFirstName', 'orderedByLastName', 'orderedByEmail', 'userId', 'orderId', 'willCallFirstName', 'willCallLastName', 'status', 'lastBusDepartureTime', 'firstBusLoadTime', 'city', 'locationName', 'streetAddress', 'date', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerBio', 'headlinerImgLink' )
   .join('reservations', 'orders.id', '=', 'reservations.orderId')
+  .select('reservations.id as reservationsId')
   .join('pickup_parties', 'reservations.pickupPartiesId', '=', 'pickup_parties.id')
   .join('pickup_locations', 'pickup_locations.id', '=', 'pickup_parties.pickupLocationId')
   .join('events', 'events.id', '=', 'pickup_parties.eventId')
