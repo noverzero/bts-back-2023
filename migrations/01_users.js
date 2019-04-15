@@ -5,13 +5,15 @@ exports.up = (knex) => {
     table.string('lastName').notNullable()
     table.string('email').notNullable()
     table.boolean('isWaiverSigned').notNullable().defaultTo('false')
-    table.string('userType').notNullable().defaultTo('standard')
+    table.boolean('isStaff').notNullable().defaultTo('false')
+    table.boolean('isDriver').notNullable().defaultTo('false')
+    table.boolean('isAdmin').notNullable().defaultTo('false')
+    table.boolean('isDeactivated').notNullable().defaultTo('false')
     table.specificType('hshPwd', 'CHAR(60)')
     table.string('preferredLocation').defaultTo("")
     table.timestamps(true, true)
   })
 }
-//user types = {standard, staff, driver, admin, deactivated}
 
 exports.down = (knex) => {
   return knex.schema.dropTable("users")

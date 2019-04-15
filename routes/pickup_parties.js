@@ -4,7 +4,6 @@ const express = require('express');
 const router = express.Router();
 const knex = require('../knex.js')
 
-
 //List (get all of the resource)
 router.get('/', function(req, res, next){
   knex('pickup_parties')
@@ -25,6 +24,16 @@ router.get('/:id', function(req, res, next){
   })
 })
 
+//Get one pickup party for an eventId and pickupLocationId
+router.patch('/findId', function(req, res, next){
+  knex('pickup_parties')
+    .where({'pickupLocationId': req.body.pickupLocationId, 'eventId': req.body.eventId})
+    .returning(['*'])
+  .then((data) => {
+    res.status(200).json(data[0])
+  })
+})
+
 //Create (create one of the resource)
 router.post('/', function(req, res, next){
   knex('pickup_parties')
@@ -32,19 +41,6 @@ router.post('/', function(req, res, next){
     .returning(['*'])
   .then((data) => {
     res.status(200).json(data[0])
-  })
-})
-
-router.post('/findId', function(req, res, next){
-  knex('pickup_parties')
-    .select('*')
-    .where({'eventId': req.body.eventId, 'pickupLocationId':req.body.pickupLocationId})
-  .then((data) => {
-    if(data[0]){
-      res.status(200).json(data[0])
-    } else {
-      res.status(404).send("Pickup Party does not exist")
-    }
   })
 })
 
@@ -69,14 +65,14 @@ router.patch('/', function(req, res, next){
 })
 
 //Delete (delete one of the resource)
-router.delete('/:id', function(req, res, next){
-  knex('pickup_parties')
-    .where('id', req.params.id)
-    .del('*')
-    .returning(['*'])
-  .then((data) => {
-    res.status(200).json(data[0])
-  })
-})
+// router.delete('/:id', function(req, res, next){
+//   knex('pickup_parties')
+//     .where('id', req.params.id)
+//     .del('*')
+//     .returning(['*'])
+//   .then((data) => {
+//     res.status(200).json(data[0])
+//   })
+// })
 
 module.exports = router;

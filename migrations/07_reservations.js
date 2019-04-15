@@ -10,10 +10,9 @@ exports.up = (knex, Promise) => {
     table.integer('status').notNullable().defaultTo(1)
     table.integer('discountCodeId')
     table.foreign('discountCodeId').references('discount_codes.id')
-
   })
 }
-
+// status: 1 = reserved, 2 = checked in, 3 = refund/cancel
 exports.down = (knex, Promise) => {
   return knex.schema.dropTable("reservations")
 }

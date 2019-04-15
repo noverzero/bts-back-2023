@@ -1,19 +1,19 @@
-// // table.increments('id')
-// // table.integer('reservationId').notNullable()
-// // table.string('orderedByFirstName').notNullable()
-// // table.string('orderedByLastName').notNullable()
-// // table.string('orderedByEmail').notNullable()
-// // table.string('reservationWillCallName').notNullable()
-// // table.integer('eventId').notNullable()
-// // table.foreign('eventId').references('events.id').onDelete('CASCADE')
-// // table.integer('pickupLocationId').notNullable()
-// // table.foreign('pickupLocationId').onDelete('CASCADE').references('pickup_locations.id')
-// // table.integer('discountCodeId')
-// // table.foreign('discountCodeId').references('discount_codes.id')
-// // table.string('status').notNullable().defaultTo('1')
-// // table.timestamps(true, true)
-//
-//
+// table.increments('id')
+// table.integer('reservationId').notNullable()
+// table.string('orderedByFirstName').notNullable()
+// table.string('orderedByLastName').notNullable()
+// table.string('orderedByEmail').notNullable()
+// table.string('reservationWillCallName').notNullable()
+// table.integer('eventId').notNullable()
+// table.foreign('eventId').references('events.id').onDelete('CASCADE')
+// table.integer('pickupLocationId').notNullable()
+// table.foreign('pickupLocationId').onDelete('CASCADE').references('pickup_locations.id')
+// table.integer('discountCodeId')
+// table.foreign('discountCodeId').references('discount_codes.id')
+// table.string('status').notNullable().defaultTo('1')
+// table.timestamps(true, true)
+
+
 // const {util, seed} = require('data-seed')
 // const fullNameSeed = () => { return `${seed.name.en.firstName()} ${seed.name.en.lastName()}` }
 // const firstNameSeed = () => { return seed.name.en.firstName() }
@@ -21,7 +21,7 @@
 // const seedEmail = () => { return seed.email() }
 // const randomFromArraySeed = (arr) => { return  arr[Math.floor(Math.random() * arr.length)] }
 // const random10digits = () => { return util.random.int(1,10)}
-//
+
 // const generateOrdersSeeds = (num) => {
 //   let orders = []
 //   for (let i = 0; i < num; i++) {
@@ -42,6 +42,7 @@ exports.seed = (knex) => {
     .then(() => {
       // Inserts seed entries
       return knex('orders').insert(
+        // generateOrdersSeeds(200)
       //   [
       //     {
       //     id:1,

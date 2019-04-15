@@ -1,26 +1,26 @@
-const {util, seed} = require('data-seed')
-const fullNameSeed = () => { return `${seed.name.en.firstName()} ${seed.name.en.lastName()}` }
-const firstNameSeed = () => { return seed.name.en.firstName() }
-const lastNameSeed = () => { return seed.name.en.lastName() }
-const seedEmail = () => { return seed.email() }
-const randomFromArraySeed = (arr) => { return  arr[Math.floor(Math.random() * arr.length)] }
-const random10digits = () => { return util.random.int(1,10)}
-const generateOrderId= (num) => Math.floor(num*Math.random())
-const generateReservationSeeds = (num) => {
-  let reservations = []
-  for (let i = 0; i < num; i++) {
-      reservations.push(
-        {
-          orderId: generateOrderId(400)+1,
-          pickupPartiesId: generateOrderId(400),
-          discountCodeId: randomFromArraySeed([1,2,3,4,5,6,7]),
-          willCallFirstName: firstNameSeed(),
-          willCallLastName: lastNameSeed()
-        }
-      )
-  }
-  return reservations
-}
+// const {util, seed} = require('data-seed')
+// const fullNameSeed = () => { return `${seed.name.en.firstName()} ${seed.name.en.lastName()}` }
+// const firstNameSeed = () => { return seed.name.en.firstName() }
+// const lastNameSeed = () => { return seed.name.en.lastName() }
+// const seedEmail = () => { return seed.email() }
+// const randomFromArraySeed = (arr) => { return  arr[Math.floor(Math.random() * arr.length)] }
+// const random10digits = () => { return util.random.int(1,10)}
+// const generateOrderId= (num) => Math.floor(num*Math.random())
+// const generateReservationSeeds = (num) => {
+//   let reservations = []
+//   for (let i = 0; i < num; i++) {
+//       reservations.push(
+//         {
+//           // orderId: generateOrderId(400)+1,
+//           // pickupPartiesId: generateOrderId(400),
+//           discountCodeId: randomFromArraySeed([1,2,3,4,5,6,7]),
+//           willCallFirstName: firstNameSeed(),
+//           willCallLastName: lastNameSeed()
+//         }
+//       )
+//   }
+//   return reservations
+// }
 
 exports.seed = (knex) => {
   // Deletes ALL existing entries
@@ -28,6 +28,7 @@ exports.seed = (knex) => {
     .then(() => {
       // Inserts seed entries
       return knex('reservations').insert(
+        // generateReservationSeeds(200)
         // [
         //   {
         //     id:1,

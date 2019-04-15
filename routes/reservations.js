@@ -35,6 +35,19 @@ router.post('/', function(req, res, next){
   })
 })
 
+//Get all reservations for one pickup party id 
+router.patch('/findOrders', function(req, res, next){
+  console.log('findOrders');
+  knex('reservations')
+    .join('orders', 'orders.id', '=', 'reservations.orderId')
+    .select('reservations.id', 'reservations.orderId', 'reservations.willCallFirstName', 'reservations.willCallLastName', 'orders.orderedByFirstName', 'orders.orderedByLastName', 'reservations.status')
+    .where('pickupPartiesId', req.body.pickupPartiesId)
+  .then(data=>{
+    if (data) return res.status(200).json(data)
+    else return res.status(404).send('No reservations yet')
+  })
+})
+
 router.patch('/:id', function(req, res, next){
   knex('reservations')
     .where('id', req.params.id)
@@ -55,5 +68,6 @@ router.delete('/:id', function(req, res, next){
     res.status(200).json(data[0])
   })
 })
+
 
 module.exports = router;
