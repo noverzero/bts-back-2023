@@ -34,6 +34,17 @@ router.patch('/findId', function(req, res, next){
   })
 })
 
+// Get all pickup parties for one eventId
+router.patch('/findParties', function(req, res, next){
+  knex('pickup_parties')
+    .select('*')
+    .where({'eventId': req.body.eventId})
+    .returning(['*'])
+  .then((data) => {
+    res.status(200).json(data)
+  })
+})
+
 //Create (create one of the resource)
 router.post('/', function(req, res, next){
   knex('pickup_parties')

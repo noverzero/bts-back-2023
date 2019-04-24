@@ -68,6 +68,7 @@ router.post('/', function (req, res, next) {
     willCallFirstName,
     willCallLastName,
     email,
+    phone,
     ticketQuantity,
     discountCode
   } = req.body
@@ -108,7 +109,8 @@ return knex('pickup_parties')
       userId: userId,
       orderedByFirstName: firstName,
       orderedByLastName: lastName,
-      orderedByEmail: email
+      orderedByEmail: email,
+      orderedByPhone: phone
     })
     .returning('*')
     .then((newOrder) => {
@@ -121,7 +123,7 @@ return knex('pickup_parties')
           eventId: eventId,
           pickupLocationId: pickupLocationId,
         })
-        .decrement("capacity", ticketQuantity)
+        // .decrement("capacity", ticketQuantity)
         .returning('*')
         .then((newPickupParty) => {
           newPickupPartyId = newPickupParty[0].id
@@ -198,7 +200,7 @@ router.post('/charge', async(req, res) => {
     source: req.body.stripeToken.id,
   })
   .then(customer =>{
-    console.log('customeeeeer', customer)
+    // console.log('customer', customer)
     stripe.charges.create({
         amount: req.body.amount,
         description: req.body.eventId,
