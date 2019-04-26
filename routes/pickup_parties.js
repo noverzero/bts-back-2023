@@ -65,10 +65,12 @@ router.patch('/:id', function(req, res, next){
   })
 })
 
-router.patch('/', function(req, res, next){
+router.patch('/:id/cartQty/', function(req, res, next){
+  console.log(req.body)
   knex('pickup_parties')
-    .where({'pickupLocationId': req.body.pickupLocationId, 'eventId': req.body.eventId})
-    .increment('inCart', req.body.ticketQuantity)
+    .select('*')
+    .where({'id': req.params.id})
+    .increment('inCart', req.body.inCart)
     .returning(['*'])
   .then((data) => {
     res.status(200).json(data[0])
