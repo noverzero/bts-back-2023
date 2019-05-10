@@ -194,6 +194,7 @@ const addPickupParties = (newShowsIdAndStartTime) => {
     })
   knex('pickup_parties')
   .insert(newPickupParties)
+  console.log('updated pickups and events')
 }
 
 module.exports = {getApiData, insertEventData}
