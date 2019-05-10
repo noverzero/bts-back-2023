@@ -54,7 +54,6 @@ router.patch('/return/:id', function(req, res, next){
       .increment('remainingUses', timesUsed)
     .then(data=>{
       res.status(200).json(data)
-      console.log(data)
     })
   })
   .catch(error=>{
@@ -81,13 +80,11 @@ router.patch('/:discountCode', function(req, res, next) {
     .first()
   .then((match) => {
     if (!match) {
-      console.log("no match return")
       return res.status(400).json({message: 'This code is not in our database.'})
     }
     else if(match){
 
     afterDiscountObj.newRemainingUses=match.remainingUses
-    // console.log("afterdiscountobject", afterDiscountObj)
 
     let expiration = Date.parse(match.expiresOn.toLocaleString('en-US'))
     let today = Date.parse(new Date().toLocaleString('en-US', {
@@ -130,7 +127,6 @@ router.patch('/:discountCode', function(req, res, next) {
         })
         .returning(['id', 'remainingUses', 'totalPriceAfterDiscount', 'timesUsed'])
       .then((data) => {
-        console.log('data', data)
         res.status(200).json(data)
       })
     }

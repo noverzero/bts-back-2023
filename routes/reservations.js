@@ -26,7 +26,6 @@ router.get('/:id', function(req, res, next){
 
 //Create (create one of the resource)
 router.post('/', function(req, res, next){
-  console.log('req.body inside reservations', req.body)
   knex('reservations')
     .insert(req.body)
     .returning(['id', 'orderId', 'pickupPartiesId', 'willCallFirstName', 'willCallLastName', 'status', 'discountCodeId'])
@@ -37,7 +36,6 @@ router.post('/', function(req, res, next){
 
 //Get all reservations for one pickup party id 
 router.patch('/findOrders', function(req, res, next){
-  console.log('findOrders');
   knex('reservations')
     .join('orders', 'orders.id', '=', 'reservations.orderId')
     .select('reservations.id', 'reservations.orderId', 'reservations.willCallFirstName', 'reservations.willCallLastName', 'orders.orderedByFirstName', 'orders.orderedByLastName', 'reservations.status')

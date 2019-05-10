@@ -66,7 +66,6 @@ router.patch('/:id', function(req, res, next){
 })
 
 router.patch('/:id/cartQty/', function(req, res, next){
-  console.log(req.body)
   knex('pickup_parties')
     .select('*')
     .where({'id': req.params.id})

@@ -8,11 +8,9 @@ const songKickApiKey = process.env.SONGKICK_KEY
 
 // make the api call to songkick
 const getApiData = async () => {
-  console.log('get');
   try {
     const responseSongKick = await axios.get(`https://api.songkick.com/api/3.0/venues/591/calendar.json?per_page=100&apikey=${songKickApiKey}`)
     const showsFromSongkick = responseSongKick.data.resultsPage.results.event // grab just the events objects
-    console.log('gotten', showsFromSongkick.length)
     showsObj = showsFromSongkick.map(show=>{
       let headlinerName = show.performance[0].displayName
       let support1 = ''
@@ -45,12 +43,9 @@ const getApiData = async () => {
         headlinerBio: ''
       }
     })
-    console.log('shows', showsObj.length)
     filteredShowsObj = filterShowsObj(showsObj)
     artistsObj = filterArtists(filteredShowsObj)
-    console.log('prepping for lastfm', artistsObj.length)
     lastFmObj = await pingLastFm(artistsObj).then(data => data)
-    console.log('returned lastFm info', lastFmObj.length)
   } catch (err) {
     console.error(err)
   }
@@ -61,14 +56,12 @@ const getApiData = async () => {
 }
 
 const filterShowsObj = (showsObj) => {
-  console.log('filtering1')
   return showsObj.reduce((newShows, currShow) => {
     return newShows.find(show => show.date === currShow.date && show.venue === currShow.venue) ? newShows : newShows.push(currShow) && newShows
   }, [])
 }
 
 const filterArtists = (filteredShowsObj) =>{
-  console.log('filtering2')
   return filteredShowsObj.map(show => { // filter out most punctuation that breaks urls
     show = show.headliner
     show = show.replace(/[&]/g, 'and')
@@ -78,14 +71,12 @@ const filterArtists = (filteredShowsObj) =>{
   })
 }
 const pingLastFm = (artistsObj) => {
-  console.log('ping lastfm')
     const headlinerInfo = artistsObj.map((artist, i) => {
     const lastFmApi = encodeURI(`http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${artist}&autocorrect=1&api_key=${lastFmApiKey}&format=json`)
     //encodeURI allows for UTF-8 conversion of special letters in band name
 
     return axios.get(lastFmApi)
     .then(data=>{
-      console.log('response ',i, artist)
 
       return data.data
     })
@@ -95,7 +86,6 @@ const pingLastFm = (artistsObj) => {
   })
   // map over array of band names, assign a promise to each one
   return Promise.all(headlinerInfo).then((headlinerObj)=>{
-    console.log('promises resolved')
     const headlinerInfoObj1 = headlinerObj.map(data=>{
       if(data.error){
         return new Error("artist does not exist in Last.fm")
@@ -115,7 +105,6 @@ const pingLastFm = (artistsObj) => {
 }
 
 const combineObjects = async (lastFmObj, showsObj) => {
-  console.log('combining info')
   // combine data from the two objects
   const data = showsObj.map((show, i) => {
     return {
@@ -128,7 +117,6 @@ const combineObjects = async (lastFmObj, showsObj) => {
 }
 
 const insertEventData = (allShowsObj) => {
-  console.log('inserting events with knex')
 // pull event id's from the table, compare all current id's to all id's in allShowsObj, filter out objects where the id already exists in db
   knex('events')
     .select('id')
@@ -149,7 +137,6 @@ const insertEventData = (allShowsObj) => {
       knex('events')
       .insert(newShowsArr)
       .returning('*').then(result=>{
-        console.log('done inserting events')
         addPickupParties(newShowsIdAndStartTime)
       })
 
@@ -207,7 +194,6 @@ const addPickupParties = (newShowsIdAndStartTime) => {
     })
   knex('pickup_parties')
   .insert(newPickupParties)
-  .returning('*').then(result=>console.log('pickup parties updated', result.length))
 }
 
 module.exports = {getApiData, insertEventData}
