@@ -8,7 +8,7 @@ const knex = require('../knex.js')
 //List (get all of the resource)
 router.get('/', function(req, res, next){
   knex('users')
-    .select('id', 'firstName', 'lastName', 'email', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'hshPwd', 'preferredLocation')
+    .select('id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'hshPwd', 'preferredLocation')
   .then((data) => {
     res.status(200).json(data)
   })
@@ -18,7 +18,7 @@ router.get('/', function(req, res, next){
 // Get One
 router.get('/:id', function(req, res, next){
   knex('users')
-    .select('id', 'firstName', 'lastName', 'email', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'hshPwd', 'preferredLocation')
+    .select('id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'hshPwd', 'preferredLocation')
     .where('id', req.params.id)
   .then((data) => {
     res.status(200).json(data[0])
@@ -31,13 +31,13 @@ router.get('/:id', function(req, res, next){
 router.post('/', function(req, res, next){
   let email = req.body.email
   return knex('users')
-    .select('id', 'firstName', 'lastName', 'email', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation')
+    .select('id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation')
     .where('email', email)
   .then((rows) =>{
     if(rows.length===0){
       return knex('users')
         .insert(req.body)
-        .returning(['id', 'firstName', 'lastName', 'email', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation'])
+        .returning(['id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation'])
       .then((data) => {
         res.status(200).json(data[0])
       })

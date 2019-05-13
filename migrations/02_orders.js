@@ -5,6 +5,7 @@ exports.up = function(knex, Promise) {
     table.string('orderedByFirstName', '40').notNullable()
     table.string('orderedByLastName', '40').notNullable()
     table.string('orderedByEmail', '100').notNullable()
+    table.string('orderedByPhone', '15').notNullable()
     table.integer('userId').defaultsTo(1).notNullable()
     table.foreign('userId').references('users.id').onDelete('CASCADE')
     table.timestamps(true, true)
