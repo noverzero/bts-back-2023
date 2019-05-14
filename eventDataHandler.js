@@ -180,7 +180,7 @@ const addPickupParties = (newShowsIdAndStartTime) => {
         lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
       { pickupLocationId:4,
         eventId: show.id,
-        lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
+        lastBusDepartureTime: calcDepartTime(show.startTime, 135) },
       { pickupLocationId:5,
         eventId: show.id,
         lastBusDepartureTime: calcDepartTime(show.startTime, 75) },
