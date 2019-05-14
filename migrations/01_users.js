@@ -4,7 +4,6 @@ exports.up = (knex) => {
     table.string('firstName').notNullable()
     table.string('lastName').notNullable()
     table.string('email').notNullable()
-    table.string('phone').notNullable()
     table.boolean('isWaiverSigned').notNullable().defaultTo('false')
     table.boolean('isStaff').notNullable().defaultTo('false')
     table.boolean('isDriver').notNullable().defaultTo('false')
