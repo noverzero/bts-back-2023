@@ -196,7 +196,7 @@ const addPickupParties = (newShowsIdAndStartTime) => {
         partyPrice: 30.00})
     })
   knex('pickup_parties')
-  .insert(newPickupParties)
+  .insert(newPickupParties).returning('*').then(result=>{console.log(result.length);})
   console.log('updated pickups and events')
 }
 
