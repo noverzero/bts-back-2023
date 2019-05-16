@@ -5,7 +5,6 @@ const songKickApiKey = process.env.SONGKICK_KEY
 
 // make the api call to last.fm
 
-
 // make the api call to songkick
 const getApiData = async () => {
   try {
@@ -128,12 +127,12 @@ const insertEventData = (allShowsObj) => {
           return show
         }
       })
-      let newShowsIdAndStartTime = newShowsArr.map(show=>{
+      console.log('newShowsArr', newShowsArr.length);
+      var newShowsIdAndStartTime = newShowsArr.map(show=>{
         return {
           'id': show.id,
           'startTime': convertTimeToMinutes(show.startTime)
         }})
-
       knex('events')
       .insert(newShowsArr)
       .returning('*').then(result=>{
@@ -170,7 +169,7 @@ const calcDepartTime = (time = 0, diff = 0) => {
 // format each pickup location with its unique last bus departure times and aggregate into an array of objects
 const addPickupParties = (newShowsIdAndStartTime) => {
   let newPickupParties = []
-
+  console.log(newShowsIdAndStartTime);
   newShowsIdAndStartTime.forEach(show=>{
     return newPickupParties.push({ pickupLocationId:1,
         eventId: show.id,
@@ -196,8 +195,7 @@ const addPickupParties = (newShowsIdAndStartTime) => {
         partyPrice: 30.00})
     })
   knex('pickup_parties')
-  .insert(newPickupParties).returning('*').then(result=>{console.log(result.length);})
-  console.log('updated pickups and events')
+  .insert(newPickupParties).returning('*').then(result=>{console.log('updated pickups and events',result.length)})
 }
 
 module.exports = {getApiData, insertEventData}
