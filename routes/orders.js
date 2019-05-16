@@ -6,10 +6,10 @@ const knex = require('../knex.js')
 var convertTime = require('convert-time')
 const nodemailer = require('nodemailer')
 const EMAIL_PASS = process.env.EMAIL_PASS
-//var stripeSecretKey = process.env.STRIPE_SECRETKEY;
-var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
-//var stripePublicKey = 'pk_test_J0CdRMCGmBlrlOiGKnGgUEwT'
-var stripePublicKey = 'pk_live_WZRwtpLAFcufugeQKbtwKobm'
+var stripeSecretKey = process.env.STRIPE_SECRETKEY;
+// var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
+var stripePublicKey = 'pk_test_J0CdRMCGmBlrlOiGKnGgUEwT'
+// var stripePublicKey = 'pk_live_WZRwtpLAFcufugeQKbtwKobm'
 const stripe = require('stripe')(stripeSecretKey);
 
 
@@ -67,7 +67,7 @@ router.post('/', function (req, res, next) {
     willCallFirstName,
     willCallLastName,
     email,
-    phone,
+    orderedByPhone,
     ticketQuantity,
     discountCode
   } = req.body
@@ -109,7 +109,7 @@ return knex('pickup_parties')
       orderedByFirstName: firstName,
       orderedByLastName: lastName,
       orderedByEmail: email,
-      orderedByPhone: phone
+      orderedByPhone
     })
     .returning('*')
     .then((newOrder) => {
