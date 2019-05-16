@@ -7,8 +7,6 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var dotenv = require('dotenv').config()
 var cron = require('node-cron')
-// const ORIGIN_URL = process.env.ORIGIN_URL
-// const ACCESS_URL = process.env.ACCESS_URL
 var cors = require('cors');
 var helmet = require('helmet')
 
