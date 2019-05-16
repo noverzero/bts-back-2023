@@ -11,7 +11,7 @@ const getApiData = async () => {
   try {
     const responseSongKick = await axios.get(`https://api.songkick.com/api/3.0/venues/591/calendar.json?page=2&per_page=100&apikey=${songKickApiKey}`)
     const showsFromSongkick = responseSongKick.data.resultsPage.results.event // grab just the events objects
-    showsObj = showsFromSongkick.map(show=>{
+    var showsObj = showsFromSongkick.map(show=>{
       let headlinerName = show.performance[0].displayName
       let support1 = ''
       let support2 = ''
@@ -43,9 +43,9 @@ const getApiData = async () => {
         headlinerBio: ''
       }
     })
-    filteredShowsObj = filterShowsObj(showsObj)
-    artistsObj = filterArtists(filteredShowsObj)
-    lastFmObj = await pingLastFm(artistsObj).then(data => data)
+    var filteredShowsObj = filterShowsObj(showsObj)
+    var artistsObj = filterArtists(filteredShowsObj)
+    var lastFmObj = await pingLastFm(artistsObj).then(data => data)
   } catch (err) {
     console.error(err)
   }
@@ -140,6 +140,9 @@ const insertEventData = (allShowsObj) => {
         addPickupParties(newShowsIdAndStartTime)
       })
 
+    })
+    .catch(err=>{
+      console.log(err)
     })
 }
 // math from "hh:mm:ss" to minutes as a number
