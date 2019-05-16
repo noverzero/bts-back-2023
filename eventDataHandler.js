@@ -121,7 +121,7 @@ const insertEventData = (allShowsObj) => {
     .select('id')
     .returning('id')
     .then(result=>{
-      result = result.map(elem => elem.id)
+      // result = result.map(elem => elem.id)
       let newShowsArr = allShowsObj.filter(show=>{
         if (!result.includes(show.id)) {
           return show
