@@ -9,7 +9,7 @@ const songKickApiKey = process.env.SONGKICK_KEY
 // make the api call to songkick
 const getApiData = async () => {
   try {
-    const responseSongKick = await axios.get(`https://api.songkick.com/api/3.0/venues/591/calendar.json?page=2&per_page=100&apikey=${songKickApiKey}`)
+    const responseSongKick = await axios.get(`https://api.songkick.com/api/3.0/venues/591/calendar.json?page=1&per_page=100&apikey=${songKickApiKey}`)
     const showsFromSongkick = responseSongKick.data.resultsPage.results.event // grab just the events objects
     showsObj = showsFromSongkick.map(show=>{
       let headlinerName = show.performance[0].displayName
