@@ -67,7 +67,7 @@ router.post('/', function (req, res, next) {
     willCallFirstName,
     willCallLastName,
     email,
-    phone,
+    orderedByPhone,
     ticketQuantity,
     discountCode
   } = req.body
@@ -109,7 +109,7 @@ return knex('pickup_parties')
       orderedByFirstName: firstName,
       orderedByLastName: lastName,
       orderedByEmail: email,
-      orderedByPhone: phone
+      orderedByPhone
     })
     .returning('*')
     .then((newOrder) => {
