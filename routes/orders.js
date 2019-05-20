@@ -109,7 +109,7 @@ return knex('pickup_parties')
       orderedByFirstName: firstName,
       orderedByLastName: lastName,
       orderedByEmail: email,
-      orderedByPhone
+      orderedByPhone: orderedByPhone
     })
     .returning('*')
     .then((newOrder) => {
@@ -122,7 +122,6 @@ return knex('pickup_parties')
           eventId: eventId,
           pickupLocationId: pickupLocationId,
         })
-        // .decrement("capacity", ticketQuantity)
         .returning('*')
         .then((newPickupParty) => {
           newPickupPartyId = newPickupParty[0].id
