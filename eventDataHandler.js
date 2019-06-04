@@ -5,13 +5,12 @@ const songKickApiKey = process.env.SONGKICK_KEY
 
 // make the api call to last.fm
 
-
 // make the api call to songkick
 const getApiData = async () => {
   try {
-    const responseSongKick = await axios.get(`https://api.songkick.com/api/3.0/venues/591/calendar.json?page=2&per_page=100&apikey=${songKickApiKey}`)
+    const responseSongKick = await axios.get(`https://api.songkick.com/api/3.0/venues/591/calendar.json?page=1&per_page=100&apikey=${songKickApiKey}`)
     const showsFromSongkick = responseSongKick.data.resultsPage.results.event // grab just the events objects
-    showsObj = showsFromSongkick.map(show=>{
+    var showsObj = showsFromSongkick.map(show=>{
       let headlinerName = show.performance[0].displayName
       let support1 = ''
       let support2 = ''
@@ -43,9 +42,9 @@ const getApiData = async () => {
         headlinerBio: ''
       }
     })
-    filteredShowsObj = filterShowsObj(showsObj)
-    artistsObj = filterArtists(filteredShowsObj)
-    lastFmObj = await pingLastFm(artistsObj).then(data => data)
+    var filteredShowsObj = filterShowsObj(showsObj)
+    var artistsObj = filterArtists(filteredShowsObj)
+    var lastFmObj = await pingLastFm(artistsObj).then(data => data)
   } catch (err) {
     console.error(err)
   }
@@ -128,18 +127,21 @@ const insertEventData = (allShowsObj) => {
           return show
         }
       })
-      let newShowsIdAndStartTime = newShowsArr.map(show=>{
+      console.log('newShowsArr', newShowsArr.length);
+      var newShowsIdAndStartTime = newShowsArr.map(show=>{
         return {
           'id': show.id,
           'startTime': convertTimeToMinutes(show.startTime)
         }})
-
       knex('events')
       .insert(newShowsArr)
       .returning('*').then(result=>{
         addPickupParties(newShowsIdAndStartTime)
       })
 
+    })
+    .catch(err=>{
+      console.log(err)
     })
 }
 // math from "hh:mm:ss" to minutes as a number
@@ -167,33 +169,37 @@ const calcDepartTime = (time = 0, diff = 0) => {
 // format each pickup location with its unique last bus departure times and aggregate into an array of objects
 const addPickupParties = (newShowsIdAndStartTime) => {
   let newPickupParties = []
-
+  console.log(newShowsIdAndStartTime, newShowsIdAndStartTime);
   newShowsIdAndStartTime.forEach(show=>{
     return newPickupParties.push({ pickupLocationId:1,
         eventId: show.id,
         lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
       { pickupLocationId:2,
         eventId: show.id,
-        lastBusDepartureTime: calcDepartTime(show.startTime, 120) },
+        lastBusDepartureTime: calcDepartTime(show.startTime, 60) },
       { pickupLocationId:3,
         eventId: show.id,
         lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
       { pickupLocationId:4,
         eventId: show.id,
-        lastBusDepartureTime: calcDepartTime(show.startTime, 135) },
+        lastBusDepartureTime: calcDepartTime(show.startTime, 75) },
       { pickupLocationId:5,
         eventId: show.id,
-        lastBusDepartureTime: calcDepartTime(show.startTime, 75) },
+        lastBusDepartureTime: calcDepartTime(show.startTime, 60) },
       { pickupLocationId:6,
         eventId: show.id,
-        lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
+        lastBusDepartureTime: calcDepartTime(show.startTime, 135) },
       { pickupLocationId:7,
         eventId: show.id,
         lastBusDepartureTime: calcDepartTime(show.startTime, 210),
-        partyPrice: 30.00})
+        partyPrice: 30.00},
+      { pickupLocationId:9,
+        eventId: show.id,
+        lastBusDepartureTime: calcDepartTime(show.startTime, 90)},
+      )
     })
   knex('pickup_parties')
-  .insert(newPickupParties)
+  .insert(newPickupParties).returning('*').then(result=>{console.log('added pickup_parties', result.length || 0)})
 }
 
 module.exports = {getApiData, insertEventData}

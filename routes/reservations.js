@@ -38,7 +38,7 @@ router.post('/', function(req, res, next){
 router.patch('/findOrders', function(req, res, next){
   knex('reservations')
     .join('orders', 'orders.id', '=', 'reservations.orderId')
-    .select('reservations.id', 'reservations.orderId', 'reservations.willCallFirstName', 'reservations.willCallLastName', 'orders.orderedByFirstName', 'orders.orderedByLastName', 'reservations.status')
+    .select('reservations.id', 'reservations.orderId', 'reservations.willCallFirstName', 'reservations.willCallLastName', 'orders.orderedByFirstName', 'orders.orderedByLastName', 'reservations.status', 'orders.orderedByEmail')
     .where('pickupPartiesId', req.body.pickupPartiesId)
   .then(data=>{
     if (data) return res.status(200).json(data)

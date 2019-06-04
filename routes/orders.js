@@ -6,10 +6,10 @@ const knex = require('../knex.js')
 var convertTime = require('convert-time')
 const nodemailer = require('nodemailer')
 const EMAIL_PASS = process.env.EMAIL_PASS
-//var stripeSecretKey = process.env.STRIPE_SECRETKEY;
-var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
-//var stripePublicKey = 'pk_test_J0CdRMCGmBlrlOiGKnGgUEwT'
-var stripePublicKey = 'pk_live_WZRwtpLAFcufugeQKbtwKobm'
+var stripeSecretKey = process.env.STRIPE_SECRETKEY;
+// var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
+var stripePublicKey = 'pk_test_J0CdRMCGmBlrlOiGKnGgUEwT'
+// var stripePublicKey = 'pk_live_WZRwtpLAFcufugeQKbtwKobm'
 const stripe = require('stripe')(stripeSecretKey);
 
 
@@ -122,7 +122,6 @@ return knex('pickup_parties')
           eventId: eventId,
           pickupLocationId: pickupLocationId,
         })
-        // .decrement("capacity", ticketQuantity)
         .returning('*')
         .then((newPickupParty) => {
           newPickupPartyId = newPickupParty[0].id

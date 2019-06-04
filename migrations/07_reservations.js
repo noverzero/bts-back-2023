@@ -12,7 +12,7 @@ exports.up = (knex, Promise) => {
     table.foreign('discountCodeId').references('discount_codes.id')
   })
 }
-// status: 1 = reserved, 2 = checked in, 3 = refund/cancel
+// status: 1 = reserved, 2 = checked in, 3 = refund, 4 = cancelled but not refunded
 exports.down = (knex, Promise) => {
   return knex.schema.dropTable("reservations")
 }

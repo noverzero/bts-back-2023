@@ -66,12 +66,15 @@ router.patch('/:id', function(req, res, next){
 })
 
 router.patch('/:id/cartQty/', function(req, res, next){
+  console.log(req.params, '<<<<---req.params cartQty')
+  console.log(req.body, '<<<<---req.body cartQty')
   knex('pickup_parties')
     .select('*')
     .where({'id': req.params.id})
     .increment('inCart', req.body.inCart)
     .returning(['*'])
   .then((data) => {
+    console.log('router.patch(/:id/cartQty/ response data::: ', data)
     res.status(200).json(data[0])
   })
 })
