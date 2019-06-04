@@ -169,33 +169,37 @@ const calcDepartTime = (time = 0, diff = 0) => {
 // format each pickup location with its unique last bus departure times and aggregate into an array of objects
 const addPickupParties = (newShowsIdAndStartTime) => {
   let newPickupParties = []
-  console.log(newShowsIdAndStartTime);
+  console.log(newShowsIdAndStartTime, newShowsIdAndStartTime);
   newShowsIdAndStartTime.forEach(show=>{
     return newPickupParties.push({ pickupLocationId:1,
         eventId: show.id,
         lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
       { pickupLocationId:2,
         eventId: show.id,
-        lastBusDepartureTime: calcDepartTime(show.startTime, 120) },
+        lastBusDepartureTime: calcDepartTime(show.startTime, 60) },
       { pickupLocationId:3,
         eventId: show.id,
         lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
       { pickupLocationId:4,
         eventId: show.id,
-        lastBusDepartureTime: calcDepartTime(show.startTime, 135) },
+        lastBusDepartureTime: calcDepartTime(show.startTime, 75) },
       { pickupLocationId:5,
         eventId: show.id,
-        lastBusDepartureTime: calcDepartTime(show.startTime, 75) },
+        lastBusDepartureTime: calcDepartTime(show.startTime, 60) },
       { pickupLocationId:6,
         eventId: show.id,
-        lastBusDepartureTime: calcDepartTime(show.startTime, 90) },
+        lastBusDepartureTime: calcDepartTime(show.startTime, 135) },
       { pickupLocationId:7,
         eventId: show.id,
         lastBusDepartureTime: calcDepartTime(show.startTime, 210),
-        partyPrice: 30.00})
+        partyPrice: 30.00},
+      { pickupLocationId:9,
+        eventId: show.id,
+        lastBusDepartureTime: calcDepartTime(show.startTime, 90)},
+      )
     })
   knex('pickup_parties')
-  .insert(newPickupParties).returning('*').then(result=>{console.log('updated pickups and events',result.length)})
+  .insert(newPickupParties).returning('*').then(result=>{console.log('added pickup_parties', result.length || 0)})
 }
 
 module.exports = {getApiData, insertEventData}
