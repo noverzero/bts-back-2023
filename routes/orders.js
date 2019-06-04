@@ -109,7 +109,7 @@ return knex('pickup_parties')
       orderedByFirstName: firstName,
       orderedByLastName: lastName,
       orderedByEmail: email,
-      orderedByPhone: orderedByPhone
+      orderedByPhone
     })
     .returning('*')
     .then((newOrder) => {
