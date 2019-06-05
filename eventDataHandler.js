@@ -152,13 +152,17 @@ const convertTimeToMinutes = (time = 0) => {
 }
 
 // calculate last bus departure time in minutes then format back to "hh:mm"
-const calcDepartTime = (time = 0, diff = 0) => {
+const calcDepartTime = (time, diff) => {
+
+  console.log('time in calcDepartTime', time)
+  let convertedTime = convertTimeToMinutes(time)
   let result = ""
-  if (time === 0) {
+  if (time === '00:00:00') {
     result = `00:00`
   }
   else {
-    let newTime = Number(time) - Number(diff)
+    console.log('Number(convertedTime): ' , Number(convertedTime))
+    let newTime = Number(convertedTime) - Number(diff)
     let hours = parseInt(newTime / 60)
     let minutes = (newTime % 60).toString().padStart(2,"0")
     result = `${hours}:${minutes}`
@@ -201,5 +205,20 @@ const addPickupParties = (newShowsIdAndStartTime) => {
   knex('pickup_parties')
   .insert(newPickupParties).returning('*').then(result=>{console.log('added pickup_parties', result.length || 0)})
 }
+
+const addSouthDock = () => {
+   console.log("hi southDock!")
+   knex('events')
+     .select('id', 'date', 'meetsCriteria', 'isDenied', 'external', 'startTime')
+   .then((data) => {
+     console.log(data.map(show => {
+       let time = show.startTime
+       return calcDepartTime(time, 90)
+     }))
+   })
+
+}
+console.log(addSouthDock())
+
 
 module.exports = {getApiData, insertEventData}
