@@ -72,6 +72,7 @@ router.patch('/:id/cartQty/', function(req, res, next){
     .select('*')
     .where({'id': req.params.id})
     .increment('inCart', req.body.inCart)
+    .update('updated_at', req.body.updated_at)
     .returning(['*'])
   .then((data) => {
     console.log('router.patch(/:id/cartQty/ response data::: ', data)
