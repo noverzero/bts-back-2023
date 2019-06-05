@@ -161,7 +161,7 @@ const calcDepartTime = (time, diff) => {
     result = `00:00`
   }
   else {
-    console.log('Number(convertedTime): ' , Number(convertedTime))
+    //console.log('Number(convertedTime): ' , Number(convertedTime))
     let newTime = Number(convertedTime) - Number(diff)
     let hours = parseInt(newTime / 60)
     let minutes = (newTime % 60).toString().padStart(2,"0")
@@ -173,7 +173,7 @@ const calcDepartTime = (time, diff) => {
 // format each pickup location with its unique last bus departure times and aggregate into an array of objects
 const addPickupParties = (newShowsIdAndStartTime) => {
   let newPickupParties = []
-  console.log(newShowsIdAndStartTime, newShowsIdAndStartTime);
+  console.log('newShowsIdAndStartTime', newShowsIdAndStartTime);
   newShowsIdAndStartTime.forEach(show=>{
     return newPickupParties.push({ pickupLocationId:1,
         eventId: show.id,
@@ -206,19 +206,38 @@ const addPickupParties = (newShowsIdAndStartTime) => {
   .insert(newPickupParties).returning('*').then(result=>{console.log('added pickup_parties', result.length || 0)})
 }
 
+// const checkForExistingParties = () => {
+//   knex('pickup_parties')
+//   .where('')
+// }
+
 const addSouthDock = () => {
    console.log("hi southDock!")
    knex('events')
      .select('id', 'date', 'meetsCriteria', 'isDenied', 'external', 'startTime')
    .then((data) => {
-     console.log(data.map(show => {
-       let time = show.startTime
-       return calcDepartTime(time, 90)
-     }))
+     let dryDockParties = []
+     data.map(show => {
+       let tooSoon = Date.now() + 172800000 //calculate tim in milliseconds 72  hours later than right now
+       if ( (new Date(show.date).getTime() > tooSoon) && show.meetsCriteria && !show.isDenied ){
+         let time = show.startTime
+        return dryDockParties.push(
+          {
+            pickupLocationId: 9,
+            eventId: show.id,
+            lastBusDepartureTime: calcDepartTime(time, 90),
+            capacity: 200,
+          }
+        )
+      }
+     })
+     knex('pickup_parties')
+     .insert(dryDockParties).returning('*').then(result=>{console.log('added dryDockParties', result.length || 0)})
+
    })
 
 }
-console.log(addSouthDock())
+//console.log(addSouthDock())
 
 
 module.exports = {getApiData, insertEventData}
