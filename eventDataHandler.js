@@ -256,6 +256,18 @@ const addSouthDock = (alreadyThereArr) => {
 
    })
 
+   const sweepInCarts = async () => {
+     let twentyMinutesAgo = new Date(Date.now() - 1200000).getTime()
+     let now = new Date(Date.now()).getTime()
+     knex(pickup_parties)
+     .select('id', )
+     .whereNot('inCart', '=', 0 )
+     .andWhere('updated_at', '>' , twentyMinutesAgo)
+     .update('')
+     .update('updated_at', now)
+
+   }
+
 }
 
 
