@@ -224,7 +224,9 @@ const checkForExistingParties = (pickupLocationId) => {
   return response
 }
 
-checkForExistingParties(9).then(alreadyThereArr => addSouthDock(alreadyThereArr))
+//Function call for adding a pick-up location to all future events that don't already have a pickup party at that location.  (commemnt the line below back in and pass in the appropriate pickupLocationId as parameter). VVVVVV
+
+//checkForExistingParties(9).then(alreadyThereArr => addSouthDock(alreadyThereArr))
 
 const addSouthDock = (alreadyThereArr) => {
    console.log("hi southDock!")
