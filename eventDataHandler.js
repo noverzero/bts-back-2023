@@ -152,13 +152,17 @@ const convertTimeToMinutes = (time = 0) => {
 }
 
 // calculate last bus departure time in minutes then format back to "hh:mm"
-const calcDepartTime = (time = 0, diff = 0) => {
+const calcDepartTime = (time, diff) => {
+
+  //console.log('time in calcDepartTime', time)
+  let convertedTime = convertTimeToMinutes(time)
   let result = ""
-  if (time === 0) {
+  if (time === '00:00:00') {
     result = `00:00`
   }
   else {
-    let newTime = Number(time) - Number(diff)
+    //console.log('Number(convertedTime): ' , Number(convertedTime))
+    let newTime = Number(convertedTime) - Number(diff)
     let hours = parseInt(newTime / 60)
     let minutes = (newTime % 60).toString().padStart(2,"0")
     result = `${hours}:${minutes}`
@@ -169,7 +173,7 @@ const calcDepartTime = (time = 0, diff = 0) => {
 // format each pickup location with its unique last bus departure times and aggregate into an array of objects
 const addPickupParties = (newShowsIdAndStartTime) => {
   let newPickupParties = []
-  console.log(newShowsIdAndStartTime, newShowsIdAndStartTime);
+  console.log('newShowsIdAndStartTime', newShowsIdAndStartTime);
   newShowsIdAndStartTime.forEach(show=>{
     return newPickupParties.push({ pickupLocationId:1,
         eventId: show.id,
@@ -201,5 +205,58 @@ const addPickupParties = (newShowsIdAndStartTime) => {
   knex('pickup_parties')
   .insert(newPickupParties).returning('*').then(result=>{console.log('added pickup_parties', result.length || 0)})
 }
+
+const checkForExistingParties = (pickupLocationId) => {
+   const response = knex('pickup_parties')
+  .where('pickupLocationId', pickupLocationId)
+  .select('eventId', "pickupLocationId")
+  .then(alreadyThere =>{
+    let alreadyThereArr = []
+      alreadyThere.map(obj => {
+        alreadyThereArr.push(obj.eventId)
+      })
+        //console.log(alreadyThereArr)
+        return alreadyThereArr
+      }).catch(err => {
+    console.log('error in checkForExistingParties ::: ', err)
+  })
+  //console.log('reeeeesponse:: ',response)
+  return response
+}
+
+//Function call for adding a pick-up location to all future events that don't already have a pickup party at that location.  (commemnt the line below back in and pass in the appropriate pickupLocationId as parameter). VVVVVV
+
+//checkForExistingParties(9).then(alreadyThereArr => addSouthDock(alreadyThereArr))
+
+const addSouthDock = (alreadyThereArr) => {
+   console.log("hi southDock!")
+
+
+     knex('events')
+     .select('id', 'date', 'meetsCriteria', 'isDenied', 'external', 'startTime')
+     .then((data) => {
+       let dryDockParties = []
+       data.map(show => {
+         console.log('is alreadyThereArr here?', alreadyThereArr)
+         let tooSoon = Date.now() + 172800000 //calculate tim in milliseconds 72  hours later than right now
+         if (!alreadyThereArr.includes(show.id) && (new Date(show.date).getTime() > tooSoon) && show.meetsCriteria && !show.isDenied && !show.external){
+           let time = show.startTime
+           return dryDockParties.push(
+             {
+               pickupLocationId: 9,
+               eventId: show.id,
+               lastBusDepartureTime: calcDepartTime(time, 90),
+               capacity: 200,
+             }
+           )
+         }
+       })
+       knex('pickup_parties')
+       .insert(dryDockParties).returning('*').then(result=>{console.log('added dryDockParties', result.length || 0)})
+
+   })
+
+}
+
 
 module.exports = {getApiData, insertEventData}
