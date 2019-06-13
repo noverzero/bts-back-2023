@@ -20,7 +20,7 @@ const sweepInCarts = () => {
   .returning('*')
   .then(result=>{console.log('sweepInCarts result', result)})
 }
-sweepInCarts()
+//sweepInCarts()
 // make the api call to last.fm
 
 // make the api call to songkick
@@ -280,4 +280,4 @@ const addSouthDock = (alreadyThereArr) => {
 
 
 
-module.exports = {getApiData, insertEventData}
+module.exports = {getApiData, insertEventData, sweepInCarts}
