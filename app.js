@@ -63,4 +63,13 @@ cron.schedule('00 04 * * * *', async () => {
   apiDataFunction()
 })
 
+sweepInCartsCall = () => {
+  eventDataHandler.sweepInCarts()
+}
+
+cron.schedule('*/5 * * * *', () => {
+  sweepInCartsCall()
+})
+
+
 module.exports = app;
