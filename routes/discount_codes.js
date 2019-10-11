@@ -64,15 +64,15 @@ router.patch('/return/:id', function(req, res, next){
 
 
 //check user entered discount code against database then return code id, new price, and remaining uses.
-router.patch('/:discountCode', function(req, res, next) {
-  let discountCode = req.params.discountCode
+router.patch('/', function(req, res, next) {
+  let discountCode = req.body.discountCode
   let totalPrice = req.body.totalPrice
   let ticketQuantity = req.body.ticketQuantity
   let ticketsAndUses=[]
   let afterDiscountObj={}
   afterDiscountObj.ticketQuantity=ticketQuantity
+  console.log('discount codes patch req.body => ', req.body)
   knex('discount_codes')
-
     .join('discount_codes_events', 'discount_codes.id', 'discount_codes_events.discountCodeId')
     .join('events', 'discount_codes_events.eventsId', 'events.id')
     .select('*')
@@ -83,8 +83,10 @@ router.patch('/:discountCode', function(req, res, next) {
       return res.status(400).json({message: 'This code is not in our database.'})
     }
     else if(match){
+      console.log('match here ===>')
 
     afterDiscountObj.newRemainingUses=match.remainingUses
+    afterDiscountObj.type=match.type
 
     let expiration = Date.parse(match.expiresOn.toLocaleString('en-US'))
     let today = Date.parse(new Date().toLocaleString('en-US', {
@@ -125,7 +127,7 @@ router.patch('/:discountCode', function(req, res, next) {
           totalPriceAfterDiscount: afterDiscountObj.totalPriceAfterDiscount,
           timesUsed: afterDiscountObj.timesUsed
         })
-        .returning(['id', 'remainingUses', 'totalPriceAfterDiscount', 'timesUsed'])
+        .returning(['id', 'remainingUses', 'totalPriceAfterDiscount', 'timesUsed', 'type'])
       .then((data) => {
         res.status(200).json(data)
       })
