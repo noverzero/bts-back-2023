@@ -102,18 +102,24 @@ router.patch('/', function(req, res, next) {
     }
     let priceWithoutFeesPerTicket = totalPrice * 10 / 11 / ticketQuantity
     let effectiveRate = (100 - match.percentage) / 100
+    console.log('105')
 
+// if more remaing uses than tickets requested, allow useage
     if (match.remainingUses >= ticketQuantity) {
       afterDiscountObj.timesUsed = ticketQuantity
       afterDiscountObj.totalPriceAfterDiscount = priceWithoutFeesPerTicket * ticketQuantity * effectiveRate * 1.10
       afterDiscountObj.newRemainingUses = match.remainingUses - ticketQuantity
+      afterDiscountObj.savings = totalPrice - afterDiscountObj.totalPriceAfterDiscount
       return (afterDiscountObj)
     }
+// if fewer remaining uses than tickets requested, only apply discount on qty remainingUses
     if (match.remainingUses < ticketQuantity) {
       afterDiscountObj.timesUsed = match.remainingUses
       afterDiscountObj.totalPriceAfterDiscount = (priceWithoutFeesPerTicket * (ticketQuantity - match.remainingUses) + priceWithoutFeesPerTicket * effectiveRate * match.remainingUses) * 1.10
       afterDiscountObj.newRemainingUses = 0
+      afterDiscountObj.savings = totalPrice - afterDiscountObj.totalPriceAfterDiscount
       return afterDiscountObj
+
     }
   }
   })
@@ -129,6 +135,7 @@ router.patch('/', function(req, res, next) {
         })
         .returning(['id', 'remainingUses', 'totalPriceAfterDiscount', 'timesUsed', 'type'])
       .then((data) => {
+        data[0].savings = afterDiscountObj.savings
         res.status(200).json(data)
       })
     }
