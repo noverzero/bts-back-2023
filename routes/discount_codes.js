@@ -94,15 +94,14 @@ router.patch('/', function(req, res, next) {
       }
     ))
     if (expiration < today){
-      return res.status(400).json({message: 'This code has expired.'})
+      return res.status(200).json({message: 'This code has expired.'})
     }
     if (match.remainingUses <= 0) {
-      return res.status(400).json({message: 'This code is all used up.'})
+      return res.status(200).json({message: 'This code is all used up.'})
 
     }
     let priceWithoutFeesPerTicket = totalPrice * 10 / 11 / ticketQuantity
     let effectiveRate = (100 - match.percentage) / 100
-    console.log('105')
 
 // if more remaing uses than tickets requested, allow useage
     if (match.remainingUses >= ticketQuantity) {
@@ -143,14 +142,14 @@ router.patch('/', function(req, res, next) {
 })
 
 //Delete (delete one of the resource)
-router.delete('/:id', function(req, res, next) {
-  knex('discount_codes')
-    .where('id', req.params.id)
-    .del('*')
-    .returning(['id', 'discountCode', 'percentage', 'expiresOn', 'issuedOn', 'issuedTo', 'issuedBy', 'issuedBecause', 'timesUsed', 'type', 'remainingUses', 'usesPerEvent'])
-  .then((data) => {
-    res.status(200).json(data[0])
-  })
-})
+// router.delete('/:id', function(req, res, next) {
+//   knex('discount_codes')
+//     .where('id', req.params.id)
+//     .del('*')
+//     .returning(['id', 'discountCode', 'percentage', 'expiresOn', 'issuedOn', 'issuedTo', 'issuedBy', 'issuedBecause', 'timesUsed', 'type', 'remainingUses', 'usesPerEvent'])
+//   .then((data) => {
+//     res.status(200).json(data[0])
+//   })
+// })
 
 module.exports = router;

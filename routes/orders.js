@@ -6,10 +6,10 @@ const knex = require('../knex.js')
 var convertTime = require('convert-time')
 const nodemailer = require('nodemailer')
 const EMAIL_PASS = process.env.EMAIL_PASS
-//var stripeSecretKey = process.env.STRIPE_SECRETKEY;
- var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
-//var stripePublicKey = 'pk_test_J0CdRMCGmBlrlOiGKnGgUEwT'
- var stripePublicKey = 'pk_live_WZRwtpLAFcufugeQKbtwKobm'
+var stripeSecretKey = process.env.STRIPE_SECRETKEY;
+ //var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
+var stripePublicKey = 'pk_test_J0CdRMCGmBlrlOiGKnGgUEwT'
+//var stripePublicKey = 'pk_live_WZRwtpLAFcufugeQKbtwKobm'
 const stripe = require('stripe')(stripeSecretKey);
 
 
@@ -58,6 +58,8 @@ router.get('/:id', function(req, res, next){
 
 //POST ROUTE ORDERS
 router.post('/', function (req, res, next) {
+  console.log("orders post fired!", req.body)
+
   const {
     userId,
     pickupLocationId,
@@ -137,7 +139,7 @@ return knex('pickup_parties')
                   pickupPartiesId: ordersArr[1],
                   willCallFirstName: req.body.willCallFirstName,
                   willCallLastName: req.body.willCallLastName,
-                  discountCodeId: null
+                  discountCodeId: req.body.discountCode
                 })
           }
           knex('reservations')
