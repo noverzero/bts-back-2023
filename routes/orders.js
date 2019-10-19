@@ -82,15 +82,15 @@ router.post('/', function (req, res, next) {
     }
   });
 
-const confirmatonDetailsQuery = () =>{
-return knex('pickup_parties')
-  .join('events', 'events.id', '=', 'pickup_parties.eventId')
-  .join('pickup_locations', 'pickup_locations.id', '=', 'pickup_parties.pickupLocationId')
-  .where('eventId', eventId)
-  .where('pickupLocationId', pickupLocationId)
-  .select('events.date', 'events.headliner', 'events.venue', 'pickup_locations.locationName', 'pickup_locations.streetAddress', 'firstBusLoadTime', 'lastBusDepartureTime')
-  .then((data)=>{
-    return data[0]
+  const confirmatonDetailsQuery = () =>{
+    return knex('pickup_parties')
+    .join('events', 'events.id', '=', 'pickup_parties.eventId')
+    .join('pickup_locations', 'pickup_locations.id', '=', 'pickup_parties.pickupLocationId')
+    .where('eventId', eventId)
+    .where('pickupLocationId', pickupLocationId)
+    .select('events.date', 'events.headliner', 'events.venue', 'pickup_locations.locationName', 'pickup_locations.streetAddress', 'firstBusLoadTime', 'lastBusDepartureTime')
+    .then((data)=>{
+      return data[0]
     })
   }
   let newPickupPartyId
