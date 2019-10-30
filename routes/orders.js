@@ -7,9 +7,9 @@ var convertTime = require('convert-time')
 const nodemailer = require('nodemailer')
 const EMAIL_PASS = process.env.EMAIL_PASS
 //var stripeSecretKey = process.env.STRIPE_SECRETKEY;
- var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
+var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
 //var stripePublicKey = 'pk_test_J0CdRMCGmBlrlOiGKnGgUEwT'
- var stripePublicKey = 'pk_live_WZRwtpLAFcufugeQKbtwKobm'
+var stripePublicKey = 'pk_live_WZRwtpLAFcufugeQKbtwKobm'
 const stripe = require('stripe')(stripeSecretKey);
 
 
@@ -58,6 +58,8 @@ router.get('/:id', function(req, res, next){
 
 //POST ROUTE ORDERS
 router.post('/', function (req, res, next) {
+  console.log("orders post fired!", req.body)
+
   const {
     userId,
     pickupLocationId,
@@ -80,15 +82,15 @@ router.post('/', function (req, res, next) {
     }
   });
 
-const confirmatonDetailsQuery = () =>{
-return knex('pickup_parties')
-  .join('events', 'events.id', '=', 'pickup_parties.eventId')
-  .join('pickup_locations', 'pickup_locations.id', '=', 'pickup_parties.pickupLocationId')
-  .where('eventId', eventId)
-  .where('pickupLocationId', pickupLocationId)
-  .select('events.date', 'events.headliner', 'events.venue', 'pickup_locations.locationName', 'pickup_locations.streetAddress', 'firstBusLoadTime', 'lastBusDepartureTime')
-  .then((data)=>{
-    return data[0]
+  const confirmatonDetailsQuery = () =>{
+    return knex('pickup_parties')
+    .join('events', 'events.id', '=', 'pickup_parties.eventId')
+    .join('pickup_locations', 'pickup_locations.id', '=', 'pickup_parties.pickupLocationId')
+    .where('eventId', eventId)
+    .where('pickupLocationId', pickupLocationId)
+    .select('events.date', 'events.headliner', 'events.venue', 'pickup_locations.locationName', 'pickup_locations.streetAddress', 'firstBusLoadTime', 'lastBusDepartureTime')
+    .then((data)=>{
+      return data[0]
     })
   }
   let newPickupPartyId
@@ -137,7 +139,7 @@ return knex('pickup_parties')
                   pickupPartiesId: ordersArr[1],
                   willCallFirstName: req.body.willCallFirstName,
                   willCallLastName: req.body.willCallLastName,
-                  discountCodeId: null
+                  discountCodeId: req.body.discountCode
                 })
           }
           knex('reservations')

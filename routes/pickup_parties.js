@@ -1,5 +1,4 @@
 'use strict';
-
 const express = require('express');
 const router = express.Router();
 const knex = require('../knex.js')
@@ -26,6 +25,7 @@ router.get('/:id', function(req, res, next){
 
 //Get one pickup party for an eventId and pickupLocationId
 router.patch('/findId', function(req, res, next){
+  console.log('pickup_parties/${pickupPartyId}/cartQty req.params => ', req.params)
   knex('pickup_parties')
     .where({'pickupLocationId': req.body.pickupLocationId, 'eventId': req.body.eventId})
     .returning(['*'])
