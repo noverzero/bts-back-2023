@@ -28,10 +28,12 @@ var app = express();
 //   next();
 // });
 
+var corsOptions = {
+  origin: 'https://bustoshow.org',
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
 app.use(helmet())
-app.use(cors({
-  origin: '*'
-}))
+app.use(cors(corsOptions))
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
