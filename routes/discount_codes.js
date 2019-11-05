@@ -4,14 +4,7 @@ const express = require('express');
 const router = express.Router();
 const knex = require('../knex.js')
 const cors = require('cors')
-const app = express();
 
-var corsOptions = {
-  origin: 'https://bustoshow.org',
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-}
-
-app.use(cors(corsOptions))
 //List (get all of the resource)
 router.get('/', function(req, res, next) {
   knex('discount_codes')
