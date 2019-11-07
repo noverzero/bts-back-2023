@@ -2,6 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
+const cookieParser = require('cookie-parser')
 const knex = require('../knex.js')
 var convertTime = require('convert-time')
 const nodemailer = require('nodemailer')
@@ -11,18 +12,47 @@ var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
 //var stripePublicKey = 'pk_test_J0CdRMCGmBlrlOiGKnGgUEwT'
 var stripePublicKey = 'pk_live_WZRwtpLAFcufugeQKbtwKobm'
 const stripe = require('stripe')(stripeSecretKey);
+const jwt = require('jsonwebtoken')
 
 
 
 //List (get all of the resource)
-router.get('/', function (req, res, next) {
-  knex('orders')
-    .select('*')
-  .then((data) => {
-    res.status(200).json(data)
+router.get('/', verifyToken, function (req, res, next) {
+  jwt.verify(req.token, 'secretjwtkey', (err, authData) => {
+    if(err){
+      res.sendStatus(403)
+    } else {
+      knex('orders')
+      .select('*')
+      .then((data) => {
+        res.status(200).json(data)
+      })
+    }
   })
 })
 
+//FORMAT OF TOKEN:
+//Authorization: bearer <access token>
+//verify token
+
+function verifyToken(req, res, next){
+  //get auth header value
+  //const bearerHeader = req.headers['authorization']
+  console.log(req.cookies['token'])
+  const cookieToken = req.cookies['token']
+
+  //check if value exists
+  if(cookieToken){
+    //set to req.token
+    req.token = cookieToken
+    //call the Next Middleware
+    next()
+
+  } else {
+    //forbidden
+    res.sendStatus('403')
+  }
+}
 
 //Get All reservations associated with a userId (passed in as req.params.id)
 router.get('/:id', function(req, res, next){

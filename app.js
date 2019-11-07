@@ -9,6 +9,7 @@ var dotenv = require('dotenv').config()
 var cron = require('node-cron')
 var cors = require('cors');
 var helmet = require('helmet')
+const jwt = require('jsonwebtoken')
 
 var discountCodesEventsRouter = require('./routes/discount_codes_events')
 var discountCodesRouter = require('./routes/discount_codes');
@@ -19,6 +20,7 @@ var pickupPartiesRouter = require('./routes/pickup_parties');
 var eventDataHandler = require('./eventDataHandler')
 var reservationsRouter = require('./routes/reservations')
 var usersRouter = require('./routes/users')
+var api = require('./routes/api')
 var app = express();
 
 // app.use(function(req, res, next) {
@@ -29,7 +31,8 @@ var app = express();
 // });
 
 var corsOptions = {
-  origin: 'https://bustoshow.org',
+  origin: 'http://localhost:5000',
+  //origin: 'https://bustoshow.org',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 app.use(helmet())
@@ -40,6 +43,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/api', api)
 app.use('/users', usersRouter);
 app.use(`/discount_codes_events`, discountCodesEventsRouter);
 app.use(`/discount_codes`, discountCodesRouter);

@@ -2,11 +2,17 @@
 
 const express = require('express');
 const router = express.Router();
+const cookieParser = require('cookie-parser')
 const knex = require('../knex.js')
 
 
 //List (get all of the resource)
 router.get('/', function(req, res, next){
+  // Cookies that have not been signed
+    console.log('Cookies: ', req.cookies)
+
+    // Cookies that have been signed
+    console.log('Signed Cookies: ', req.signedCookies)
   knex('events')
     .select('id', 'date', 'startTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied', 'external')
   .then((data) => {
