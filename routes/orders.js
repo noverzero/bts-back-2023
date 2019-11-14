@@ -7,6 +7,7 @@ const knex = require('../knex.js')
 var convertTime = require('convert-time')
 const nodemailer = require('nodemailer')
 const EMAIL_PASS = process.env.EMAIL_PASS
+const ORIGIN_URL = process.env.ORIGIN_URL
 //var stripeSecretKey = process.env.STRIPE_SECRETKEY;
 var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
 //var stripePublicKey = 'pk_test_J0CdRMCGmBlrlOiGKnGgUEwT'
@@ -18,17 +19,24 @@ const jwt = require('jsonwebtoken')
 
 //List (get all of the resource)
 router.get('/', verifyToken, function (req, res, next) {
-  jwt.verify(req.token, 'secretjwtkey', (err, authData) => {
-    if(err){
-      res.sendStatus(403)
+    if(req.headers.origin !== ORIGIN_URL){
+    setTimeout(() => {
+          res.sendStatus(404)
+        }, 2000)
     } else {
-      knex('orders')
-      .select('*')
-      .then((data) => {
-        res.status(200).json(data)
-      })
-    }
-  })
+    console.log('else')
+    jwt.verify(req.token, 'secretjwtkey', (err, authData) => {
+      if(err){
+        res.sendStatus(403)
+      } else {
+        knex('orders')
+        .select('*')
+        .then((data) => {
+          res.status(200).json(data)
+        })
+      }
+    })
+  }
 })
 
 //FORMAT OF TOKEN:
@@ -38,7 +46,6 @@ router.get('/', verifyToken, function (req, res, next) {
 function verifyToken(req, res, next){
   //get auth header value
   //const bearerHeader = req.headers['authorization']
-  console.log(req.cookies['token'])
   const cookieToken = req.cookies['token']
 
   //check if value exists
@@ -56,6 +63,12 @@ function verifyToken(req, res, next){
 
 //Get All reservations associated with a userId (passed in as req.params.id)
 router.get('/:id', function(req, res, next){
+  req.headers.origin !== ORIGIN_URL
+    ?
+    setTimeout(() => {
+          res.sendStatus(404)
+        }, 2000)
+    :
   knex('orders')
   .select('orderedByFirstName', 'orderedByLastName', 'orderedByEmail', 'userId', 'orderId', 'willCallFirstName', 'willCallLastName', 'status', 'lastBusDepartureTime', 'firstBusLoadTime', 'city', 'locationName', 'streetAddress', 'date', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerBio', 'headlinerImgLink' )
   .join('reservations', 'orders.id', '=', 'reservations.orderId')
@@ -88,7 +101,6 @@ router.get('/:id', function(req, res, next){
 
 //POST ROUTE ORDERS
 router.post('/', function (req, res, next) {
-  console.log("orders post fired!", req.body)
 
   const {
     userId,

@@ -2,9 +2,17 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('../knex.js')
+const ORIGIN_URL = process.env.ORIGIN_URL
+
 
 //List (get all of the resource)
 router.get('/', function(req, res, next){
+  req.headers.origin !== ORIGIN_URL
+    ?
+    setTimeout(() => {
+          res.sendStatus(404)
+        }, 2000)
+    :
   knex('pickup_parties')
     .select('*')
   .then((data) => {

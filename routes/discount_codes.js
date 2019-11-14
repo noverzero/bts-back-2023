@@ -4,9 +4,16 @@ const express = require('express');
 const router = express.Router();
 const knex = require('../knex.js')
 const cors = require('cors')
+const ORIGIN_URL = process.env.ORIGIN_URL
 
 //List (get all of the resource)
 router.get('/', function(req, res, next) {
+  req.headers.origin !== ORIGIN_URL
+    ?
+    setTimeout(() => {
+          res.sendStatus(404)
+        }, 2000)
+    :
   knex('discount_codes')
     .select('id', 'discountCode', 'percentage', 'expiresOn', 'issuedOn', 'issuedTo', 'issuedBy', 'issuedBecause', 'timesUsed', 'type', 'remainingUses', 'usesPerEvent')
   .then((data) => {
@@ -18,6 +25,12 @@ router.get('/', function(req, res, next) {
 //Read (get one of the resource)
 // Get One
 router.get('/:id', function(req, res, next) {
+  req.headers.origin !== ORIGIN_URL
+    ?
+    setTimeout(() => {
+          res.sendStatus(404)
+        }, 2000)
+    :
   knex('discount_codes')
     .select('id', 'discountCode', 'percentage', 'expiresOn', 'issuedOn', 'issuedTo', 'issuedBy', 'issuedBecause', 'timesUsed', 'type', 'remainingUses', 'usesPerEvent')
     .where('id', req.params.id)
