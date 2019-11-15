@@ -8,10 +8,10 @@ var convertTime = require('convert-time')
 const nodemailer = require('nodemailer')
 const EMAIL_PASS = process.env.EMAIL_PASS
 const ORIGIN_URL = process.env.ORIGIN_URL
-//var stripeSecretKey = process.env.STRIPE_SECRETKEY;
-var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
-//var stripePublicKey = 'pk_test_J0CdRMCGmBlrlOiGKnGgUEwT'
-var stripePublicKey = 'pk_live_WZRwtpLAFcufugeQKbtwKobm'
+var stripeSecretKey = process.env.STRIPE_SECRETKEY;
+//var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
+var stripePublicKey = 'pk_test_J0CdRMCGmBlrlOiGKnGgUEwT'
+//var stripePublicKey = 'pk_live_WZRwtpLAFcufugeQKbtwKobm'
 const stripe = require('stripe')(stripeSecretKey);
 const jwt = require('jsonwebtoken')
 
@@ -235,11 +235,14 @@ router.patch('/:id', function(req, res, next){
 // })
 
 router.post('/charge', async(req, res) => {
+  console.log('made it inside charge! ::>', req.body)
   stripe.customers.create({
     email: req.body.stripeEmail,
     source: req.body.stripeToken.id,
   })
   .then(customer =>{
+    console.log('back from creating customer! ::>', customer)
+
     stripe.charges.create({
         amount: req.body.amount,
         description: req.body.eventId,
@@ -248,9 +251,10 @@ router.post('/charge', async(req, res) => {
         metadata: req.body.metadata
       }, (err, charge) => {
         if (err) {
+          console.log('create charge error: ', err)
           return res.json(err)
         }
-
+        console.log('create charge charge: ', charge)
         return res.json(charge)
       }
     )
