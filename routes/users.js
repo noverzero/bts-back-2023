@@ -48,7 +48,7 @@ router.get('/:id', verifyToken, function(req, res, next){
 //Create (create one of the resource)
 router.post('/', verifyToken, function(req, res, next){
   let email = req.body.email
-    return jwt.verify(req.token, JWT_KEY, (err, authData) => {
+    jwt.verify(req.token, JWT_KEY, (err, authData) => {
     if(err){
       res.sendStatus(403)
     } else {
