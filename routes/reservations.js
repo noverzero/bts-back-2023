@@ -66,6 +66,12 @@ router.patch('/:id', function(req, res, next){
 
 //Delete (delete one of the resource)
 router.delete('/:id', function(req, res, next){
+  req.headers.origin !== ORIGIN_URL
+    ?
+    setTimeout(() => {
+          res.sendStatus(404)
+        }, 2000)
+    :
   knex('reservations')
     .where('id', req.params.id)
     .del('*')

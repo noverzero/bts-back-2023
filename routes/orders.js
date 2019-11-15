@@ -8,12 +8,14 @@ var convertTime = require('convert-time')
 const nodemailer = require('nodemailer')
 const EMAIL_PASS = process.env.EMAIL_PASS
 const ORIGIN_URL = process.env.ORIGIN_URL
-var stripeSecretKey = process.env.STRIPE_SECRETKEY;
-//var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
-var stripePublicKey = 'pk_test_J0CdRMCGmBlrlOiGKnGgUEwT'
-//var stripePublicKey = 'pk_live_WZRwtpLAFcufugeQKbtwKobm'
+const JWT_KEY = process.env.ORIGIN_URL
+//var stripeSecretKey = process.env.STRIPE_SECRETKEY;
+var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
+//var stripePublicKey = 'pk_test_J0CdRMCGmBlrlOiGKnGgUEwT'
+var stripePublicKey = 'pk_live_WZRwtpLAFcufugeQKbtwKobm'
 const stripe = require('stripe')(stripeSecretKey);
 const jwt = require('jsonwebtoken')
+const verifyToken = require('./api').verifyToken
 
 
 
@@ -24,8 +26,7 @@ router.get('/', verifyToken, function (req, res, next) {
           res.sendStatus(404)
         }, 2000)
     } else {
-    console.log('else')
-    jwt.verify(req.token, 'secretjwtkey', (err, authData) => {
+    jwt.verify(req.token, JWT_KEY, (err, authData) => {
       if(err){
         res.sendStatus(403)
       } else {
@@ -39,27 +40,8 @@ router.get('/', verifyToken, function (req, res, next) {
   }
 })
 
-//FORMAT OF TOKEN:
-//Authorization: bearer <access token>
-//verify token
 
-function verifyToken(req, res, next){
-  //get auth header value
-  //const bearerHeader = req.headers['authorization']
-  const cookieToken = req.cookies['token']
 
-  //check if value exists
-  if(cookieToken){
-    //set to req.token
-    req.token = cookieToken
-    //call the Next Middleware
-    next()
-
-  } else {
-    //forbidden
-    res.sendStatus('403')
-  }
-}
 
 //Get All reservations associated with a userId (passed in as req.params.id)
 router.get('/:id', function(req, res, next){
@@ -147,6 +129,13 @@ router.post('/', function (req, res, next) {
     res.status(404).send('Please include pickup location, event, and ticket quantity!')
     return null
   }
+
+  req.headers.origin !== ORIGIN_URL
+    ?
+    setTimeout(() => {
+          res.sendStatus(404)
+        }, 2000)
+    :
   knex('orders')
     .insert({
       userId: userId,
@@ -235,13 +224,11 @@ router.patch('/:id', function(req, res, next){
 // })
 
 router.post('/charge', async(req, res) => {
-  console.log('made it inside charge! ::>', req.body)
   stripe.customers.create({
     email: req.body.stripeEmail,
     source: req.body.stripeToken.id,
   })
   .then(customer =>{
-    console.log('back from creating customer! ::>', customer)
 
     stripe.charges.create({
         amount: req.body.amount,
@@ -251,10 +238,8 @@ router.post('/charge', async(req, res) => {
         metadata: req.body.metadata
       }, (err, charge) => {
         if (err) {
-          console.log('create charge error: ', err)
           return res.json(err)
         }
-        console.log('create charge charge: ', charge)
         return res.json(charge)
       }
     )
