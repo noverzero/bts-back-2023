@@ -46,7 +46,7 @@ router.get('/:id', verifyToken, function(req, res, next){
 })
 
 //Create (create one of the resource)
-router.post('/', verifyToken, function(req, res, next){
+router.post('/', function(req, res, next){
   let email = req.body.email
         return knex('users')
         .select('id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation')
