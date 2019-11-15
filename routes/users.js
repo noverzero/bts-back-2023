@@ -48,10 +48,6 @@ router.get('/:id', verifyToken, function(req, res, next){
 //Create (create one of the resource)
 router.post('/', verifyToken, function(req, res, next){
   let email = req.body.email
-    jwt.verify(req.token, JWT_KEY, (err, authData) => {
-    if(err){
-      res.sendStatus(403)
-    } else {
         return knex('users')
         .select('id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation')
         .where('email', email)
@@ -71,8 +67,6 @@ router.post('/', verifyToken, function(req, res, next){
         .catch((err) => {
           next(err)
         })
-    }
-  })
 })
 
 // router.patch('/:id', function(req, res, next){
