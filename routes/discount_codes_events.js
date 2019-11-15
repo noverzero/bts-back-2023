@@ -3,13 +3,27 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('../knex.js')
+const JWT_KEY = process.env.ORIGIN_URL
+const verifyToken = require('./api').verifyToken
 
 //List (get all of the resource)
-router.get('/', function(req, res, next){
-  knex('discount_codes_events')
-    .select('id', 'eventsId', 'discountCodeId')
-  .then((data) => {
-    res.status(200).json(data)
+router.get('/', verifyToken, function(req, res, next){
+  req.headers.origin !== ORIGIN_URL
+    ?
+    setTimeout(() => {
+          res.sendStatus(404)
+        }, 2000)
+    :
+  jwt.verify(req.token, JWT_KEY, (err, authData) => {
+    if(err){
+      res.sendStatus(403)
+    } else {
+      knex('discount_codes_events')
+      .select('id', 'eventsId', 'discountCodeId')
+      .then((data) => {
+        res.status(200).json(data)
+      })
+    }
   })
 })
 
