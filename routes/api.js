@@ -28,7 +28,6 @@ function verifyToken(req, res, next){
   //get auth header value
   //const bearerHeader = req.headers['authorization']
   const cookieToken = req.cookies['token']
-
   //check if value exists
   if(cookieToken){
     //set to req.token
