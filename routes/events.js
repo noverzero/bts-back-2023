@@ -10,6 +10,7 @@ const ORIGIN_URL = process.env.ORIGIN_URL
 
 //List (get all of the resource)
 router.get('/', function(req, res, next){
+  console.log('origin ', req.headers, 'ORIGIN_URL', ORIGIN_URL)
   req.headers.origin !== ORIGIN_URL
     ?
     setTimeout(() => {
@@ -36,6 +37,7 @@ router.get('/:id', function(req, res, next){
 
 //Create (create one of the resource)
 router.post('/', function(req, res, next){
+  if (!req.body.startTime) req.body.startTime = '18:00:00'
   knex('events')
     .insert(req.body)
     .returning(['id', 'date', 'startTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied', 'external'])
@@ -45,6 +47,7 @@ router.post('/', function(req, res, next){
 })
 
 router.patch('/:id', function(req, res, next){
+  console.log('is events.patch getting hit? ', req.params)
   knex('events')
     .where('id', req.params.id)
     .update(req.body)
@@ -56,7 +59,7 @@ router.patch('/:id', function(req, res, next){
 
 //Delete (delete one of the resource)
 // router.delete('/:id', function(req, res, next){
-//   knex('users')
+//   knex('events')
 //     .where('id', req.params.id)
 //     .del('*')
 //     .returning(['id', 'date', 'startTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied', 'external'])

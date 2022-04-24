@@ -29,10 +29,16 @@ var app = express();
 //   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 //   next();
 // });
-
+var whitelist = ['https://bustoshow.org', 'http://localhost:4200', "http://roomy-move.surge.sh/"]
 var corsOptions = {
   //origin: 'http://localhost:5000',
-  origin: 'https://bustoshow.org',
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 app.use(helmet())
@@ -54,19 +60,19 @@ app.use(`/pickup_parties`, pickupPartiesRouter);
 app.use(`/reservations`, reservationsRouter);
 
 app.use(function(req, res) {
-  res.status(404).send('Not Found');
+  res.status(404).send('Not Found!');
 });
 
 apiDataFunction = async () => {
   const allShowsObj = await eventDataHandler.getApiData()
-  eventDataHandler.insertEventData(allShowsObj)
+  //eventDataHandler.insertEventData(allShowsObj)
 }
 
-apiDataFunction() // commented out until we go live
+//apiDataFunction() // commented out until we go live
 
 // let time = new Date()
 cron.schedule('00 04 * * * *', async () => {
-  apiDataFunction()
+  //apiDataFunction()
 })
 
 sweepInCartsCall = () => {
@@ -74,7 +80,7 @@ sweepInCartsCall = () => {
 }
 
 cron.schedule('*/5 * * * *', () => {
-  sweepInCartsCall()
+  //sweepInCartsCall()
 })
 
 
