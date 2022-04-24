@@ -76,7 +76,7 @@ cron.schedule('00 04 * * * *', async () => {
 })
 
 sweepInCartsCall = () => {
-  eventDataHandler.sweepInCarts()
+  //eventDataHandler.sweepInCarts()
 }
 
 cron.schedule('*/5 * * * *', () => {
