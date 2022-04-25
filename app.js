@@ -29,7 +29,7 @@ var app = express();
 //   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 //   next();
 // });
-var whitelist = ['https://bustoshow.org', 'http://localhost:4200', "http://roomy-move.surge.sh/"]
+var whitelist = ['https://bustoshow.org', 'http://localhost:4200', "http://roomy-move.surge.sh/", "https://peaceful-oasis-58555.herokuapp.com"]
 var corsOptions = {
   //origin: 'http://localhost:5000',
   origin: function (origin, callback) {
