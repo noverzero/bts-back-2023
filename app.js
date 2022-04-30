@@ -14,6 +14,7 @@ const jwt = require('jsonwebtoken')
 var discountCodesEventsRouter = require('./routes/discount_codes_events')
 var discountCodesRouter = require('./routes/discount_codes');
 var eventsRouter = require('./routes/events');
+var eventsDashRouter = require('./routes/events-dash');
 var ordersRouter = require('./routes/orders');
 var pickupLocationsRouter = require('./routes/pickup_locations');
 var pickupPartiesRouter = require('./routes/pickup_parties');
@@ -29,10 +30,12 @@ var app = express();
 //   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 //   next();
 // });
-var whitelist = ['https://bustoshow.org', 'http://localhost:4200', "http://roomy-move.surge.sh/", "https://peaceful-oasis-58555.herokuapp.com"]
+var whitelist = process.env.ORIGIN_URL.split(' ')
+console.log('whitelist ===========> ', whitelist)
 var corsOptions = {
   //origin: 'http://localhost:5000',
   origin: function (origin, callback) {
+    console.log('origin --------------->>>> ', origin)
     if (whitelist.indexOf(origin) !== -1) {
       callback(null, true)
     } else {
@@ -54,6 +57,7 @@ app.use('/users', usersRouter);
 app.use(`/discount_codes_events`, discountCodesEventsRouter);
 app.use(`/discount_codes`, discountCodesRouter);
 app.use(`/events`, eventsRouter);
+app.use(`/events-dash`, eventsDashRouter);
 app.use(`/orders`, ordersRouter);
 app.use(`/pickup_locations`, pickupLocationsRouter);
 app.use(`/pickup_parties`, pickupPartiesRouter);
