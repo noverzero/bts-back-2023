@@ -106,11 +106,6 @@ router.get('/:id', (req, res, next) => {
         if (err) {
           return console.error('Error acquiring client', err.stack)
         }
-        // a : req.body.city,
-        // a : req.body.locationName,
-        // a : req.body.type,
-        // a : req.body.reservations,
-        // a : req.body.created
 
 
         const partyBody = {
@@ -152,7 +147,8 @@ router.get('/:id', (req, res, next) => {
 
                     RETURNING *
                 ;`
-        const homeMadeUpsertQuery = partyBody.id ?  updateQuery : insertQuery;          
+        const homeMadeUpsertQuery = partyBody.id ?  updateQuery : insertQuery;    
+        console.log(' here it s again !!! ', homeMadeUpsertQuery)      
         client.query(`${homeMadeUpsertQuery}`, (err, result) => {
           release()
           if (err) {
