@@ -5,10 +5,12 @@ const router = express.Router();
 const knex = require('../knex.js')
 const cors = require('cors')
 const ORIGIN_URL = process.env.ORIGIN_URL
+const whitelist = process.env.ORIGIN_URL.split(' ')
+
 
 //List (get all of the resource)
 router.get('/', function(req, res, next) {
-  req.headers.origin !== ORIGIN_URL
+  (whitelist.indexOf(req.headers.origin) === -1)
     ?
     setTimeout(() => {
           res.sendStatus(404)
@@ -25,7 +27,7 @@ router.get('/', function(req, res, next) {
 //Read (get one of the resource)
 // Get One
 router.get('/:id', function(req, res, next) {
-  req.headers.origin !== ORIGIN_URL
+(whitelist.indexOf(req.headers.origin) === -1)
     ?
     setTimeout(() => {
           res.sendStatus(404)

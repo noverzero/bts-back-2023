@@ -17,11 +17,11 @@ const pool = new Pool(pgconfig)
 
 //List (get all of the resource)
 router.get('/', function(req, res, next){
-  req.headers.origin !== ORIGIN_URL
-    ?
-    setTimeout(() => {
-          res.sendStatus(404)
-        }, 2000)
+  (whitelist.indexOf(req.headers.origin) === -1)
+  ?
+  setTimeout(() => {
+        res.sendStatus(404)
+      }, 2000)
     :
   knex('pickup_parties')
     .select('*')

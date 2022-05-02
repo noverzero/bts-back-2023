@@ -14,18 +14,20 @@ var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
 var stripePublicKey = 'pk_live_WZRwtpLAFcufugeQKbtwKobm'
 const stripe = require('stripe')(stripeSecretKey);
 const jwt = require('jsonwebtoken')
-const JWT_KEY = process.env.ORIGIN_URL
+const JWT_KEY = process.env.JWT_KEY
 const verifyToken = require('./api').verifyToken
+const whitelist = process.env.ORIGIN_URL.split(' ')
 
 
 
 //List (get all of the resource)
 router.get('/', verifyToken, function (req, res, next) {
-    if(req.headers.origin !== ORIGIN_URL){
-    setTimeout(() => {
-          res.sendStatus(404)
-        }, 2000)
-    } else {
+  (whitelist.indexOf(req.headers.origin) === -1)
+  ?
+  setTimeout(() => {
+        res.sendStatus(404)
+      }, 2000)
+  :
     jwt.verify(req.token, JWT_KEY, (err, authData) => {
       if(err){
         res.sendStatus(403)
@@ -37,7 +39,6 @@ router.get('/', verifyToken, function (req, res, next) {
         })
       }
     })
-  }
 })
 
 
@@ -45,7 +46,7 @@ router.get('/', verifyToken, function (req, res, next) {
 
 //Get All reservations associated with a userId (passed in as req.params.id)
 router.get('/:id', function(req, res, next){
-  req.headers.origin !== ORIGIN_URL
+(whitelist.indexOf(req.headers.origin) === -1)
     ?
     setTimeout(() => {
           res.sendStatus(404)

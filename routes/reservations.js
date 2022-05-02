@@ -4,13 +4,15 @@ const express = require('express');
 const router = express.Router();
 const knex = require('../knex.js')
 const ORIGIN_URL = process.env.ORIGIN_URL
-const JWT_KEY = process.env.ORIGIN_URL
+const JWT_KEY = process.env.JWT_KEY
 const verifyToken = require('./api').verifyToken
+const whitelist = process.env.ORIGIN_URL.split(' ')
+
 
 
 //List (get all of the resource)
 router.get('/', function(req, res, next){
-  req.headers.origin !== ORIGIN_URL
+(whitelist.indexOf(req.headers.origin) === -1)
     ?
     setTimeout(() => {
           res.sendStatus(404)
@@ -81,7 +83,7 @@ router.patch('/:id', function(req, res, next){
 
 //Delete (delete one of the resource)
 router.delete('/:id', verifyToken, function(req, res, next){
-  req.headers.origin !== ORIGIN_URL
+(whitelist.indexOf(req.headers.origin) === -1)
     ?
     setTimeout(() => {
           res.sendStatus(404)

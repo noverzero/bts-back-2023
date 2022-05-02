@@ -34,7 +34,6 @@ var app = express();
 var whitelist = process.env.ORIGIN_URL.split(' ')
 console.log('whitelist ===========> ', whitelist)
 var corsOptions = {
-  //origin: 'http://localhost:5000',
   origin: function (origin, callback) {
     console.log('origin --------------->>>> ', origin)
     if (whitelist.indexOf(origin) !== -1) {
