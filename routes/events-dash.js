@@ -33,7 +33,6 @@ router.get('/', (req, res, next) => {
           if (err) {
             return console.error('Error executing query', err.stack)
           }
-          console.log(result.rows)
           res.status(200).json(result.rows)
         })
       })
@@ -64,7 +63,6 @@ router.post('/', function(req, res, next){
 })
 
 router.patch('/:id', function(req, res, next){
-  console.log('is events.patch getting hit? ', req.params)
   knex('events')
     .where('id', req.params.id)
     .update(req.body)

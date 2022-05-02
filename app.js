@@ -18,8 +18,9 @@ var eventsDashRouter = require('./routes/events-dash');
 var ordersRouter = require('./routes/orders');
 var pickupLocationsRouter = require('./routes/pickup_locations');
 var pickupPartiesRouter = require('./routes/pickup_parties');
-var eventDataHandler = require('./eventDataHandler')
-var reservationsRouter = require('./routes/reservations')
+var managePartiesRouter = require('./routes/manage-parties');
+var eventDataHandler = require('./eventDataHandler');
+var reservationsRouter = require('./routes/reservations');
 var usersRouter = require('./routes/users')
 var apiRouter = require('./routes/api').router
 var app = express();
@@ -61,9 +62,11 @@ app.use(`/events-dash`, eventsDashRouter);
 app.use(`/orders`, ordersRouter);
 app.use(`/pickup_locations`, pickupLocationsRouter);
 app.use(`/pickup_parties`, pickupPartiesRouter);
+app.use(`/manage-parties`, managePartiesRouter)
 app.use(`/reservations`, reservationsRouter);
 
 app.use(function(req, res) {
+  console.log('next all the way to the end without finding anything req =====>', req.path)
   res.status(404).send('Not Found!');
 });
 

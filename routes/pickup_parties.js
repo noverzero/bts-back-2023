@@ -5,6 +5,16 @@ const knex = require('../knex.js')
 const ORIGIN_URL = process.env.ORIGIN_URL
 
 
+const whitelist = process.env.ORIGIN_URL.split(' ')
+// Parse the environment variable into an object
+const parse = require("pg-connection-string").parse;
+const pgconfig = parse(process.env.DATABASE_URL);
+pgconfig.ssl = { rejectUnauthorized: false };
+const Pool = require('pg').Pool
+const pool = new Pool(pgconfig)
+
+
+
 //List (get all of the resource)
 router.get('/', function(req, res, next){
   req.headers.origin !== ORIGIN_URL
