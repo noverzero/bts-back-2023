@@ -154,7 +154,6 @@ router.get('/:id', (req, res, next) => {
                     RETURNING *
                 ;`
         const homeMadeUpsertQuery = partyBody.id ?  updateQuery : insertQuery; 
-        console.log(' here that query isssss !!! ==== ', homeMadeUpsertQuery)    
         client.query(`${homeMadeUpsertQuery}`, (err, result) => {
           release()
           if (err) {
