@@ -78,6 +78,7 @@ router.get('/:id', (req, res, next) => {
         if (err) {
           return console.error('Error acquiring client', err.stack)
         }
+        console.log('in the  patch params ====> ', req.params, 'in the patch body =====> ', req.body)
         client.query(` 
             UPDATE pickup_parties
             SET capacity = ${req.body.capacity}
@@ -124,7 +125,7 @@ router.get('/:id', (req, res, next) => {
           }
         const {id, eventId, pickupLocationId, lastBusDepartureTime, firstBusLoadTime, partyPrice, capacity, created_at, updated_at} = req.body
         const updateQuery = `
-                    UPDATE SET "lastBusDepartureTime" = '${partyBody.lastBusDepartureTime}',
+                    UPDATE pickup_parties SET "lastBusDepartureTime" = '${partyBody.lastBusDepartureTime}',
                             "firstBusLoadTime" = '${partyBody.firstBusLoadTime}',
                             "partyPrice" = ${partyBody.partyPrice},
                             capacity = ${partyBody.capacity},
@@ -152,7 +153,8 @@ router.get('/:id', (req, res, next) => {
 
                     RETURNING *
                 ;`
-        const homeMadeUpsertQuery = partyBody.id ?  updateQuery : insertQuery;          
+        const homeMadeUpsertQuery = partyBody.id ?  updateQuery : insertQuery; 
+        console.log(' here that query isssss !!! ==== ', homeMadeUpsertQuery)    
         client.query(`${homeMadeUpsertQuery}`, (err, result) => {
           release()
           if (err) {
