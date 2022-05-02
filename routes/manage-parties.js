@@ -1,5 +1,6 @@
 'use strict';
 const express = require('express');
+const { update } = require('../knex');
 const router = express.Router();
 
 const whitelist = process.env.ORIGIN_URL.split(' ')
@@ -122,9 +123,22 @@ router.get('/:id', (req, res, next) => {
             capacity: req.body.capacity,
           }
         const {id, eventId, pickupLocationId, lastBusDepartureTime, firstBusLoadTime, partyPrice, capacity, created_at, updated_at} = req.body
-        const query = `
-                    INSERT INTO pickup_parties(id, "eventId", "pickupLocationId", "lastBusDepartureTime", "firstBusLoadTime", "partyPrice", "capacity", created_at, updated_at)
-                    VALUES(${partyBody.id}, ${partyBody.eventId}, ${partyBody.pickupLocationId}, '${partyBody.lastBusDepartureTime}', '${partyBody.firstBusLoadTime}', ${partyBody.partyPrice}, ${partyBody.capacity}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP )
+        const updateQuery = `
+                    UPDATE SET "lastBusDepartureTime" = '${partyBody.lastBusDepartureTime}',
+                            "firstBusLoadTime" = '${partyBody.firstBusLoadTime}',
+                            "partyPrice" = ${partyBody.partyPrice},
+                            capacity = ${partyBody.capacity},
+                            updated_at = CURRENT_TIMESTAMP
+                    WHERE pickup_parties.id = ${partyBody.id}
+                    AND pickup_parties."eventId" = ${partyBody.eventId}
+                    AND pickup_parties."pickupLocationId" = ${partyBody.pickupLocationId}
+
+                    RETURNING *
+                ;`
+
+        const insertQuery = `
+                    INSERT INTO pickup_parties("eventId", "pickupLocationId", "lastBusDepartureTime", "firstBusLoadTime", "partyPrice", "capacity", created_at, updated_at)
+                    VALUES(${partyBody.eventId}, ${partyBody.pickupLocationId}, '${partyBody.lastBusDepartureTime}', '${partyBody.firstBusLoadTime}', ${partyBody.partyPrice}, ${partyBody.capacity}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP )
                     ON CONFLICT (id)
                     DO 
                         UPDATE SET "lastBusDepartureTime" = '${partyBody.lastBusDepartureTime}',
@@ -138,12 +152,11 @@ router.get('/:id', (req, res, next) => {
 
                     RETURNING *
                 ;`
-
-                            console.log(' here is the query [[[[[[[[[[[[[============= ', query)
-        client.query(`${query}`, (err, result) => {
+        const homeMadeUpsertQuery = partyBody.id ?  updateQuery : insertQuery;          
+        client.query(`${homeMadeUpsertQuery}`, (err, result) => {
           release()
           if (err) {
-            return console.error('Error executing query', err.stack)
+            throw new Error('Error executing query', err.stack)
           }
           console.log(result.rows)
           res.status(200).json(result.rows)
