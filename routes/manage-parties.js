@@ -59,7 +59,6 @@ router.get('/:id', (req, res, next) => {
           if (err) {
             return console.error('Error executing query', err.stack)
           }
-          console.log(result.rows)
           res.status(200).json(result.rows)
         })
       })
@@ -78,7 +77,6 @@ router.get('/:id', (req, res, next) => {
         if (err) {
           return console.error('Error acquiring client', err.stack)
         }
-        console.log('in the  patch params ====> ', req.params, 'in the patch body =====> ', req.body)
         client.query(` 
             UPDATE pickup_parties
             SET capacity = ${req.body.capacity}
@@ -90,7 +88,6 @@ router.get('/:id', (req, res, next) => {
           if (err) {
             return console.error('Error executing query', err.stack)
           }
-          console.log(result.rows)
           res.status(200).json(result.rows)
         })
       })
@@ -107,7 +104,7 @@ router.get('/:id', (req, res, next) => {
         if (err) {
           return console.error('Error acquiring client', err.stack)
         }
-
+        
 
         const partyBody = {
             id: req.body.party_id,
@@ -118,6 +115,12 @@ router.get('/:id', (req, res, next) => {
             partyPrice: req.body.partyPrice,
             capacity: req.body.capacity,
           }
+          
+          if(partyBody.capacity == null) partyBody.capacity = 0
+          if(partyBody.partyPrice == null) partyBody.partyPrice = 30
+          if(partyBody.lastBusDepartureTime == null) partyBody.lastBusDepartureTime = '17:30'
+          if(partyBody.firstBusLoadTime == null) partyBody.firstBusLoadTime = partyBody.lastBusDepartureTime
+
         const {id, eventId, pickupLocationId, lastBusDepartureTime, firstBusLoadTime, partyPrice, capacity, created_at, updated_at} = req.body
         const updateQuery = `
                     UPDATE pickup_parties SET "lastBusDepartureTime" = '${partyBody.lastBusDepartureTime}',
@@ -154,7 +157,6 @@ router.get('/:id', (req, res, next) => {
           if (err) {
             throw new Error('Error executing query', err.stack)
           }
-          console.log(result.rows)
           res.status(200).json(result.rows)
         })
 

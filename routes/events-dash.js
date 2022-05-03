@@ -26,7 +26,7 @@ router.get('/', (req, res, next) => {
           return console.error('Error acquiring client', err.stack)
         }
         client.query(`
-            SELECT * from upcoming_events_overview_mv
+        SELECT * from upcoming_events_overview_mv
             ORDER BY sort_date;
         `, (err, result) => {
           release()
@@ -44,7 +44,7 @@ router.get('/', (req, res, next) => {
 // Get One
             router.get('/:id', function(req, res, next){
             knex('events')
-                .select('id', 'date', 'startTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied', 'external')
+                .select('id', 'date', 'doors_time', 'startTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied', 'external')
                 .where('id', req.params.id)
             .then((data) => {
                 res.status(200).json(data[0])
@@ -56,7 +56,7 @@ router.post('/', function(req, res, next){
   if (!req.body.startTime) req.body.startTime = '18:00:00'
   knex('events')
     .insert(req.body)
-    .returning(['id', 'date', 'startTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied', 'external'])
+    .returning(['id', 'date', 'doors_time', 'startTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied', 'external'])
   .then((data) => {
     res.status(200).json(data[0])
   })
@@ -66,7 +66,7 @@ router.patch('/:id', function(req, res, next){
   knex('events')
     .where('id', req.params.id)
     .update(req.body)
-    .returning(['id', 'date', 'startTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied', 'external'])
+    .returning(['id', 'date', 'doors_time', 'startTime', 'venue', 'headliner', 'support1', 'support2', 'support3', 'headlinerImgLink', 'headlinerBio', 'meetsCriteria', 'isDenied', 'external'])
   .then((data) => {
     res.status(200).json(data[0])
   })
