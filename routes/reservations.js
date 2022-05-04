@@ -71,7 +71,7 @@ router.patch('/findOrders', function(req, res, next){
 })
 
 router.patch('/:id', function(req, res, next){
-  console.log("req.token inside reservations/getone::  ", req.token)
+  console.log("req.token inside PATCH reservations/:id ::  ", req.token)
       knex('reservations')
       .where('id', req.params.id)
       .update(req.body)
@@ -82,26 +82,26 @@ router.patch('/:id', function(req, res, next){
 })
 
 //Delete (delete one of the resource)
-router.delete('/:id', verifyToken, function(req, res, next){
-(whitelist.indexOf(req.headers.origin) === -1)
-    ?
-    setTimeout(() => {
-          res.sendStatus(404)
-        }, 2000)
-    :
-  jwt.verify(req.token, JWT_KEY, (err, authData) => {
-    if(err){
-      res.sendStatus(403)
-    } else {
-      knex('reservations')
-      .where('id', req.params.id)
-      .del('*')
-      .returning(['id', 'orderId', 'pickupPartiesId', 'willCallFirstName', 'willCallLastName', 'status', 'discountCodeId'])
-      .then((data) => {
-        res.status(200).json(data[0])
-      })
-    }
-  })
-})
+// router.delete('/:id', verifyToken, function(req, res, next){
+// (whitelist.indexOf(req.headers.origin) === -1)
+//     ?
+//     setTimeout(() => {
+//           res.sendStatus(404)
+//         }, 2000)
+//     :
+//   jwt.verify(req.token, JWT_KEY, (err, authData) => {
+//     if(err){
+//       res.sendStatus(403)
+//     } else {
+//       knex('reservations')
+//       .where('id', req.params.id)
+//       .del('*')
+//       .returning(['id', 'orderId', 'pickupPartiesId', 'willCallFirstName', 'willCallLastName', 'status', 'discountCodeId'])
+//       .then((data) => {
+//         res.status(200).json(data[0])
+//       })
+//     }
+//   })
+// })
 
 module.exports = router;
