@@ -27,34 +27,39 @@ router.get('/', (req, res, next) => {
         }
         client.query(`
         SELECT e.id,
-            e.date,
-            e."startTime",
-            e.doors_time,
-            e.venue,
-            e.headliner,
-            e.support1,
-            e.support2,
-            e.support3,
-            e."headlinerBio",
-            e."headlinerImgLink",
-            e."meetsCriteria",
-            e."isDenied",
-            e.external,
-            e.created_at,
-            e.updated_at,
-            e.date::date AS sort_date,
-            COALESCE(( SELECT sum(pp.capacity) AS sum
-                  FROM pickup_parties pp
-                  WHERE pp."eventId" = e.id), 0::bigint) AS capacity,
-            COALESCE(( SELECT count(reservations.id) AS count
-                  FROM reservations
-                    JOIN pickup_parties pp ON pp.id = reservations."pickupPartiesId"
-                  WHERE e.id = pp."eventId" AND (reservations.status = ANY (ARRAY[1, 2]))), 0::bigint) AS reservations,
-            CURRENT_DATE AS refreshed_at
-          FROM events e
-          WHERE to_date(e.date::text, 'MM/DD/YYYY'::text) >= CURRENT_DATE
-          GROUP BY e.id
-          ORDER BY (sort_date)
+        e.date,
+        e."startTime",
+        e.doors_time,
+        e.venue,
+        e.headliner,
+        e.support1,
+        e.support2,
+        e.support3,
+        e."headlinerBio",
+        e."headlinerImgLink",
+        e."meetsCriteria",
+        e."isDenied",
+        e.external,
+        e.created_at,
+        e.updated_at,
+        e.date::date AS sort_date,
+        COALESCE(( SELECT sum(pp.capacity) AS sum
+              FROM pickup_parties pp
+              WHERE pp."eventId" = e.id), 0::bigint) AS capacity,
+        COALESCE( 
+          (SELECT count(reservations.id) AS count
+              FROM reservations
+                JOIN pickup_parties pp ON pp.id = reservations."pickupPartiesId"
+              WHERE e.id = pp."eventId" AND reservations.status = ANY (ARRAY[1, 2])
+          )
+      
+      + (SELECT SUM(pp2."inCart") FROM pickup_parties pp2 WHERE pp2."eventId" = e.id)
+        , 0::bigint) AS reservations,
+        CURRENT_DATE AS refreshed_at
+      FROM events e
+      WHERE to_date(e.date::text, 'MM/DD/YYYY'::text) >= CURRENT_DATE
+      GROUP BY e.id
+      ORDER BY (e.date::date)
         `, (err, result) => {
           release()
           if (err) {
