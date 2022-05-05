@@ -40,6 +40,37 @@ router.get('/:id', (req, res, next) => {
 
   })
 
+  //List (get all of the orders by party)
+router.get('/orders-by-party/:id', (req, res, next) => {
+  (whitelist.indexOf(req.headers.origin) === -1)
+  ?
+  setTimeout(() => {
+        res.sendStatus(404)
+      }, 2000)
+  :
+  pool.connect((err, client, release) => {
+      if (err) {
+        return console.error('Error acquiring client', err.stack)
+      }
+     const query =  `
+        SELECT reservations.id as id, reservations.* , orders."orderedByFirstName", orders."orderedByLastName", orders."orderedByEmail", orders."userId"  FROM reservations
+        JOIN orders on reservations."orderId" = orders.id 
+        where reservations."pickupPartiesId" = ${req.params.id}
+        ORDER BY orders."orderedByLastName", orders."orderedByFirstName", reservations."willCallLastName", reservations."willCallFirstName" 
+      `
+    
+      console.log('/orders-by-party/:id hit!!!! ', query)
+      client.query(query, (err, result) => {
+        release()
+        if (err) {
+          return console.error('Error executing query', err.stack)
+        }
+        res.status(200).json(result.rows)
+      })
+    })
+
+})
+
 
   router.patch('/:id', function(req, res, next){
     (whitelist.indexOf(req.headers.origin) === -1)
