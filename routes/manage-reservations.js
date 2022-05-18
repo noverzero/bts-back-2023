@@ -27,7 +27,7 @@ router.get('/:id', (req, res, next) => {
         client.query(`
 
         SELECT * FROM reservations where reservations."pickupPartiesId" = ${req.params.id}
-        ORDER BY reservations."willCallLastName", reservations."willCallFirstName" 
+        ORDER BY reservations."willCallLastName", reservations."willCallFirstName", reservations."id" 
         
         `, (err, result) => {
           release()
@@ -56,7 +56,7 @@ router.get('/orders-by-party/:id', (req, res, next) => {
         SELECT reservations.id as id, reservations.* , orders."orderedByFirstName", orders."orderedByLastName", orders."orderedByEmail", orders."userId"  FROM reservations
         JOIN orders on reservations."orderId" = orders.id 
         where reservations."pickupPartiesId" = ${req.params.id}
-        ORDER BY orders."orderedByLastName", orders."orderedByFirstName", reservations."willCallLastName", reservations."willCallFirstName" 
+        ORDER BY orders."orderedByLastName", orders."orderedByFirstName", reservations."willCallLastName", reservations."willCallFirstName", reservations."id"  
       `
     
       console.log('/orders-by-party/:id hit!!!! ', query)
