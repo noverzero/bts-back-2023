@@ -1,7 +1,7 @@
 'use strict';
 const express = require('express');
-const { update } = require('../knex');
 const router = express.Router();
+const { update } = require('../knex');
 
 const whitelist = process.env.ORIGIN_URL.split(' ')
 // Parse the environment variable into an object

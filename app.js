@@ -25,6 +25,7 @@ var eventDataHandler = require('./eventDataHandler');
 var reservationsRouter = require('./routes/reservations');
 var usersRouter = require('./routes/users')
 var apiRouter = require('./routes/api').router
+const stripeSync = require('./routes/stripe-sync')
 var app = express();
 
 // app.use(function(req, res, next) {
@@ -66,6 +67,7 @@ app.use(`/pickup_parties`, pickupPartiesRouter);
 app.use(`/manage-parties`, managePartiesRouter)
 app.use(`/manage-reservations`, manageReservationsRouter)
 app.use(`/reservations`, reservationsRouter);
+app.use('/stripe-sync', stripeSync);
 
 app.use(function(req, res) {
   console.log('next all the way to the end without finding anything req =====>', req.path)
