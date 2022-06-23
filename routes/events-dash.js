@@ -65,7 +65,6 @@ router.get('/', (req, res, next) => {
           if (err) {
             return console.error('Error executing query', err.stack)
           }
-          console.log('shows rows ==> ', result.rows[0])
           res.status(200).json(result.rows)
         })
       })
