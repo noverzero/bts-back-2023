@@ -57,7 +57,7 @@ router.get('/', (req, res, next) => {
         , 0::bigint) AS reservations,
         CURRENT_DATE AS refreshed_at
       FROM events e
-      WHERE to_date(e.date::text, 'MM/DD/YYYY'::text) >= CURRENT_DATE
+      WHERE to_date(e.date::text, 'MM/DD/YYYY'::text) >= (current_date - INTERVAL '1 day')::date
       GROUP BY e.id
       ORDER BY (e.date::date)
         `, (err, result) => {
@@ -65,6 +65,7 @@ router.get('/', (req, res, next) => {
           if (err) {
             return console.error('Error executing query', err.stack)
           }
+          console.log('shows rows ==> ', result.rows[0])
           res.status(200).json(result.rows)
         })
       })
