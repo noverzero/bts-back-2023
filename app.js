@@ -22,6 +22,7 @@ var managePartiesRouter = require('./routes/manage-parties');
 var manageReservationsRouter = require('./routes/manage-reservations');
 
 var eventDataHandler = require('./eventDataHandler');
+var reminderEmails = require('./reminderEmails')
 var reservationsRouter = require('./routes/reservations');
 var usersRouter = require('./routes/users')
 var apiRouter = require('./routes/api').router
@@ -94,5 +95,8 @@ cron.schedule('*/5 * * * *', () => {
   //sweepInCartsCall()
 })
 
+// cron.schedule('* * * * *', () => {
+//   //reminderEmails.sendReminder()
+// })
 
 module.exports = app;
