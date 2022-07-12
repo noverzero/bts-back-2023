@@ -87,16 +87,16 @@ cron.schedule('00 04 * * * *', async () => {
   //apiDataFunction()
 })
 
-sweepInCartsCall = () => {
-  //eventDataHandler.sweepInCarts()
-}
 
 cron.schedule('*/5 * * * *', () => {
   //sweepInCartsCall()
 })
 
-// cron.schedule('* * * * *', () => {
-//   //reminderEmails.sendReminder()
+reminderEmails.sendReminder()
+
+// cron.schedule('0 8 * * *', () => {
+//   console.log('reminder email cron! ')
+//   reminderEmails.sendReminder()
 // })
 
 module.exports = app;
