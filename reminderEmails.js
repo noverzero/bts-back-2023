@@ -164,6 +164,18 @@ const transporter = nodemailer.createTransport({
                   const locationName = parties[partyId].locationName;
                   const city = parties[partyId].city
                   const partyOrders = parties[partyId].orders
+     
+                  const convert24hStringToAmPmTime = (time24) => {
+                    let amPmTime = ''
+                    let hours = Number(time24.substring(0, time24.indexOf(':')))
+                    let minutes = time24.substring(time24.indexOf(':') + 1, time24.length)
+
+                    const amOrPm = hours < 12 ? 'AM' : 'PM'
+                    hours = (hours % 12) || 12
+                    hours = hours.toString()
+                    amPmTime = `${hours}:${minutes} ${amOrPm}`
+                    console.log('amPmTime ====> ', amPmTime)
+                  }
                   
                   for (partyOrder in partyOrders) {
                     const emailBody = `${partyOrders[partyOrder].orderFirst}! Thank you for riding with Bus to Show!
@@ -172,18 +184,18 @@ const transporter = nodemailer.createTransport({
                        + support1 ? ', ' + support1 : ''
                       + support2 ? ', ' + support2 : '' 
                       + support3 ? ', & ' + support3 : ''}.  
-                    You have ${partyOrders[partyOrder].count} spots reserved, which can be claimed at
-                    check-in by yourself or anyone else you listed when you placed your order${
+                    You currently have ${partyOrders[partyOrder].count == 1 ? partyOrders[partyOrder].count + ' spot' : partyOrders[partyOrder].count + ' spots'} reserved, which can be claimed at
+                    check-in by yourself (${partyOrders[partyOrder].orderFirst} ${partyOrders[partyOrder].orderLast}) or anyone else you listed when you placed your order${
                       (partyOrders[partyOrder].reservations[0].willFirst != partyOrders[partyOrder].orderFirst || partyOrders[partyOrder].reservations[0].willLast != partyOrders[partyOrder].orderLast)   
                       ? ' (' + partyOrders[partyOrder].reservations[0].willFirst + ' ' + partyOrders[partyOrder].reservations[0].willLast
                       :''
                     }.  Also, here are the pickup details.... check-in location is ${locationName},
-                    ${street} with ${load != depart ? 'check in and first bus loading at ' + load +', and ': ''}last call for departure at ${depart}.
+                    ${street} with ${load != depart ? 'check in and first bus loading at ' + convert24hStringToAmPmTime(load) +', and ': ''}last call for departure at ${convert24hStringToAmPmTime(depart)}.
                     Please show up at least 10-15 min before last call and bring a legal id for name and age verification (we're 18+ unless you have your parent/guardian email reservations@bustoshow.org with a photo id and permission note).  
                     Okay, I think that's everything.  Thanks again, we'll see you soon!  Love always, BTS.
                     `
                     
-                    actuallySend(partyOrders[partyOrder].email, emailBody)
+                    //actuallySend(partyOrders[partyOrder].email, emailBody)
                     console.log('emailBody created ====>  ', date)
                   }
                }
