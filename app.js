@@ -28,7 +28,6 @@ var usersRouter = require('./routes/users')
 var apiRouter = require('./routes/api').router
 const stripeSync = require('./routes/stripe-sync')
 var app = express();
-
 // app.use(function(req, res, next) {
 //   res.header("Access-Control-Allow-Origin", "http://roomy-move.surge.sh/");
 //   res.header("Access-Control-Allow-Methods", "GET,POST,DELETE,PATCH,PUT");
@@ -92,11 +91,14 @@ cron.schedule('*/5 * * * *', () => {
   //sweepInCartsCall()
 })
 
-reminderEmails.sendReminder()
+//reminderEmails.sendReminder()
 
-// cron.schedule('0 8 * * *', () => {
-//   console.log('reminder email cron! ')
-//   reminderEmails.sendReminder()
-// })
+cron.schedule('0 8 * * *', () => {
+  if (process.env.NODE_ENV == 'production'){
+    console.log('reminder email cron! ')
+    reminderEmails.sendReminder()
+  }
+})
 
 module.exports = app;
+

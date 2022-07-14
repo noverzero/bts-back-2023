@@ -4,7 +4,7 @@ const EMAIL_PASS = process.env.EMAIL_PASS
 const generateReminderEmailArray = require('./generateReminderEmailArray').generateReminderEmailArray
 
 
-
+let countVal = 0
 const whitelist = process.env.ORIGIN_URL.split(' ')
 // Parse the environment variable into an object
 const parse = require("pg-connection-string").parse;
@@ -26,6 +26,23 @@ const transporter = nodemailer.createTransport({
     //result.email = email
 
 
+  }
+
+  const actuallySend = (emailAddress, emailBody) => {
+    transporter.sendMail({
+        from: 'updates@bustoshow.org',
+        to: emailAddress,
+        bcc: 'reservations@bustoshow.org',
+        subject: `Your Bus to Show Event Details` ,
+        text: emailBody
+      }, function(error, info){
+        if (error) {
+            console.error(error)
+        } else {
+          console.log(' here is what info is ', info)
+          res.status(200).json(info.accepted)
+      }
+     })
   }
 
   const reminderQuery = () => {
@@ -64,7 +81,7 @@ const transporter = nodemailer.createTransport({
 	        JOIN pickup_locations pl ON pp."pickupLocationId" = pl.id
 	        JOIN events ON pp."eventId" = events.id
 	        WHERE TO_DATE(events."date"::TEXT, 'MM/DD/YYYY') >= TO_DATE((current_date) ::TEXT, 'YYYY/MM/DD')
-	        AND TO_DATE(events."date"::TEXT, 'MM/DD/YYYY') <= TO_DATE((current_date + 3) ::TEXT, 'YYYY/MM/DD')
+	        AND TO_DATE(events."date"::TEXT, 'MM/DD/YYYY') <= TO_DATE((current_date + 1) ::TEXT, 'YYYY/MM/DD')
 	        AND r.status != 3
         ) SELECT  "orderedByEmail"
 	            , INITCAP("orderedByFirstName") AS "orderedByFirstName" 
@@ -117,11 +134,22 @@ const transporter = nodemailer.createTransport({
             return console.error('Error executing query', err.stack)
           }
           let riderList = result.rows
-          if(riderList) {
+          if(riderList && countVal === 0) {
+            countVal += 1
+            console.log(' hey great we got results back from the query ')
+
             const formattedEmailList = generateReminderEmailArray(riderList)
+            if(countVal === 1){
+              countVal += 1
+              console.log('countVal ', countVal)
             formattedEmailList.forEach(show => {
+              if (countVal < 2 + formattedEmailList.length){
+
+              
+              countVal = formattedEmailList.length + countVal
+              console.log(' show array here !! ', show, countVal)
               show.forEach(s => {
-               //console.log(' s ', s)
+                //console.log( 'and then show element here: ', s)
                const date = s.date
                const headliner = s.headliner
                const support1 = s.support1
@@ -130,178 +158,42 @@ const transporter = nodemailer.createTransport({
                const venue = s.venue
                const parties = s.parties
                for ( const partyId in parties ){
-                  const load = parties[partyId].load;
+                  const load = parties[partyId].load ;
                   const depart = parties[partyId].depart;
                   const street = parties[partyId].street;
                   const locationName = parties[partyId].locationName;
                   const city = parties[partyId].city
                   const partyOrders = parties[partyId].orders
+                  
                   for (partyOrder in partyOrders) {
-                    console.log( 'partyOrder  =====> ', partyOrder)
+                    const emailBody = `${partyOrders[partyOrder].orderFirst}! Thank you for riding with Bus to Show!
+                    This is a quick note to remind you about the upcoming bus trip  
+                     to ${venue} on ${date} for ${headliner}${
+                       + support1 ? ', ' + support1 : ''
+                      + support2 ? ', ' + support2 : '' 
+                      + support3 ? ', & ' + support3 : ''}.  
+                    You have ${partyOrders[partyOrder].count} spots reserved, which can be claimed at
+                    check-in by yourself or anyone else you listed when you placed your order${
+                      (partyOrders[partyOrder].reservations[0].willFirst != partyOrders[partyOrder].orderFirst || partyOrders[partyOrder].reservations[0].willLast != partyOrders[partyOrder].orderLast)   
+                      ? ' (' + partyOrders[partyOrder].reservations[0].willFirst + ' ' + partyOrders[partyOrder].reservations[0].willLast
+                      :''
+                    }.  Also, here are the pickup details.... check-in location is ${locationName},
+                    ${street} with ${load != depart ? 'check in and first bus loading at ' + load +', and ': ''}last call for departure at ${depart}.
+                    Please show up at least 10-15 min before last call and bring a legal id for name and age verification (we're 18+ unless you have your parent/guardian email reservations@bustoshow.org with a photo id and permission note).  
+                    Okay, I think that's everything.  Thanks again, we'll see you soon!  Love always, BTS.
+                    `
+                    
+                    actuallySend(partyOrders[partyOrder].email, emailBody)
+                    console.log('emailBody created ====>  ', date)
                   }
-                  //console.log('partyRiders???? ', partyRiders)
                }
               })
-              //console.log(' parties ====> ', show[0].parties)
-
-                // const emailBody = `Thank you for riding with Bus to Show!
-                // We just wanted to remind you about your bus trip  
-                // coming up to ${venue} on ${date} for ${headliner}.  
-                // You have ${orderDetail.res_count} spots reserved, which can be claimed at
-                // check-in by ${orderDetail.ordereredByFirstName} ${orderDetail.orderedByLastName} or any of the 
-                // will call names you listed in your order.  Also, pickup details.... check-in location is ${orderDetail.locationName},
-                // ${orderDetail.streetAddress} with last bus departing at ${orderDetail.lastBusDepartureTime}.
-                // `
-                // console.log('emailBody  ===>  ', emailBody)
-
-                // transporter.sendMail({
-                //     from: 'updates@bustoshow.org',
-                //     to: orderDetail.orderedByEmail,
-                //     subject: 'Your Bus to Show Event Details',
-                //     text: emailBody
-                //   }, function(error, info){
-                //     if (error) {
-                //         console.error(error)
-                //     } else {
-                //       console.log(' here is what info is ', info)
-                //       res.status(200).json(info.accepted)
-                //   }
-                //  })
-              })
-
+            }
+            })
           }
-
+          }
         })
-
-
       })
   }
   module.exports = {sendReminder}
 
-  // const orderDetail = 
-  // [{
-  //   orderedByEmail: 'jaclynwolff@aol.com',
-  //   orderedByFirstName: 'Jaclyn',
-  //   orderedByLastName: 'Wolff',
-  //   orderedByPhone: '(303) 345-3888',
-  //   order_id: 19641,
-  //   willCallFirstName: 'Jaclyn',
-  //   willCallLastName: 'Wolff',
-  //   firstBusLoadTime: '15:00',
-  //   lastBusDepartureTime: '15:30',
-  //   streetAddress: '638 East Colfax Avenue, Denver, CO 80203',
-  //   locationName: 'Denver - Colfax/Cap Hill Cheba Hut',
-  //   city: 'Denver',
-  //   date: '07/03/2022',
-  //   headliner: 'Zeds Dead',
-  //   support1: '',
-  //   support2: '',
-  //   support3: '',
-  //   venue: 'Red Rocks Amphitheatre',
-  //   res_count: '2'
-  // },
-  // {
-  //   orderedByEmail: 'mbrom312@gmail.com',
-  //   orderedByFirstName: 'Tobin',
-  //   orderedByLastName: 'Bromberg',
-  //   orderedByPhone: '(917) 968-5926',
-  //   order_id: 19679,
-  //   willCallFirstName: 'Tobin',
-  //   willCallLastName: 'Bromberg',
-  //   firstBusLoadTime: '15:00',
-  //   lastBusDepartureTime: '15:30',
-  //   streetAddress: '638 East Colfax Avenue, Denver, CO 80203',
-  //   locationName: 'Denver - Colfax/Cap Hill Cheba Hut',
-  //   city: 'Denver',
-  //   date: '07/03/2022',
-  //   headliner: 'Zeds Dead',
-  //   support1: '',
-  //   support2: '',
-  //   support3: '',
-  //   venue: 'Red Rocks Amphitheatre',
-  //   res_count: '2'
-  // },
-  // {
-  //   orderedByEmail: 'paza0406@colorado.edu',
-  //   orderedByFirstName: 'Paul',
-  //   orderedByLastName: 'Zarlingo',
-  //   orderedByPhone: '(303) 717-1071',
-  //   order_id: 19685,
-  //   willCallFirstName: 'Paul',
-  //   willCallLastName: 'Zarlingo',
-  //   firstBusLoadTime: '15:00',
-  //   lastBusDepartureTime: '15:30',
-  //   streetAddress: '638 East Colfax Avenue, Denver, CO 80203',
-  //   locationName: 'Denver - Colfax/Cap Hill Cheba Hut',
-  //   city: 'Denver',
-  //   date: '07/03/2022',
-  //   headliner: 'Zeds Dead',
-  //   support1: '',
-  //   support2: '',
-  //   support3: '',
-  //   venue: 'Red Rocks Amphitheatre',
-  //   res_count: '1'
-  // },
-  // {
-  //   orderedByEmail: 'jordan.bourbo@gmail.com',
-  //   orderedByFirstName: 'Jordan',
-  //   orderedByLastName: 'Bourbo',
-  //   orderedByPhone: '(706) 312-9653',
-  //   order_id: 19557,
-  //   willCallFirstName: 'Jordan',
-  //   willCallLastName: 'Bourbo',
-  //   firstBusLoadTime: '15:00',
-  //   lastBusDepartureTime: '15:30',
-  //   streetAddress: '638 East Colfax Avenue, Denver, CO 80203',
-  //   locationName: 'Denver - Colfax/Cap Hill Cheba Hut',
-  //   city: 'Denver',
-  //   date: '07/03/2022',
-  //   headliner: 'Zeds Dead',
-  //   support1: '',
-  //   support2: '',
-  //   support3: '',
-  //   venue: 'Red Rocks Amphitheatre',
-  //   res_count: '2'
-  // },
-  // {
-  //   orderedByEmail: 'jordan.a.hensel@gmail.com',
-  //   orderedByFirstName: 'Jordan',
-  //   orderedByLastName: 'Hensel',
-  //   orderedByPhone: '(414) 617-7032',
-  //   order_id: 19482,
-  //   willCallFirstName: 'Jordan',
-  //   willCallLastName: 'Hensel',
-  //   firstBusLoadTime: '15:00',
-  //   lastBusDepartureTime: '15:30',
-  //   streetAddress: '638 East Colfax Avenue, Denver, CO 80203',
-  //   locationName: 'Denver - Colfax/Cap Hill Cheba Hut',
-  //   city: 'Denver',
-  //   date: '07/03/2022',
-  //   headliner: 'Zeds Dead',
-  //   support1: '',
-  //   support2: '',
-  //   support3: '',
-  //   venue: 'Red Rocks Amphitheatre',
-  //   res_count: '3'
-  // },
-  // {
-  //   orderedByEmail: 'sschloss12@gmail.com',
-  //   orderedByFirstName: 'Scott',
-  //   orderedByLastName: 'Schloss',
-  //   orderedByPhone: '(513) 293-8130',
-  //   order_id: 19639,
-  //   willCallFirstName: 'Scott',
-  //   willCallLastName: 'Schloss',
-  //   firstBusLoadTime: '15:00',
-  //   lastBusDepartureTime: '15:30',
-  //   streetAddress: '638 East Colfax Avenue, Denver, CO 80203',
-  //   locationName: 'Denver - Colfax/Cap Hill Cheba Hut',
-  //   city: 'Denver',
-  //   date: '07/03/2022',
-  //   headliner: 'Zeds Dead',
-  //   support1: '',
-  //   support2: '',
-  //   support3: '',
-  //   venue: 'Red Rocks Amphitheatre',
-  //   res_count: '1'
-  // }]
