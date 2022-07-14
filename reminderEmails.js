@@ -29,7 +29,7 @@ const transporter = nodemailer.createTransport({
   }
 
   const actuallySend = async (emailAddress, emailBody) => {
-    transporter.sendMail({
+    await transporter.sendMail({
         from: 'updates@bustoshow.org',
         to: emailAddress,
         bcc: 'reservations@bustoshow.org',
@@ -183,7 +183,7 @@ const transporter = nodemailer.createTransport({
                     Okay, I think that's everything.  Thanks again, we'll see you soon!  Love always, BTS.
                     `
                     
-                    await actuallySend(partyOrders[partyOrder].email, emailBody)
+                    actuallySend(partyOrders[partyOrder].email, emailBody)
                     console.log('emailBody created ====>  ', date)
                   }
                }
