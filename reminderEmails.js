@@ -195,7 +195,7 @@ const transporter = nodemailer.createTransport({
                     Okay, I think that's everything.  Thanks again, we'll see you soon!  Love always, BTS.
                     `
                     
-                    //actuallySend(partyOrders[partyOrder].email, emailBody)
+                    actuallySend(partyOrders[partyOrder].email, emailBody)
                     console.log('emailBody created ====>  ', date)
                   }
                }

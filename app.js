@@ -93,7 +93,7 @@ cron.schedule('*/5 * * * *', () => {
 
 //reminderEmails.sendReminder()
 
-cron.schedule('00 17 * * *', () => {
+cron.schedule('15 17 * * *', () => {
   if (process.env.NODE_ENV == 'production'){
     console.log('reminder email cron! ')
     reminderEmails.sendReminder()
