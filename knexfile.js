@@ -16,7 +16,7 @@ module.exports = {
 
   development: {  
     client: "pg",  
-    connection: pgconfig,
+    connection: pgconfig
     
     // client: 'pg',
     // connection: {
