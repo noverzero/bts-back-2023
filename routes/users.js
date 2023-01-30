@@ -12,8 +12,9 @@ const parse = require("pg-connection-string").parse;
 const pgconfig = parse(process.env.DATABASE_URL);
 pgconfig.ssl = { rejectUnauthorized: false };
 const Pool = require('pg').Pool
-const pool = new Pool(pgconfig)
-
+const pool = new Pool(pgconfig);
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 //List (get all of the resource)
 router.get('/', verifyToken, function(req, res, next){
@@ -56,7 +57,14 @@ router.get('/:id', verifyToken, function(req, res, next){
 //Create (create one of the resource)
 router.post('/', function(req, res, next){
   console.log('is this the register code? ')
-  let email = req.body.email
+  let email = req.body.email;
+  let password = req.body.hshPwd;
+  bcrypt.genSalt(saltRounds, (err, salt) => {
+    bcrypt.hash(password, salt, (err, hash) => {
+    // returns hash
+    req.body.hshPwd = hash.trim();
+    });
+  });
         return knex('users')
         .select('id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation')
         .where('email', email)
@@ -79,38 +87,41 @@ router.post('/', function(req, res, next){
 })
 
 router.post('/login/', async (req, res) => {
+  (whitelist.indexOf(req.headers.origin) === -1)
+  ?
+  setTimeout(() => {
+    res.sendStatus(404)
+  }, 2000)
+  :
+  console.log('req.body =====>  ', req.body)
   const {username, password} = req.body
-  // (whitelist.indexOf(req.headers.origin) === -1)
-  //   ?
-  //   setTimeout(() => {
-  //         res.sendStatus(404)
-  //       }, 2000)
-  //   :
+
   const { rows } = await pool.query(
     'SELECT * FROM users WHERE email = $1',
     [username]
   );
-  console.log('req.body =====>  ', req.body,  'rows ====> ', rows)
   if (rows.length === 0) {
     return res.status(401).send('Invalid username or password!');
   }
   // Check if the password is correct
   const user = rows[0];
-  const passwordIsValid = true
-  // = await bcrypt.compare(password, user.password_hash);
-  if (!passwordIsValid) {
-    return res.status(401).send('Invalid username or password');
-  }
-
-  // Return the user information
-  res.send({
-    id: user.id,
-    email: user.email,
-    isAdmin: user.isAdmin,
+  const saltRounds = 10;
+  await bcrypt.compare(password, user.hshPwd.trim(), (err, result)=>{
+    if(err) console.error(err)
+    if (!result) {
+      return res.status(401).send('Invalid username or password');
+    } else {
+      console.log(' weeddidit! ')
+      // Return the user information
+      return res.send({
+        id: user.id,
+        email: user.email,
+        isAdmin: user.isAdmin,
+      });
+    }
   });
-
-}
-)
+    
+  });
 
 
 // router.patch('/:id', function(req, res, next){
