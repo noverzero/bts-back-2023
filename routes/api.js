@@ -3,8 +3,15 @@
 const express = require('express');
 const router = express.Router();
 const cookieParser = require('cookie-parser')
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const { user } = require('pg/lib/defaults');
 const JWT_KEY = process.env.JWT_KEY
+const whitelist = process.env.ORIGIN_URL.split(' ')
+const parse = require("pg-connection-string").parse;
+const pgconfig = parse(process.env.DATABASE_URL);
+pgconfig.ssl = { rejectUnauthorized: false };
+const Pool = require('pg').Pool
+const pool = new Pool(pgconfig);
 
 router.get('/', function (req, res, next) {
 
@@ -40,6 +47,54 @@ function verifyToken(req, res, next){
     res.sendStatus('403')
   }
 }
+
+router.get('/secure', async (req, res) => {
+  (whitelist.indexOf(req.headers.origin) === -1)
+    ?
+    setTimeout(() => {
+      res.status(404).send('Not Found')
+        }, 2000)
+    :
+  console.log('/secure hit ')
+  const bearerHeader = req.headers.authorization;
+
+  // Check if the authorization header exists
+  if (!bearerHeader) {
+    return res.status(401).send('Access denied');
+  }
+
+  // Extract the JWT from the authorization header
+  const bearerToken = bearerHeader.split(' ')[1];
+
+  // Verify the JWT using the secret key
+  try {
+    const decoded = await jwt.verify(bearerToken, JWT_KEY);
+    const username = decoded.username
+    console.log('decoded ===========> ', decoded)
+    console.log('decoded.username ===========> ', decoded.username)
+
+    
+    const { rows } = await pool.query(
+      'SELECT id, "firstName", "lastName", email, "isWaiverSigned", "isStaff", "isDriver", "isAdmin", "isDeactivated", "preferredLocation" FROM users WHERE email = $1',
+      [username]
+    );
+
+    console.log('rows ===========> ', rows)
+
+    if (rows.length === 0) {
+      return res.status(401).send('Invalid token!');
+    }
+    const user = rows[0];
+    return res.status(200).send({
+      id: user.id,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      token: bearerToken
+    });
+  } catch (err) {
+    res.status(400).send('Invalid token');
+  }
+});
 
 
 

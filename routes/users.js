@@ -13,6 +13,7 @@ const pgconfig = parse(process.env.DATABASE_URL);
 pgconfig.ssl = { rejectUnauthorized: false };
 const Pool = require('pg').Pool
 const pool = new Pool(pgconfig);
+const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
@@ -95,9 +96,8 @@ router.post('/login/', async (req, res) => {
   :
   console.log('req.body =====>  ', req.body)
   const {username, password} = req.body
-
   const { rows } = await pool.query(
-    'SELECT * FROM users WHERE email = $1',
+    'SELECT  id, "firstName", "lastName", email, "isWaiverSigned", "isStaff", "isDriver", "isAdmin", "isDeactivated", "preferredLocation" FROM users WHERE email = $1',
     [username]
   );
   if (rows.length === 0) {
@@ -105,18 +105,25 @@ router.post('/login/', async (req, res) => {
   }
   // Check if the password is correct
   const user = rows[0];
-  const saltRounds = 10;
   await bcrypt.compare(password, user.hshPwd.trim(), (err, result)=>{
     if(err) console.error(err)
     if (!result) {
       return res.status(401).send('Invalid username or password');
     } else {
       console.log(' weeddidit! ')
+      const payload = { username };
+
+      // Sign the JWT using the secret key
+      const token = jwt.sign(payload, JWT_KEY, { expiresIn: '72h' });
+      console.log('is jwt working?????????? ', token)
+
+      // Include the JWT in the user object
       // Return the user information
       return res.send({
         id: user.id,
         email: user.email,
         isAdmin: user.isAdmin,
+        token: token
       });
     }
   });
