@@ -70,27 +70,34 @@ router.get('/secure', async (req, res) => {
   try {
     const decoded = await jwt.verify(bearerToken, JWT_KEY);
     const username = decoded.username
-    console.log('decoded ===========> ', decoded)
-    console.log('decoded.username ===========> ', decoded.username)
-
-    
-    const { rows } = await pool.query(
-      'SELECT id, "firstName", "lastName", email, "isWaiverSigned", "isStaff", "isDriver", "isAdmin", "isDeactivated", "preferredLocation" FROM users WHERE email = $1',
+    pool.connect( async (err, client, release) => {
+      if (err) {
+        return console.error('Error acquiring client', err.stack)
+      }
+      client.query(
+      'SELECT  id, "firstName", "lastName", email, "hshPwd", "isWaiverSigned", "isStaff", "isDriver", "isAdmin", "isDeactivated", "preferredLocation" FROM users WHERE email = $1',
       [username]
-    );
+      
+      , async (err, result) => {
+        release()
+        if (err) {
+          return console.error('Error executing query', err.stack)
+        }
+        const { rows } = result
+      
+        if (rows.length === 0) {
+          return res.status(401).send('Invalid token!');
+        }
 
-    console.log('rows ===========> ', rows)
-
-    if (rows.length === 0) {
-      return res.status(401).send('Invalid token!');
-    }
-    const user = rows[0];
-    return res.status(200).send({
-      id: user.id,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      token: bearerToken
-    });
+        const user = rows[0];
+        return res.status(200).send({
+          id: user.id,
+          email: user.email,
+          isAdmin: user.isAdmin,
+          token: bearerToken
+        });
+      })
+    })
   } catch (err) {
     res.status(400).send('Invalid token');
   }

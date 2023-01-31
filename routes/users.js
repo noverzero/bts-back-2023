@@ -94,39 +94,49 @@ router.post('/login/', async (req, res) => {
     res.sendStatus(404)
   }, 2000)
   :
-  console.log('req.body =====>  ', req.body)
-  const {username, password} = req.body
-  const { rows } = await pool.query(
-    'SELECT  id, "firstName", "lastName", email, "isWaiverSigned", "isStaff", "isDriver", "isAdmin", "isDeactivated", "preferredLocation" FROM users WHERE email = $1',
-    [username]
-  );
-  if (rows.length === 0) {
-    return res.status(401).send('Invalid username or password!');
-  }
-  // Check if the password is correct
-  const user = rows[0];
-  await bcrypt.compare(password, user.hshPwd.trim(), (err, result)=>{
-    if(err) console.error(err)
-    if (!result) {
-      return res.status(401).send('Invalid username or password');
-    } else {
-      console.log(' weeddidit! ')
-      const payload = { username };
-
-      // Sign the JWT using the secret key
-      const token = jwt.sign(payload, JWT_KEY, { expiresIn: '72h' });
-      console.log('is jwt working?????????? ', token)
-
-      // Include the JWT in the user object
-      // Return the user information
-      return res.send({
-        id: user.id,
-        email: user.email,
-        isAdmin: user.isAdmin,
-        token: token
-      });
+  pool.connect( async (err, client, release) => {
+    const {username, password} = req.body
+    if (err) {
+      return console.error('Error acquiring client', err.stack)
     }
-  });
+    client.query(
+    'SELECT  id, "firstName", "lastName", email, "hshPwd", "isWaiverSigned", "isStaff", "isDriver", "isAdmin", "isDeactivated", "preferredLocation" FROM users WHERE email = $1',
+    [username]
+    
+    , async (err, result) => {
+      release()
+      if (err) {
+        return console.error('Error executing query', err.stack)
+      }
+      const { rows } = result
+    
+      if (rows.length === 0) {
+        return res.status(401).send('Invalid username or password!');
+      }
+      // Check if the password is correct
+      const user = rows[0];
+      await bcrypt.compare(password, user.hshPwd.trim(), (err, result)=>{
+        if(err) console.error(err)
+        if (!result) {
+          return res.status(401).send('Invalid username or password');
+        } else {
+          const payload = { username };
+    
+          // Sign the JWT using the secret key
+          const token = jwt.sign(payload, JWT_KEY, { expiresIn: '72h' });
+    
+          // Include the JWT in the user object
+          // Return the user information
+          return res.send({
+            id: user.id,
+            email: user.email,
+            isAdmin: user.isAdmin,
+            token: token
+          });
+        }
+      });
+    })
+  }) 
     
   });
 
