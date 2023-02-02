@@ -16,6 +16,7 @@ const pool = new Pool(pgconfig);
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const sendRegistrationConfirmationEmail = require('../registrationEmails').sendEmailConfirmation
 
 //List (get all of the resource)
 router.get('/', verifyToken, function(req, res, next){
@@ -57,34 +58,44 @@ router.get('/:id', verifyToken, function(req, res, next){
 
 //Create (create one of the resource)
 router.post('/', function(req, res, next){
+          
   console.log('is this the register code? ')
-  let email = req.body.email;
-  let password = req.body.hshPwd;
+  const payload = { username: req.body.email };
+  // Sign the JWT using the secret key
+  const token = jwt.sign(payload, JWT_KEY, { expiresIn: '72h' });
+  const email = req.body.email;
+  const password = req.body.hshPwd;
   bcrypt.genSalt(saltRounds, (err, salt) => {
     bcrypt.hash(password, salt, (err, hash) => {
     // returns hash
     req.body.hshPwd = hash.trim();
     });
   });
-        return knex('users')
-        .select('id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation')
-        .where('email', email)
-        .then((rows) =>{
-          if(rows.length===0){
-            return knex('users')
-            .insert(req.body)
-            .returning(['id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation'])
-            .then((data) => {
-              res.status(200).json(data[0])
-            })
-          } else {
-            console.log('if email already exists', rows[0])
-            res.status(200).json(rows[0])
-          }
-        })
-        .catch((err) => {
-          next(err)
-        })
+  return knex('users')
+  .select('id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation')
+  .where('email', email)
+  .then((rows) =>{
+    if(rows.length===0){
+      return knex('users')
+      .insert(req.body)
+      .returning(['id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation'])
+      .then((data) => {
+        console.log('we are ready to send that email', data)
+        res.status(200)
+        sendRegistrationConfirmationEmail(email, token);
+        
+      })
+    } else {
+      console.log('if email already exists', rows[0])
+      // User was successfully inserted into the database
+      res.status(200)
+    }
+  })
+  .catch((err) => {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to register user' });
+    next(err)
+  })
 })
 
 router.post('/login/', async (req, res) => {
@@ -123,7 +134,7 @@ router.post('/login/', async (req, res) => {
           const payload = { username };
     
           // Sign the JWT using the secret key
-          const token = jwt.sign(payload, JWT_KEY, { expiresIn: '72h' });
+          const token = jwt.sign(payload, JWT_KEY, { expiresIn: '144h' });
     
           // Include the JWT in the user object
           // Return the user information
@@ -138,6 +149,73 @@ router.post('/login/', async (req, res) => {
     })
   }) 
     
+  });
+
+  router.get('/confirm-email/:token', async (req, res) => {
+    const token = req.params.token;
+    const decoded = await jwt.verify(token, JWT_KEY);
+    const username = decoded.username
+    console.log('holy shit this is the best! ======>>>  ', decoded)
+
+    const query = 'UPDATE users SET is_verified = true WHERE email = $1';
+    pool.connect( async (err, client, release) => {
+      if (err) {
+        return console.error('Error acquiring client', err.stack)
+      }
+      client.query(
+        query,
+        [username]
+        
+        , async (err, results) => {
+          release()
+          if(err) {
+            console.error(err)
+            res.status(500);
+          } else {
+
+            console.log('it worked! ', results );
+            res.status(200);
+          }
+          
+          // if (err) {
+          //   console.error(err);
+          //   res.status(500).json({ error: 'Failed to verify email' });
+          // } else if (results.length === 0) {
+          //   // No user found with the provided token
+          //   res.status(400).json({ error: 'Invalid token' });
+          // } else {
+          //   // User found with the provided token
+          //   const user = results[0];
+          //   const expirationDate = user.expiration_date;
+          //   if (new Date() > expirationDate) {
+          //     // Token has expired
+          //     res.status(400).json({ error: 'Token has expired' });
+          //   } else {
+          //     // Token is valid, confirm the email
+          //     const query = 'UPDATE users SET is_verified = true WHERE email = ?';
+          //     pool.connect( async (err, client, release) => {
+          //       client.query(
+          //         query,
+          //         [token]
+          //         , async (err, result) => {
+          //           release()
+          //           if (err) {
+          //             console.error(err);
+          //             res.status(500).json({ error: 'Failed to confirm email' });
+          //           } else if (result.length === 0) {
+          //             // No user found with the provided token
+          //             res.status(400).json({ error: 'Invalid token' });
+          //           }
+          //         }
+          //       )
+          //     })
+          //   }
+          // }
+
+        }
+      )
+    })
+
   });
 
 
