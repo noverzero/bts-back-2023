@@ -32,6 +32,7 @@ router.get('/', function (req, res, next) {
 })
 
 function verifyToken(req, res, next){
+  console.log('------ original verify called ------')
   //get auth header value
   //const bearerHeader = req.headers['authorization']
   const cookieToken = req.cookies['token']
@@ -69,6 +70,7 @@ router.get('/secure', async (req, res) => {
   // Verify the JWT using the secret key
   try {
     const decoded = await jwt.verify(bearerToken, JWT_KEY);
+    console.log(decoded);
     const username = decoded.username
     pool.connect( async (err, client, release) => {
       if (err) {
@@ -98,9 +100,13 @@ router.get('/secure', async (req, res) => {
         });
       })
     })
-  } catch (err) {
-    res.status(400).send('Invalid token');
-  }
+    } catch (error) {
+      if (error instanceof jwt.TokenExpiredError) {
+        console.error("Token has expired");
+      } else {
+        console.error("Token is invalid");
+    }
+  };
 });
 
 

@@ -81,14 +81,18 @@ router.post('/', function(req, res, next){
       .returning(['id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation'])
       .then((data) => {
         console.log('we are ready to send that email', data)
-        res.status(200)
-        sendRegistrationConfirmationEmail(email, token);
+        const emailSent = sendRegistrationConfirmationEmail(email, alreadyExists=false, token);
+        emailSent ? res.status(200).json({'message': 'confirmation email sent'})
+          : res.status(500).json({'message': 'error sending confimration email'})
         
       })
     } else {
       console.log('if email already exists', rows[0])
-      // User was successfully inserted into the database
-      res.status(200)
+      res.status(200).json({
+        'message': 'account already exists',
+        'code': '202',
+        'email': `${email}`
+      }); 
     }
   })
   .catch((err) => {
@@ -134,7 +138,7 @@ router.post('/login/', async (req, res) => {
           const payload = { username };
     
           // Sign the JWT using the secret key
-          const token = jwt.sign(payload, JWT_KEY, { expiresIn: '144h' });
+          const token = jwt.sign(payload, JWT_KEY, { expiresIn: '14 days' });
     
           // Include the JWT in the user object
           // Return the user information
@@ -153,29 +157,60 @@ router.post('/login/', async (req, res) => {
 
   router.get('/confirm-email/:token', async (req, res) => {
     const token = req.params.token;
-    const decoded = await jwt.verify(token, JWT_KEY);
-    const username = decoded.username
-    console.log('holy shit this is the best! ======>>>  ', decoded)
+    let username = ''
+    try {
+      const decoded = jwt.verify(token, secret);
+      console.log(decoded);
+      username = decoded.username
+      console.log('wow this is the best! ======>>>  ', decoded)
 
-    const query = 'UPDATE users SET is_verified = true WHERE email = $1';
-    pool.connect( async (err, client, release) => {
-      if (err) {
-        return console.error('Error acquiring client', err.stack)
-      }
-      client.query(
-        query,
-        [username]
-        
-        , async (err, results) => {
-          release()
-          if(err) {
-            console.error(err)
-            res.status(500);
-          } else {
-
-            console.log('it worked! ', results );
-            res.status(200);
+      const query = 'UPDATE users SET is_verified = true WHERE email = $1';
+      pool.connect( async (err, client, release) => {
+        if (err) {
+          return console.error('Error acquiring client', err.stack)
+        } 
+        client.query(
+          query,
+          [username]
+          , async (err, results) => {
+            release()
+            if(err) {
+              console.error(err)
+              res.status(500).json({
+                'message': 'failed to insert verified user',
+                'code': '500',
+                'email': `${username}`
+              });
+            } else {
+  
+              console.log('it worked! ', results );
+              res.status(200).json({
+                'message': 'success',
+                'code': '200',
+                'email': `${username}`
+              });
+            }
           }
+        )
+      })
+    } catch (error) {
+      if (error instanceof jwt.TokenExpiredError) {
+        console.error("Token has expired");
+        res.status(200).json({
+          'message': 'expired',
+          'code': '203',
+          'email': `${username}`
+        });
+      } else {
+        console.error("Token is invalid");
+        res.status(200).json({
+          'message': 'invalid',
+          'code': '203',
+          'email': `${username}`
+        });
+      }
+    }
+
           
           // if (err) {
           //   console.error(err);
@@ -213,10 +248,7 @@ router.post('/login/', async (req, res) => {
           // }
 
         }
-      )
-    })
-
-  });
+      );
 
 
 // router.patch('/:id', function(req, res, next){
