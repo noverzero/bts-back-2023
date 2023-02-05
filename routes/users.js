@@ -79,12 +79,20 @@ router.post('/', function(req, res, next){
       return knex('users')
       .insert(req.body)
       .returning(['id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation'])
-      .then((data) => {
+      .then( (data) => {
         console.log('we are ready to send that email', data)
-        const emailSent = sendRegistrationConfirmationEmail(email, alreadyExists=false, token);
-        emailSent ? res.status(200).json({'message': 'confirmation email sent'})
-          : res.status(500).json({'message': 'error sending confimration email'})
-        
+        sendRegistrationConfirmationEmail(email, token);
+        res.status(200).json({
+          'message': 'email sent!',
+          'code': '200',
+          'email': `${email}`
+        })
+      }, (err) => {
+        res.status(500).json({
+          'message': 'email failed to send',
+          'code': '500',
+          'email': `${email}`
+        });
       })
     } else {
       console.log('if email already exists', rows[0])
