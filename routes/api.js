@@ -32,7 +32,7 @@ router.get('/', function (req, res, next) {
 })
 
 function verifyToken(req, res, next){
-  console.log('------ original verify called ------')
+  console.log('------ original verify called ------', console.log(JSON.stringify(req.cookies["token"])))
   //get auth header value
   //const bearerHeader = req.headers['authorization']
   const cookieToken = req.cookies['token']
@@ -104,7 +104,7 @@ router.get('/secure', async (req, res) => {
       if (error instanceof jwt.TokenExpiredError) {
         console.error("Token has expired");
       } else {
-        console.error("Token is invalid");
+        console.error("Login token is invalid");
     }
   };
 });

@@ -18,6 +18,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const sendRegistrationConfirmationEmail = require('../registrationEmails').sendEmailConfirmation
 
+
 //List (get all of the resource)
 router.get('/', verifyToken, function(req, res, next){
 (whitelist.indexOf(req.headers.origin) === -1)
@@ -81,7 +82,7 @@ router.post('/', function(req, res, next){
       .returning(['id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation'])
       .then( (data) => {
         console.log('we are ready to send that email', data)
-        sendRegistrationConfirmationEmail(email, token);
+        sendRegistrationConfirmationEmail(email, 'confirm', token);
         res.status(200).json({
           'message': 'email sent!',
           'code': '200',
@@ -163,11 +164,68 @@ router.post('/login/', async (req, res) => {
     
   });
 
+  router.post('/send-reset', async (req, res)  => {
+    (whitelist.indexOf(req.headers.origin) === -1)
+    ?
+    setTimeout(() => {
+      res.sendStatus(404)
+    }, 2000)
+    :
+    console.log('okay send-reset request is in!  ')
+    const {username} = req.body
+    const payload = { username };
+    
+          // Sign the JWT using the secret key
+          const token = jwt.sign(payload, JWT_KEY, { expiresIn: '1h' });
+
+          //check whether there is an account associated with the email address
+          const query = 'SELECT email FROM users WHERE email = $1';
+          pool.connect( async (err, client, release) => {
+            if (err) {
+              return console.error('Error acquiring client', err.stack)
+            } 
+            client.query(
+              query,
+              [username]
+              , async (err, results) => {
+                release()
+                if(err) {
+                  console.error(err)
+                  res.status(500).json({
+                    'message': 'failed to determine account status',
+                    'code': '500',
+                    'email': `${username}`
+                  });
+                } else if (results) {
+                  console.log('password reset email match??? ', results.rows)
+                  results.rows ?
+                  sendRegistrationConfirmationEmail(username, 'reset', token) &&
+                  console.log('password reset email sent' ) &&
+                  res.status(200).json({
+                    'message': 'password reset email sent',
+                    'code': '200',
+                    'email': `${username}`
+                  })
+                  :
+                  console.log('no account with that email' );
+                  res.status(200).json({
+                    'message': 'no such account',
+                    'code': '202',
+                    'email': `${username}`
+                  });
+                }
+              }
+            )
+            })
+
+
+  })
+
   router.get('/confirm-email/:token', async (req, res) => {
     const token = req.params.token;
     let username = ''
     try {
-      const decoded = jwt.verify(token, secret);
+      const decoded = jwt.verify(token, JWT_KEY);
       console.log(decoded);
       username = decoded.username
       console.log('wow this is the best! ======>>>  ', decoded)
@@ -210,7 +268,7 @@ router.post('/login/', async (req, res) => {
           'email': `${username}`
         });
       } else {
-        console.error("Token is invalid");
+        console.error("confirm-email token is invalid", error);
         res.status(200).json({
           'message': 'invalid',
           'code': '203',
