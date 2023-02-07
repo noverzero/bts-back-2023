@@ -198,21 +198,22 @@ router.post('/login/', async (req, res) => {
                   });
                 } else if (results) {
                   console.log('password reset email match??? ', results.rows)
-                  results.rows ?
-                  sendRegistrationConfirmationEmail(username, 'reset', token) &&
-                  console.log('password reset email sent' ) &&
-                  res.status(200).json({
-                    'message': 'password reset email sent',
-                    'code': '200',
-                    'email': `${username}`
-                  })
-                  :
-                  console.log('no account with that email' );
-                  res.status(200).json({
-                    'message': 'no such account',
-                    'code': '202',
-                    'email': `${username}`
-                  });
+                  if(results.rows) {
+                    sendRegistrationConfirmationEmail(username, 'reset', token);
+                    console.log('password reset email sent' );
+                    res.status(200).json({
+                      'message': 'password reset email sent',
+                      'code': '200',
+                      'email': `${username}`
+                    })
+                  } else {
+                    console.log('no account with that email' );
+                    res.status(200).json({
+                      'message': 'no such account',
+                      'code': '202',
+                      'email': `${username}`
+                    });
+                  }
                 }
               }
             )
