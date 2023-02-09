@@ -196,18 +196,16 @@ router.post('/login/', async (req, res) => {
                     'code': '500',
                     'email': `${username}`
                   });
-                } else if (results) {
+                } else if (results && results.rows) {
                   console.log('password reset email match??? ', results.rows)
-                  if(results.rows) {
+                  if(results.rows.length) {
                     sendRegistrationConfirmationEmail(username, 'reset', token);
-                    console.log('password reset email sent' );
                     res.status(200).json({
                       'message': 'password reset email sent',
                       'code': '200',
                       'email': `${username}`
                     })
                   } else {
-                    console.log('no account with that email' );
                     res.status(200).json({
                       'message': 'no such account',
                       'code': '202',
@@ -222,7 +220,7 @@ router.post('/login/', async (req, res) => {
 
   })
 
-  router.get('/confirm-email/:token', async (req, res) => {
+  router.get('/confirm-email/:token/', async (req, res) => {
     const token = req.params.token;
     let username = ''
     try {
@@ -277,66 +275,66 @@ router.post('/login/', async (req, res) => {
         });
       }
     }
-
-          
-          // if (err) {
-          //   console.error(err);
-          //   res.status(500).json({ error: 'Failed to verify email' });
-          // } else if (results.length === 0) {
-          //   // No user found with the provided token
-          //   res.status(400).json({ error: 'Invalid token' });
-          // } else {
-          //   // User found with the provided token
-          //   const user = results[0];
-          //   const expirationDate = user.expiration_date;
-          //   if (new Date() > expirationDate) {
-          //     // Token has expired
-          //     res.status(400).json({ error: 'Token has expired' });
-          //   } else {
-          //     // Token is valid, confirm the email
-          //     const query = 'UPDATE users SET is_verified = true WHERE email = ?';
-          //     pool.connect( async (err, client, release) => {
-          //       client.query(
-          //         query,
-          //         [token]
-          //         , async (err, result) => {
-          //           release()
-          //           if (err) {
-          //             console.error(err);
-          //             res.status(500).json({ error: 'Failed to confirm email' });
-          //           } else if (result.length === 0) {
-          //             // No user found with the provided token
-          //             res.status(400).json({ error: 'Invalid token' });
-          //           }
-          //         }
-          //       )
-          //     })
-          //   }
-          // }
-
-        }
-      );
+   });
 
 
-// router.patch('/:id', function(req, res, next){
-//   knex('users')
-//     .where('id', req.params.id)
-//     .update(req.body)
-//     .returning(['id', 'firstName', 'lastName', 'email', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'hshPwd', 'preferredLocation'])
-//   .then((data) => {
-//     res.status(200).json(data[0])
-//   })
-// })
+   router.post('/reset-pass/', async (req, res) => {
+    const token = req.body.resetToken;
+    const pass = req.body.hshPwd;
+    let username = ''
+    try {
+      const decoded = jwt.verify(token, JWT_KEY);
+      console.log('d - e - c - o - d - e - d -----> ', decoded);
+      username = decoded.username
+      console.log('wow this is the best! ======>>>  ', decoded)
 
-//Delete (delete one of the resource)
-// router.delete('/:id', function(req, res, next){
-//   knex('users')
-//     .where('id', req.params.id)
-//     .del('*')
-//     .returning(['id', 'firstName', 'lastName', 'email', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'hshPwd', 'preferredLocation'])
-//   .then((data) => {
-//     res.status(200).json(data[0])
-//   })
-// })
+      const query = 'UPDATE users SET "hshPwd" = $2 WHERE email = $1';
+      pool.connect( async (err, client, release) => {
+        if (err) {
+          return console.error('Error acquiring client', err.stack)
+        } 
+        client.query(
+          query,
+          [username, pass]
+          , async (err, results) => {
+            release()
+            if(err) {
+              console.error(err)
+              res.status(500).json({
+                'message': 'failed to insert verified user',
+                'code': '500',
+                'email': `${username}`
+              });
+            } else {
+  
+              console.log('it worked! ', results );
+              res.status(200).json({
+                'message': 'success',
+                'code': '200',
+                'email': `${username}`
+              });
+            }
+          }
+        )
+      })
+    } catch (error) {
+      if (error instanceof jwt.TokenExpiredError) {
+        console.error("Token has expired");
+        res.status(200).json({
+          'message': 'expired',
+          'code': '203',
+          'email': `${username}`
+        });
+      } else {
+        console.error("confirm-email token is invalid", error);
+        res.status(200).json({
+          'message': 'invalid',
+          'code': '203',
+          'email': `${username}`
+        });
+      }
+    }
+   });
+
 
 module.exports = router;
