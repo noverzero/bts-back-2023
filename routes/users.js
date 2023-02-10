@@ -59,8 +59,7 @@ router.get('/:id', verifyToken, function(req, res, next){
 
 //Create (create one of the resource)
 router.post('/', function(req, res, next){
-          
-  console.log('is this the register code? ')
+  const saltRounds = 10;
   const payload = { username: req.body.email };
   // Sign the JWT using the secret key
   const token = jwt.sign(payload, JWT_KEY, { expiresIn: '72h' });
@@ -81,7 +80,6 @@ router.post('/', function(req, res, next){
       .insert(req.body)
       .returning(['id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation'])
       .then( (data) => {
-        console.log('we are ready to send that email', data)
         sendRegistrationConfirmationEmail(email, 'confirm', token);
         res.status(200).json({
           'message': 'email sent!',
@@ -96,7 +94,6 @@ router.post('/', function(req, res, next){
         });
       })
     } else {
-      console.log('if email already exists', rows[0])
       res.status(200).json({
         'message': 'account already exists',
         'code': '202',
@@ -139,7 +136,9 @@ router.post('/login/', async (req, res) => {
       }
       // Check if the password is correct
       const user = rows[0];
-      await bcrypt.compare(password, user.hshPwd.trim(), (err, result)=>{
+
+      await bcrypt.compare(password, user.hshPwd, (err, result)=>{
+
         if(err) console.error(err)
         if (!result) {
           return res.status(401).send('Invalid username or password');
@@ -197,7 +196,6 @@ router.post('/login/', async (req, res) => {
                     'email': `${username}`
                   });
                 } else if (results && results.rows) {
-                  console.log('password reset email match??? ', results.rows)
                   if(results.rows.length) {
                     sendRegistrationConfirmationEmail(username, 'reset', token);
                     res.status(200).json({
@@ -225,7 +223,6 @@ router.post('/login/', async (req, res) => {
     let username = ''
     try {
       const decoded = jwt.verify(token, JWT_KEY);
-      console.log(decoded);
       username = decoded.username
 
       const query = 'UPDATE users SET is_verified = true WHERE email = $1';
@@ -247,7 +244,6 @@ router.post('/login/', async (req, res) => {
               });
             } else {
   
-              console.log('it worked! ', results );
               res.status(200).json({
                 'message': 'success',
                 'code': '200',
@@ -278,58 +274,72 @@ router.post('/login/', async (req, res) => {
 
 
    router.post('/reset-pass/', async (req, res) => {
+    //4068a95734305426ff1d81ee325cd4f9c9d5e382f4997f7fbea7450de0666016
+    const saltRounds = 10;
     const token = req.body.resetToken;
-    const pass = req.body.hshPwd;
     let username = ''
-    try {
-      const decoded = jwt.verify(token, JWT_KEY);
-      username = decoded.username
-      const query = 'UPDATE users SET "hshPwd" = $2 WHERE email = $1';
-      pool.connect( async (err, client, release) => {
-        if (err) {
-          return console.error('Error acquiring client', err.stack)
-        } 
-        client.query(
-          query,
-          [username, pass]
-          , async (err, results) => {
-            release()
-            if(err) {
-              console.error(err)
-              res.status(500).json({
-                'message': 'failed to insert verified user',
-                'code': '500',
+    const password = req.body.hshPwd
+    bcrypt.genSalt(saltRounds, (err, salt) => {
+      bcrypt.hash(password, salt, (err, hash) => {
+        if(err){
+          console.error('inside bcrypt hash func ====== ', err)
+        } else {
+          // returns hash
+          req.body.hshPwd = hash;
+          const pass = req.body.hshPwd;
+      
+          try {
+            const decoded = jwt.verify(token, JWT_KEY);
+            username = decoded.username
+            const query = 'UPDATE users SET "hshPwd" = $2 WHERE email = $1';
+            pool.connect( async (err, client, release) => {
+              if (err) {
+                return console.error('Error acquiring client', err.stack)
+              } 
+              client.query(
+                query,
+                [username, pass]
+                , async (err, results) => {
+                  release()
+                  if(err) {
+                    console.error(err)
+                    res.status(500).json({
+                      'message': 'failed to insert verified user',
+                      'code': '500',
+                      'email': `${username}`
+                    });
+                  } else {
+        
+                    res.status(200).json({
+                      'message': 'success',
+                      'code': '200',
+                      'email': `${username}`
+                    });
+                  }
+                }
+              )
+            })
+          } catch (error) {
+            if (error instanceof jwt.TokenExpiredError) {
+              console.error("Token has expired");
+              res.status(200).json({
+                'message': 'expired',
+                'code': '203',
                 'email': `${username}`
               });
             } else {
-  
-              console.log('it worked! ', results );
+              console.error("confirm-email token is invalid", error);
               res.status(200).json({
-                'message': 'success',
-                'code': '200',
+                'message': 'invalid',
+                'code': '203',
                 'email': `${username}`
               });
             }
           }
-        )
-      })
-    } catch (error) {
-      if (error instanceof jwt.TokenExpiredError) {
-        console.error("Token has expired");
-        res.status(200).json({
-          'message': 'expired',
-          'code': '203',
-          'email': `${username}`
-        });
-      } else {
-        console.error("confirm-email token is invalid", error);
-        res.status(200).json({
-          'message': 'invalid',
-          'code': '203',
-          'email': `${username}`
-        });
-      }
-    }
+        }
+      });
+    });
+   
    });
 
 
