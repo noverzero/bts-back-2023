@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
-const EMAIL_PASS = process.env.EMAIL_PASS
-const BTS_SITE = 'http://localhost:4200'
+const EMAIL_PASS = process.env.EMAIL_PASS;
+const BTS_SITE = process.env.ORIGIN_URL;
 
 const sendEmailConfirmation = async (email, context, token) => {
   //context: 'reset' | 'confirm'
@@ -26,14 +26,12 @@ const sendEmailConfirmation = async (email, context, token) => {
             }`
     };
   
-    console.log('hmmmmmm ........ ')
     // Send the email
 
     try {
 
        await transporter.sendMail(mailOptions, (error, info) => {
           if (error) {
-            console.log('uhhhhh ........ ')
             console.error(error);
             return res.status(500).json({
                 'message': 'email failed to send',
