@@ -227,7 +227,6 @@ router.post('/login/', async (req, res) => {
       const decoded = jwt.verify(token, JWT_KEY);
       console.log(decoded);
       username = decoded.username
-      console.log('wow this is the best! ======>>>  ', decoded)
 
       const query = 'UPDATE users SET is_verified = true WHERE email = $1';
       pool.connect( async (err, client, release) => {
@@ -284,10 +283,7 @@ router.post('/login/', async (req, res) => {
     let username = ''
     try {
       const decoded = jwt.verify(token, JWT_KEY);
-      console.log('d - e - c - o - d - e - d -----> ', decoded);
       username = decoded.username
-      console.log('wow this is the best! ======>>>  ', decoded)
-
       const query = 'UPDATE users SET "hshPwd" = $2 WHERE email = $1';
       pool.connect( async (err, client, release) => {
         if (err) {
