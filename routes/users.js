@@ -121,10 +121,13 @@ router.post('/login/', async (req, res) => {
       return console.error('Error acquiring client', err.stack)
     }
     client.query(
-    'SELECT  id, "firstName", "lastName", email, "hshPwd", "isWaiverSigned", "isStaff", "isDriver", "isAdmin", "isDeactivated", "preferredLocation" FROM users WHERE email = $1',
+    `SELECT  id, "firstName", "lastName", email, "hshPwd", "isWaiverSigned", "isStaff", "isDriver", "isAdmin", "isDeactivated", "preferredLocation"
+    FROM users
+    WHERE email = $1
+    AND is_verified = true`,
     [username]
     
-    , async (err, result) => {
+    , async (err, result) => {      
       release()
       if (err) {
         return console.error('Error executing query', err.stack)
