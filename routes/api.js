@@ -102,9 +102,9 @@ router.get('/secure', async (req, res) => {
     })
     } catch (error) {
       if (error instanceof jwt.TokenExpiredError) {
-        console.error("Token has expired");
+        return console.error("Token has expired");
       } else {
-        console.error("Login token is invalid");
+        return console.error("Login token is invalid");
     }
   };
 });

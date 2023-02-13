@@ -59,6 +59,19 @@ router.get('/:id', verifyToken, function(req, res, next){
 
 //Create (create one of the resource)
 router.post('/', function(req, res, next){
+  (whitelist.indexOf(req.headers.origin) === -1)
+  ?
+  setTimeout(() => {
+    res.sendStatus(404)
+  }, 2000)
+  :
+  console.log('users/ route hit ---', req.body)
+  if(!req.body.hshPwd || !req.body.email){
+    return res.status(500).json({
+      'message': 'no user information provided',
+      'code': '500'
+    }); 
+  }
   const saltRounds = 10;
   const payload = { username: req.body.email };
   // Sign the JWT using the secret key
@@ -115,6 +128,13 @@ router.post('/login/', async (req, res) => {
     res.sendStatus(404)
   }, 2000)
   :
+  console.log('login route hit ---', req.body)
+  if(!req.body.password || !req.body.username){
+    return res.status(500).json({
+      'message': 'no user information provided',
+      'code': '500'
+    }); 
+  }
   pool.connect( async (err, client, release) => {
     const {username, password} = req.body
     if (err) {
@@ -139,7 +159,7 @@ router.post('/login/', async (req, res) => {
       }
       // Check if the password is correct
       const user = rows[0];
-
+      console.log('/login user.hshPwd ======>>> ' , user.hshPwd , 'and req password ==== ' , password)
       await bcrypt.compare(password, user.hshPwd, (err, result)=>{
 
         if(err) console.error(err)
