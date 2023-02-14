@@ -37,11 +37,9 @@ var app = express();
 var whitelist = process.env.ORIGIN_URL.split(' ')
 var corsOptions = {
   origin: function (origin, callback) {
-    console.log('origin --------------->>>> ', origin, 'and whitelist ====>  ', process.env.ORIGIN_URL)
     if (whitelist.indexOf(origin) !== -1) {
       callback(null, true)
     } else {
-      console.log('whitelist ===========> ', whitelist)
       callback(new Error('Not allowed by CORS'))
     }
   },
