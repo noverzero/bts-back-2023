@@ -35,10 +35,10 @@ var app = express();
 //   next();
 // });
 var whitelist = process.env.ORIGIN_URL.split(' ')
-//console.log('whitelist ===========> ', whitelist)
+console.log('whitelist ===========> ', whitelist)
 var corsOptions = {
   origin: function (origin, callback) {
-    //console.log('origin --------------->>>> ', origin)
+    console.log('origin --------------->>>> ', origin)
     if (whitelist.indexOf(origin) !== -1) {
       callback(null, true)
     } else {
