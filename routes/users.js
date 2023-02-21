@@ -65,7 +65,8 @@ router.post('/', function(req, res, next){
     res.sendStatus(404)
   }, 2000)
   :
-  console.log('users/ route hit ---', req.body)
+  console.log('users/ route hit ---')
+  const origin = req.headers.origin
   if(!req.body.hshPwd || !req.body.email){
     return res.status(500).json({
       'message': 'no user information provided',
@@ -84,6 +85,7 @@ router.post('/', function(req, res, next){
     req.body.hshPwd = hash.trim();
     });
   });
+
   return knex('users')
   .select('id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation')
   .where('email', email)
@@ -93,7 +95,7 @@ router.post('/', function(req, res, next){
       .insert(req.body)
       .returning(['id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation'])
       .then( (data) => {
-        sendRegistrationConfirmationEmail(email, 'confirm', token);
+        sendRegistrationConfirmationEmail(email, 'confirm', token, origin);
         res.status(200).json({
           'message': 'email sent!',
           'code': '200',
@@ -105,6 +107,14 @@ router.post('/', function(req, res, next){
           'code': '500',
           'email': `${email}`
         });
+      })
+    } else if(req.body.resendEmail === true){
+
+      sendRegistrationConfirmationEmail(email, 'confirm', token, origin);
+      return res.status(200).json({
+        'message': 'email re-sent!',
+        'code': '200',
+        'email': `${email}`
       })
     } else {
       res.status(200).json({
@@ -159,7 +169,6 @@ router.post('/login/', async (req, res) => {
       }
       // Check if the password is correct
       const user = rows[0];
-      console.log('/login user.hshPwd ======>>> ' , user.hshPwd , 'and req password ==== ' , password)
       await bcrypt.compare(password, user.hshPwd, (err, result)=>{
 
         if(err) console.error(err)
@@ -194,6 +203,7 @@ router.post('/login/', async (req, res) => {
     }, 2000)
     :
     console.log('okay send-reset request is in!  ')
+    const origin = req.headers.origin;
     const {username} = req.body
     const payload = { username };
     
@@ -220,7 +230,7 @@ router.post('/login/', async (req, res) => {
                   });
                 } else if (results && results.rows) {
                   if(results.rows.length) {
-                    sendRegistrationConfirmationEmail(username, 'reset', token);
+                    sendRegistrationConfirmationEmail(username, 'reset', token, origin);
                     res.status(200).json({
                       'message': 'password reset email sent',
                       'code': '200',
@@ -278,6 +288,8 @@ router.post('/login/', async (req, res) => {
       })
     } catch (error) {
       if (error instanceof jwt.TokenExpiredError) {
+          const payload = jwt.verify(token, JWT_KEY, {ignoreExpiration: true} );
+          username = payload.username
         console.error("Token has expired");
         res.status(200).json({
           'message': 'expired',
@@ -344,6 +356,8 @@ router.post('/login/', async (req, res) => {
             })
           } catch (error) {
             if (error instanceof jwt.TokenExpiredError) {
+              const payload = jwt.verify(token, JWT_KEY, {ignoreExpiration: true} );
+              username = payload.username
               console.error("Token has expired");
               res.status(200).json({
                 'message': 'expired',

@@ -1,8 +1,8 @@
 const nodemailer = require('nodemailer');
 const EMAIL_PASS = process.env.EMAIL_PASS;
-const BTS_SITE = process.env.ORIGIN_URL;
 
-const sendEmailConfirmation = async (email, context, token) => {
+const sendEmailConfirmation = async (email, context, token, origin) => {
+  console.log('sendEmailConfirmation origin   =====> ', origin)
   //context: 'reset' | 'confirm'
 
     // Set up the transporter object using your email provider's SMTP server
@@ -20,9 +20,9 @@ const sendEmailConfirmation = async (email, context, token) => {
       to: email,
       subject: `${context === 'confirm' ? 'Bus to Show Email Confirmation' : 'Bus to Show Password Reset'}`,
       text: `${context === 'confirm' 
-              ? `Thank you for registering! Please click the following link to confirm your email address: ${BTS_SITE}/verify/${token}`
+              ? `Thank you for registering! Please click the following link to confirm your email address: ${origin}/verify/${token}`
               : `A password reset was requested for this Bus to Show account. If you do not want to reset, then great, you are already done not resetting. 
-              If you do want to reset it, please click the following link to confirm the request. ${BTS_SITE}/reset/${token}`
+              If you do want to reset it, please click the following link to confirm the request. ${origin}/reset/${token}`
             }`
     };
   
