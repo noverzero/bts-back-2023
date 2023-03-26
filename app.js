@@ -18,6 +18,8 @@ var eventsDashRouter = require('./routes/events-dash');
 var ordersRouter = require('./routes/orders');
 var pickupLocationsRouter = require('./routes/pickup_locations');
 var pickupPartiesRouter = require('./routes/pickup_parties');
+var purchasesRouter = require('./routes/purchases');
+var productsRouter =  require('./routes/products');
 var managePartiesRouter = require('./routes/manage-parties');
 var manageReservationsRouter = require('./routes/manage-reservations');
 
@@ -28,12 +30,6 @@ var usersRouter = require('./routes/users')
 var apiRouter = require('./routes/api').router
 const stripeSync = require('./routes/stripe-sync')
 var app = express();
-// app.use(function(req, res, next) {
-//   res.header("Access-Control-Allow-Origin", "http://roomy-move.surge.sh/");
-//   res.header("Access-Control-Allow-Methods", "GET,POST,DELETE,PATCH,PUT");
-//   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-//   next();
-// });
 var whitelist = process.env.ORIGIN_URL.split(' ')
 var corsOptions = {
   origin: function (origin, callback) {
@@ -72,6 +68,8 @@ app.use(`/manage-parties`, managePartiesRouter)
 app.use(`/manage-reservations`, manageReservationsRouter)
 app.use(`/reservations`, reservationsRouter);
 app.use('/stripe-sync', stripeSync);
+app.use('/products', productsRouter);
+app.use('/purchases', purchasesRouter);
 
 app.use(function(req, res) {
   console.log('next all the way to the end without finding anything req =====>', req.path)

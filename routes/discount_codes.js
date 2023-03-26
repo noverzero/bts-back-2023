@@ -85,8 +85,10 @@ router.patch('/', function(req, res, next) {
   let totalPrice = req.body.totalPrice
   let ticketQuantity = req.body.ticketQuantity
   let ticketsAndUses=[]
+  let priceWithoutFeesPerTicket = totalPrice * 10 / 11 / ticketQuantity
   let afterDiscountObj={}
   afterDiscountObj.ticketQuantity=ticketQuantity
+  //afterDiscountObj.eventsId = req.body.eventsId
   console.log('discount codes patch req.body => ', req.body)
   knex('discount_codes')
     .join('discount_codes_events', 'discount_codes.id', 'discount_codes_events.discountCodeId')
@@ -99,47 +101,93 @@ router.patch('/', function(req, res, next) {
       return res.status(400).json({message: 'This code is not in our database.'})
     }
     else if(match){
-      console.log('match here ===>')
-
-    afterDiscountObj.newRemainingUses=match.remainingUses
-    afterDiscountObj.type=match.type
-
-    let expiration = Date.parse(match.expiresOn.toLocaleString('en-US'))
-    let today = Date.parse(new Date().toLocaleString('en-US', {
+      console.log('match here ===>', match)
+      afterDiscountObj.eventsId = match.eventsId
+      afterDiscountObj.newRemainingUses=match.remainingUses
+      afterDiscountObj.type=match.type
+      afterDiscountObj.discountCodeEventsId = match.id
+      afterDiscountObj.discountCodeId = match.discountCodeId
+      console.log('priceWithoutFeesPerTicket ==>>==>> ', priceWithoutFeesPerTicket );
+      let effectiveRate = (100 - match.percentage) / 100
+      
+      let expiration = Date.parse(match.expiresOn.toLocaleString('en-US'))
+      let today = Date.parse(new Date().toLocaleString('en-US', {
         timeZone: 'America/Denver'
       }
     ))
     if (expiration < today){
       return res.status(200).json({message: 'This code has expired.'})
     }
-    if (match.remainingUses <= 0) {
-      return res.status(200).json({message: 'This code is all used up.'})
-
+    // if code is for one time use and has been used, return message
+    else if(match.type === 1){
+      if(match.timesUsedThisEvent > 0){
+        return res.status(200).json({message: 'This code is all used up.'})
+      } else {
+        afterDiscountObj.timesUsed = match.timesUsed + 1
+        afterDiscountObj.timesUsedThisEvent = match.timesUsedThisEvent + 1
+        afterDiscountObj.totalPriceAfterDiscount = 
+          (totalPrice / ticketQuantity) // price per ticket
+          * (ticketQuantity - 1) // minus one ticket
+        afterDiscountObj.savings = totalPrice - afterDiscountObj.totalPriceAfterDiscount
+        return afterDiscountObj
+      }
+      if(match.usesPerEvent !== 0 && (match.usesPerEvent <= match.timesUsedThisEvent)){
+        return res.status(200).json({message: 'This code is all used up.'})
+      } else if (match.usesPerEvent > 0){
+        match.remainingUses = 1
+        afterDiscountObj.timesUsedThisEvent = match.timesUsedThisEvent + 1
+        afterDiscountObj.timesUsed = match.timesUsed + 1
+        afterDiscountObj.totalPriceAfterDiscount = priceWithoutFeesPerTicket * (ticketQuantity -1)  * 1.10
+        afterDiscountObj.savings = totalPrice - afterDiscountObj.totalPriceAfterDiscount
+      }
+    } else if (match.type != 1){
+      if(match.remainingUses <= 0) {
+       return res.status(200).json({message: 'This code is all used up.'})
+     } // if more remaing uses than tickets requested, allow useage 
+       else if (match.remainingUses >= ticketQuantity) {
+       afterDiscountObj.timesUsed = ticketQuantity
+       afterDiscountObj.totalPriceAfterDiscount = priceWithoutFeesPerTicket * ticketQuantity * effectiveRate * 1.10
+       afterDiscountObj.newRemainingUses = match.remainingUses - ticketQuantity
+       afterDiscountObj.savings = totalPrice - afterDiscountObj.totalPriceAfterDiscount
+       console.log('afterDiscountObj match.remainingUses >= ticketQuantity ===>', afterDiscountObj)
+       return (afterDiscountObj)
+     } // if fewer remaining uses than tickets requested, only apply discount on qty remainingUses
+       else if (match.remainingUses < ticketQuantity) {
+       afterDiscountObj.timesUsed = match.remainingUses
+       afterDiscountObj.totalPriceAfterDiscount = (priceWithoutFeesPerTicket * (ticketQuantity - match.remainingUses) + priceWithoutFeesPerTicket * effectiveRate * match.remainingUses) * 1.10
+       afterDiscountObj.newRemainingUses = 0
+       afterDiscountObj.savings = totalPrice - afterDiscountObj.totalPriceAfterDiscount
+       console.log('afterDiscountObj match.remainingUses < ticketQuantity ===>', afterDiscountObj)
+ 
+       return afterDiscountObj
+ 
+     }
     }
-    let priceWithoutFeesPerTicket = totalPrice * 10 / 11 / ticketQuantity
-    let effectiveRate = (100 - match.percentage) / 100
+    console.log('afterDiscountObj nothin ===>', afterDiscountObj)
 
-// if more remaing uses than tickets requested, allow useage
-    if (match.remainingUses >= ticketQuantity) {
-      afterDiscountObj.timesUsed = ticketQuantity
-      afterDiscountObj.totalPriceAfterDiscount = priceWithoutFeesPerTicket * ticketQuantity * effectiveRate * 1.10
-      afterDiscountObj.newRemainingUses = match.remainingUses - ticketQuantity
-      afterDiscountObj.savings = totalPrice - afterDiscountObj.totalPriceAfterDiscount
-      return (afterDiscountObj)
-    }
-// if fewer remaining uses than tickets requested, only apply discount on qty remainingUses
-    if (match.remainingUses < ticketQuantity) {
-      afterDiscountObj.timesUsed = match.remainingUses
-      afterDiscountObj.totalPriceAfterDiscount = (priceWithoutFeesPerTicket * (ticketQuantity - match.remainingUses) + priceWithoutFeesPerTicket * effectiveRate * match.remainingUses) * 1.10
-      afterDiscountObj.newRemainingUses = 0
-      afterDiscountObj.savings = totalPrice - afterDiscountObj.totalPriceAfterDiscount
-      return afterDiscountObj
-
-    }
   }
   })
   .then((afterDiscountObj) => {
-    if(afterDiscountObj.newRemainingUses || afterDiscountObj.newRemainingUses === 0 && afterDiscountObj.totalPriceAfterDiscount && afterDiscountObj.timesUsed  ){
+    if(afterDiscountObj.type === 1 ){
+    //update discount_codes_events table with new timesUsedThisEvent
+    knex('discount_codes_events')
+      .select('*')
+      .where('discountCodeId', afterDiscountObj.discountCodeId)
+      .andWhere('eventsId', afterDiscountObj.eventsId)
+      .update({
+        timesUsedThisEvent: afterDiscountObj.timesUsedThisEvent
+      })
+      .returning(['eventsId'])
+      .then((data) => {
+        console.log('.then(data) ==>>==>> data', data);
+        console.log('.then(data) ==>>==>> afterDiscountObj ', afterDiscountObj);
+        data[0].savings = afterDiscountObj.savings
+        data[0].totalPriceAfterDiscount = afterDiscountObj.totalPriceAfterDiscount
+        return res.status(200).json(data)
+      })
+    } else if(afterDiscountObj.newRemainingUses || afterDiscountObj.newRemainingUses === 0  ){
+      console.log('afterDiscountObj .then 1 ===>', afterDiscountObj)
+
       knex('discount_codes')
         .select('*')
         .where('discountCode', discountCode)
@@ -151,9 +199,10 @@ router.patch('/', function(req, res, next) {
         .returning(['id', 'remainingUses', 'totalPriceAfterDiscount', 'timesUsed', 'type'])
       .then((data) => {
         data[0].savings = afterDiscountObj.savings
-        res.status(200).json(data)
+        return res.status(200).json(data)
       })
     }
+
   })
 })
 
