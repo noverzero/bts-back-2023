@@ -41,6 +41,69 @@ router.get('/:id', function(req, res, next) {
   })
 })
 
+  router.get('/:user_id/:event_id', function(req, res, next) {
+    console.log('req.params.user_id ==>>==>> ', req.params.user_id, "req.params.event_id ==>>==>> ", req.params.event_id);
+    (whitelist.indexOf(req.headers.origin) === -1)
+        ?
+        setTimeout(() => {
+              res.sendStatus(404)
+            }, 2000)
+        :
+        knex('users')
+          .select('email')
+          .where('id', req.params.user_id)
+          .first()
+          .then((user) => {
+            knex.raw("SELECT date FROM events WHERE id = ?::integer", [req.params.event_id])
+              .then((eventRaw) => {
+                const event = eventRaw.rows[0];
+                knex('discount_codes')
+                  .select('discountCode', 'id')
+                  .where('issuedTo', user.email)
+                  .andWhere('type', 1)
+                  .andWhere('expiresOn', '>=', knex.raw("to_date(?, 'MM/DD/YYYY')", [event.date]))
+                  .first()
+                  .then((discountCode) => {
+                    if (discountCode) {
+                      console.log('discountCode ==>>==>> ', discountCode);
+                      knex('discount_codes_events')
+                        .select(['timesUsedThisEvent'])
+                        .where('discountCodeId', discountCode.id)
+                        .andWhere('eventsId', req.params.event_id)
+                        .first()
+                        .then((discountCodeEvent) => {
+                          console.log('discountCodeEvent ==>>==>> ', discountCodeEvent);
+                          if (discountCodeEvent && discountCodeEvent.timesUsedThisEvent > 0) {
+                            res.status(200).json({
+                              message: "Season pass discount code has already been applied.",
+                              discountCode: discountCode.discountCode,
+                              alreadyApplied: true
+                            });
+                          } else {
+                            res.status(200).json({
+                              message: "Season pass discount code is available.",
+                              discountCode: discountCode.discountCode,
+                              alreadyApplied: false
+                            });
+                          }
+                        });
+                    } else {
+                      res.status(200).json({
+                        message: "No valid season pass discount code found.",
+                        discountCode: null
+                      });
+                    }
+                  });
+              });
+          })
+          .catch((error) => {
+            res.status(500).json({ message: "Error fetching data.", error });
+          });
+      });
+        
+
+  
+
 //Create (create one of the resource)
 router.post('/', function(req, res, next) {
   knex('discount_codes')
