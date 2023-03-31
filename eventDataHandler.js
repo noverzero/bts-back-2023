@@ -72,6 +72,47 @@ const getApiData = async () => {
   return finalShowsObj
 }
 
+getTicketMasterData = async () => {
+  try {
+    const response = await axios.get(`https://app.ticketmaster.com/discovery/v2/events?apikey=xjkgjhUJN75gYpGurmPNUwB8HkA5GMyG&venueId=KovZpZAaeIvA&locale=*&page=1&size=100`)
+    const showsFromTicketMaster = response.data._embedded.events  // grab just the events objects
+    var showsObj = showsFromTicketMaster.map(show=>{
+      let headlinerName = show.name
+      let support1 = ''
+      let support2 = ''
+      let support3 = ''
+      let time = show.dates.start.time
+      let date = show.dates.start.localDate.split('-').splice(1, 3).concat(show.dates.start.localDate.split(`-`)[0]).join('/')
+      if (show._embedded.attractions[1]) {
+        support1 = show._embedded.attractions[1].name
+      }
+      if (show._embedded.attractions[2]) {
+        support2 = show._embedded.attractions[2].name
+      }
+      if (show._embedded.attractions[3]) {
+        support3 = show._embedded.attractions[3].name
+      }
+      if (show.dates.start.time === null) {
+        time = '00:00:00'
+      }
+      return {
+        id: show.id,
+        date: date,
+        startTime: time,
+        venue: show._embedded.venues[0].name.split(' Ampitheatre')[0],
+        headliner: headlinerName,
+        support1: support1,
+        support2: support2,
+        support3: support3,
+        headlinerImgLink: 'headlinerImg',
+        headlinerBio: ''
+      }
+    })
+    console.log('showsObj ==>>==>> ', showsObj);
+  } catch (err) {
+    console.error(err)
+  }
+}
 const filterShowsObj = (showsObj) => {
   return showsObj.reduce((newShows, currShow) => {
     return newShows.find(show => show.date === currShow.date && show.venue === currShow.venue) ? newShows : newShows.push(currShow) && newShows
