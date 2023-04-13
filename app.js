@@ -79,16 +79,15 @@ app.use(function(req, res) {
 apiDataFunction = async () => {
   const allShowsObj = await getTicketMasterData()
   eventDataHandler.insertEventData(allShowsObj)
-  //const tmData = await getTicketMasterData()
   console.log('tmData.length ==>>==>> ', allShowsObj.length);
 }
-setTimeout(() => {
-apiDataFunction() // commented out until we go live
-}, 5000)
+// setTimeout(() => {
+// apiDataFunction() // commented out until we go live
+// }, 5000)
 
 // let time = new Date()
 cron.schedule('00 04 * * * *', async () => {
-  //apiDataFunction()
+  apiDataFunction()
 })
 
 
