@@ -205,6 +205,12 @@ router.post('/', function (req, res, next) {
 
 //PATCH ROUTE ORDERS
 router.patch('/:id', function(req, res, next){
+  (whitelist.indexOf(req.headers.origin) === -1)
+  ?
+  setTimeout(() => {
+        res.sendStatus(404)
+      }, 2000)
+  :
   knex('orders')
     .where('id', req.params.id)
     .update(req.body)
