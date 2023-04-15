@@ -209,7 +209,9 @@ const insertEventData = (allShowsObj) => {
       .insert(newShowsArr)
       .returning('*').then(result=>{
         //console.log('result with event.id', result);
-        addPickupParties(result)
+        if (result && result.length) {
+          addPickupParties(result)
+        }
       })
 
     })
