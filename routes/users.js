@@ -4,7 +4,6 @@ const express = require('express');
 const { password } = require('pg/lib/defaults.js');
 const router = express.Router();
 const knex = require('../knex.js')
-const ORIGIN_URL = process.env.ORIGIN_URL
 const JWT_KEY = process.env.JWT_KEY
 const verifyToken = require('./api').verifyToken
 const whitelist = process.env.ORIGIN_URL.split(' ')
