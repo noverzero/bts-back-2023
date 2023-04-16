@@ -7,8 +7,8 @@ const knex = require('../knex.js')
 var convertTime = require('convert-time')
 const nodemailer = require('nodemailer')
 const EMAIL_PASS = process.env.EMAIL_PASS
-var stripeSecretKey = process.env.STRIPE_TESTSECRETKEY;
-//var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
+//var stripeSecretKey = process.env.STRIPE_TESTSECRETKEY;
+var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
 //var stripePublicKey = 'pk_test_J0CdRMCGmBlrlOiGKnGgUEwT'
 var stripePublicKey = 'pk_live_WZRwtpLAFcufugeQKbtwKobm'
 const stripe = require('stripe')(stripeSecretKey);
@@ -231,13 +231,11 @@ router.patch('/:id', function(req, res, next){
 // })
 
 router.post('/charge', async(req, res) => {
-  console.log('/charge req ==>>==>> ', req);
   stripe.customers.create({
     email: req.body.stripeEmail,
     source: req.body.stripeToken.id,
   })
   .then(customer =>{
-    console.log('/charge customer reesponse ==>>==>> ', customer);
 
     stripe.charges.create({
         amount: req.body.amount,
@@ -247,7 +245,6 @@ router.post('/charge', async(req, res) => {
         metadata: req.body.metadata
       }, (err, charge) => {
         if (err) {
-          console.log('charge err ==>>==>> ', err);
           return res.json(err)
         }
         return res.json(charge)
