@@ -7,9 +7,8 @@ const knex = require('../knex.js')
 var convertTime = require('convert-time')
 const nodemailer = require('nodemailer')
 const EMAIL_PASS = process.env.EMAIL_PASS
-const ORIGIN_URL = process.env.ORIGIN_URL
-//var stripeSecretKey = process.env.STRIPE_TESTSECRETKEY;
-var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
+var stripeSecretKey = process.env.STRIPE_TESTSECRETKEY;
+//var stripeSecretKey = process.env.STRIPE_LIVESECRETKEY
 //var stripePublicKey = 'pk_test_J0CdRMCGmBlrlOiGKnGgUEwT'
 var stripePublicKey = 'pk_live_WZRwtpLAFcufugeQKbtwKobm'
 const stripe = require('stripe')(stripeSecretKey);
@@ -132,11 +131,12 @@ router.post('/', function (req, res, next) {
     return null
   }
 
-  if(req.headers.origin !== ORIGIN_URL){
-  setTimeout(() => {
-        res.sendStatus(404)
-      }, 2000)
-  } else {
+  (whitelist.indexOf(req.headers.origin) === -1)
+  ?
+    setTimeout(() => {
+          res.sendStatus(404)
+        }, 2000)
+  :
     knex('orders')
     .insert({
       userId: userId,
@@ -199,7 +199,6 @@ router.post('/', function (req, res, next) {
         res.status(400).json(err)
       })
     })
-  }
     })
 
 
@@ -232,11 +231,13 @@ router.patch('/:id', function(req, res, next){
 // })
 
 router.post('/charge', async(req, res) => {
+  console.log('/charge req ==>>==>> ', req);
   stripe.customers.create({
     email: req.body.stripeEmail,
     source: req.body.stripeToken.id,
   })
   .then(customer =>{
+    console.log('/charge customer reesponse ==>>==>> ', customer);
 
     stripe.charges.create({
         amount: req.body.amount,
@@ -246,6 +247,7 @@ router.post('/charge', async(req, res) => {
         metadata: req.body.metadata
       }, (err, charge) => {
         if (err) {
+          console.log('charge err ==>>==>> ', err);
           return res.json(err)
         }
         return res.json(charge)

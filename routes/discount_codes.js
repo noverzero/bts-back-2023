@@ -5,7 +5,6 @@ const router = express.Router();
 const knex = require('../knex.js')
 const cors = require('cors');
 const { select } = require('../knex.js');
-const ORIGIN_URL = process.env.ORIGIN_URL
 const whitelist = process.env.ORIGIN_URL.split(' ')
 
 

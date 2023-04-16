@@ -2,8 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const whitelist = process.env.ORIGIN_URL.split(' ')
-const stripeSecret = process.env.STRIPE_LIVESECRETKEY
-
+//const stripeSecret = process.env.STRIPE_LIVESECRETKEY
+const stripeSecret = process.env.STRIPE_TESTSECRETKEY
 
 const stripe = require('stripe')(stripeSecret);
 

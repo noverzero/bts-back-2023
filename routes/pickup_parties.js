@@ -2,8 +2,6 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('../knex.js')
-const ORIGIN_URL = process.env.ORIGIN_URL
-
 
 const whitelist = process.env.ORIGIN_URL.split(' ')
 // Parse the environment variable into an object
