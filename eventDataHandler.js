@@ -251,10 +251,10 @@ const addPickupParties = (newShowsIdAndStartTime) => {
     //console.log('here is the show data find out why show.id is null ==>>==>> ', show);
     //(2, null, 23, NaN:NaN, null, 35, 0, 0, 2023-04-09 08:15:36.575549+00, 2023-04-09 08:15:36.575549+00, standard, standard, f)
     return newPickupParties.push(
-      { pickupLocationId:23,
-        eventId: show.id,
-        lastBusDepartureTime: calcDepartTime(show.startTime, 90),
-        capacity: 22 },
+      // { pickupLocationId:23,
+      //   eventId: show.id,
+      //   lastBusDepartureTime: calcDepartTime(show.startTime, 90),
+      //   capacity: 22 },
       // { pickupLocationId:2,
       //   eventId: show.id,
       //   lastBusDepartureTime: calcDepartTime(show.startTime, 60) },
