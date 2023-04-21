@@ -78,12 +78,14 @@ router.post('/', function(req, res, next){
   const token = jwt.sign(payload, JWT_KEY, { expiresIn: '72h' });
   const email = req.body.email;
   const password = req.body.hshPwd;
-  let hshPass = bcrypt.genSalt(saltRounds, (err, salt) => {
+  let hshPass = ''
+  
+  bcrypt.genSalt(saltRounds, (err, salt) => {
     console.log('users/ route --- hash inside genSalt ==>>==>> ', req.body.hshPwd);
     //4068a95734305426ff1d81ee325cd4f9c9d5e382f4997f7fbea7450de0666016
     return bcrypt.hash(password, salt, (err, hash) => {
     // returns hash
-    return hash.trim();
+    hshPass = hash.trim();
     //$2b$10$UN1zGKdnjU/xQpDHz5P5Eu9EsoQOUlGb3Wb0teyR8Rq59JUwpOJti
 
     });
