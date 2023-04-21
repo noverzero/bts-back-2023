@@ -86,51 +86,54 @@ router.post('/', function(req, res, next){
     req.body.hshPwd = hash.trim();
     console.log('users/ route --- hash inside bcrypt.hshPwd ==>>==>> ', req.body.hshPwd);
     //$2b$10$UN1zGKdnjU/xQpDHz5P5Eu9EsoQOUlGb3Wb0teyR8Rq59JUwpOJti
+    console.log('req.body inside.then ==>>==>> ', req.body);
 
-    });
-    return knex('users')
-    .select('id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation')
-    .where('email', email)
-    .then((rows) =>{
-      if(rows.length===0){
-        return knex('users')
-        .insert(req.body)
-        .returning(['id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation'])
-        .then( (data) => {
+    }).then(() => {
+      return knex('users')
+      .select('id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation')
+      .where('email', email)
+      .then((rows) =>{
+        if(rows.length===0){
+          return knex('users')
+          .insert(req.body)
+          .returning(['id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation'])
+          .then( (data) => {
+            sendRegistrationConfirmationEmail(email, 'confirm', token, origin);
+            res.status(200).json({
+              'message': 'email sent!',
+              'code': '200',
+              'email': `${email}`
+            })
+          }, (err) => {
+            res.status(500).json({
+              'message': 'email failed to send',
+              'code': '500',
+              'email': `${email}`
+            });
+          })
+        } else if(req.body.resendEmail === true){
+    
           sendRegistrationConfirmationEmail(email, 'confirm', token, origin);
-          res.status(200).json({
-            'message': 'email sent!',
+          return res.status(200).json({
+            'message': 'email re-sent!',
             'code': '200',
             'email': `${email}`
           })
-        }, (err) => {
-          res.status(500).json({
-            'message': 'email failed to send',
-            'code': '500',
+        } else {
+          res.status(200).json({
+            'message': 'account already exists',
+            'code': '202',
             'email': `${email}`
-          });
-        })
-      } else if(req.body.resendEmail === true){
-  
-        sendRegistrationConfirmationEmail(email, 'confirm', token, origin);
-        return res.status(200).json({
-          'message': 'email re-sent!',
-          'code': '200',
-          'email': `${email}`
-        })
-      } else {
-        res.status(200).json({
-          'message': 'account already exists',
-          'code': '202',
-          'email': `${email}`
-        }); 
-      }
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).json({ error: 'Failed to register user' });
-      next(err)
-    })
+          }); 
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to register user' });
+        next(err)
+      })
+    });
+
   });
 
 })
