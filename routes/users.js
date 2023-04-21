@@ -79,55 +79,60 @@ router.post('/', function(req, res, next){
   const email = req.body.email;
   const password = req.body.hshPwd;
   bcrypt.genSalt(saltRounds, (err, salt) => {
+    console.log('users/ route --- hash inside genSalt ==>>==>> ', req.body.hshPwd);
+    //4068a95734305426ff1d81ee325cd4f9c9d5e382f4997f7fbea7450de0666016
     bcrypt.hash(password, salt, (err, hash) => {
     // returns hash
     req.body.hshPwd = hash.trim();
-    });
-  });
+    console.log('users/ route --- hash inside bcrypt.hshPwd ==>>==>> ', req.body.hshPwd);
+    //$2b$10$UN1zGKdnjU/xQpDHz5P5Eu9EsoQOUlGb3Wb0teyR8Rq59JUwpOJti
 
-  return knex('users')
-  .select('id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation')
-  .where('email', email)
-  .then((rows) =>{
-    if(rows.length===0){
-      return knex('users')
-      .insert(req.body)
-      .returning(['id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation'])
-      .then( (data) => {
+    });
+    return knex('users')
+    .select('id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation')
+    .where('email', email)
+    .then((rows) =>{
+      if(rows.length===0){
+        return knex('users')
+        .insert(req.body)
+        .returning(['id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation'])
+        .then( (data) => {
+          sendRegistrationConfirmationEmail(email, 'confirm', token, origin);
+          res.status(200).json({
+            'message': 'email sent!',
+            'code': '200',
+            'email': `${email}`
+          })
+        }, (err) => {
+          res.status(500).json({
+            'message': 'email failed to send',
+            'code': '500',
+            'email': `${email}`
+          });
+        })
+      } else if(req.body.resendEmail === true){
+  
         sendRegistrationConfirmationEmail(email, 'confirm', token, origin);
-        res.status(200).json({
-          'message': 'email sent!',
+        return res.status(200).json({
+          'message': 'email re-sent!',
           'code': '200',
           'email': `${email}`
         })
-      }, (err) => {
-        res.status(500).json({
-          'message': 'email failed to send',
-          'code': '500',
+      } else {
+        res.status(200).json({
+          'message': 'account already exists',
+          'code': '202',
           'email': `${email}`
-        });
-      })
-    } else if(req.body.resendEmail === true){
+        }); 
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({ error: 'Failed to register user' });
+      next(err)
+    })
+  });
 
-      sendRegistrationConfirmationEmail(email, 'confirm', token, origin);
-      return res.status(200).json({
-        'message': 'email re-sent!',
-        'code': '200',
-        'email': `${email}`
-      })
-    } else {
-      res.status(200).json({
-        'message': 'account already exists',
-        'code': '202',
-        'email': `${email}`
-      }); 
-    }
-  })
-  .catch((err) => {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to register user' });
-    next(err)
-  })
 })
 
 router.post('/login/', async (req, res) => {
@@ -146,6 +151,7 @@ router.post('/login/', async (req, res) => {
   }
   pool.connect( async (err, client, release) => {
     const {username, password} = req.body
+    console.log('login route --- password ==>>==>> ', password);
     if (err) {
       return console.error('Error acquiring client', err.stack)
     }
@@ -308,6 +314,7 @@ router.post('/login/', async (req, res) => {
 
 
    router.post('/reset-pass/', async (req, res) => {
+    console.log('reset-pass ==>>==>> ', req.body.hshPwd);
     //4068a95734305426ff1d81ee325cd4f9c9d5e382f4997f7fbea7450de0666016
     const saltRounds = 10;
     const token = req.body.resetToken;
