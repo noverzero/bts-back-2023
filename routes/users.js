@@ -86,13 +86,14 @@ router.post('/', function(req, res, next){
     bcrypt.hash(password, salt, (err, hash) => {
     // returns hash
     hshPass = hash.trim();
+    req.body.hshPwd = hshPass;
     //$2b$10$UN1zGKdnjU/xQpDHz5P5Eu9EsoQOUlGb3Wb0teyR8Rq59JUwpOJti
+    console.log('users/ route --- req.body after genSalt ==>>==>> ', req.body);
 
     });
   });
   console.log('hshPass ==>>==>> ', hshPass);
   req.body.hshPwd = hshPass;
-  console.log('users/ route --- req.body after genSalt ==>>==>> ', req.body);
   return knex('users')
   .select('id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation')
   .where('email', email)
