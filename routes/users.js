@@ -89,12 +89,7 @@ router.post('/', function(req, res, next){
     req.body.hshPwd = hshPass;
     //$2b$10$UN1zGKdnjU/xQpDHz5P5Eu9EsoQOUlGb3Wb0teyR8Rq59JUwpOJti
     console.log('users/ route --- req.body after genSalt ==>>==>> ', req.body);
-
-    });
-  });
-  console.log('hshPass ==>>==>> ', hshPass);
-  req.body.hshPwd = hshPass;
-  return knex('users')
+    return knex('users')
   .select('id', 'firstName', 'lastName', 'email', 'phone', 'isWaiverSigned', 'isStaff', 'isAdmin', 'isDriver', 'isDeactivated', 'preferredLocation')
   .where('email', email)
   .then((rows) =>{
@@ -137,6 +132,11 @@ router.post('/', function(req, res, next){
     res.status(500).json({ error: 'Failed to register user' });
     next(err)
   })
+
+    });
+  });
+
+  
 })
 
 router.post('/login/', async (req, res) => {
