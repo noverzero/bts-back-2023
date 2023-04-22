@@ -87,7 +87,7 @@ apiDataFunction = async () => {
 
 // let time = new Date()
 cron.schedule('00 04 * * * *', async () => {
-  apiDataFunction()
+  //apiDataFunction()
 })
 
 
