@@ -174,6 +174,7 @@ router.patch('/', function (req, res, next) {
         }
         else if (match) {
           match = match[0]
+          console.log('match! ==>>==>> ', match );
           afterDiscountObj.newRemainingUses = match.remainingUses
           afterDiscountObj.type = match.type
           //afterDiscountObj.discountCodeEventsId = match.id
