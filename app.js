@@ -77,7 +77,7 @@ app.use(function(req, res) {
 });
 
 apiDataFunction = async () => {
-  const allShowsObj = await getTicketMasterData()
+  const allShowsObj = await eventDataHandler.getTicketMasterData()
   eventDataHandler.insertEventData(allShowsObj)
   console.log('tmData.length ==>>==>> ', allShowsObj.length);
 }
@@ -96,7 +96,7 @@ cron.schedule('0 4 * * *', () => {
 });
 cron.schedule('*/5 * * * *', () => {
   if (process.env.NODE_ENV == 'production'){
-    sweepInCartsCall()
+    eventDataHandler.sweepInCarts()
   }
 })
 
