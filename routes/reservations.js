@@ -69,10 +69,11 @@ router.patch('/findOrders', function(req, res, next){
   })
 })
 
-router.patch('/:id', function(req, res, next){
+//Update 1 existing reservation by reservations.id
+router.patch('/', function(req, res, next){
   console.log("req.token inside PATCH reservations/:id ::  ", req.token)
       knex('reservations')
-      .where('id', req.params.id)
+      .where('id', req.body.id)
       .update(req.body)
       .returning(['id', 'orderId', 'pickupPartiesId', 'willCallFirstName', 'willCallLastName', 'status', 'discountCodeId'])
       .then((data) => {

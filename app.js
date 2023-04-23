@@ -81,25 +81,24 @@ apiDataFunction = async () => {
   eventDataHandler.insertEventData(allShowsObj)
   console.log('tmData.length ==>>==>> ', allShowsObj.length);
 }
-// setTimeout(() => {
-// apiDataFunction() // commented out until we go live
-// }, 5000)
 
 // let time = new Date()
 
 
 cron.schedule('0 4 * * *', () => {
+  if (process.env.NODE_ENV == 'production'){
   console.log('Running apiDataFunction cron!');
   apiDataFunction()
+  }
 }, {
   scheduled: true,
   timezone: "America/Denver"
 });
 cron.schedule('*/5 * * * *', () => {
-  //sweepInCartsCall()
+  if (process.env.NODE_ENV == 'production'){
+    sweepInCartsCall()
+  }
 })
-
-//reminderEmails.sendReminder()
 
 cron.schedule('15 17 * * *', () => {
   if (process.env.NODE_ENV == 'production'){
