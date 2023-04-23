@@ -86,11 +86,15 @@ apiDataFunction = async () => {
 // }, 5000)
 
 // let time = new Date()
-cron.schedule('00 04 * * * *', async () => {
-  //apiDataFunction()
-})
 
 
+cron.schedule('0 4 * * *', () => {
+  console.log('Running apiDataFunction cron!');
+  apiDataFunction()
+}, {
+  scheduled: true,
+  timezone: "America/Denver"
+});
 cron.schedule('*/5 * * * *', () => {
   //sweepInCartsCall()
 })
