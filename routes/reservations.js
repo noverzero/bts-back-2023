@@ -5,7 +5,10 @@ const router = express.Router();
 const knex = require('../knex.js')
 const JWT_KEY = process.env.JWT_KEY
 const verifyToken = require('./api').verifyToken
+const verifyAuthenticated = require('./api').verifyAuthenticated
 const whitelist = process.env.ORIGIN_URL.split(' ')
+const jwt = require('jsonwebtoken');
+
 
 
 
@@ -53,6 +56,29 @@ router.post('/', verifyToken, function(req, res, next){
       .then((data) => {
         res.status(200).json(data[0])
       })
+    }
+  })
+})
+
+router.patch('/refund_minus_processing', verifyAuthenticated, function(req, res, next){
+  jwt.verify(req.token, JWT_KEY, (err, authData) => {
+    console.log('refund_minus_procesing hit!!! ==>>==>> ', req.body);
+    if(err){
+      console.log('refund_minus_procesing ==>>==>> verify failed', err);
+      res.sendStatus(403)
+    } else {
+      console.log('refund_minus_procesing ==>>==>> verify worked');
+
+      // select * from orders where orderId in 
+        // (select order id from reservations where id in req.body.cancelTransferArray)
+      // 
+
+      // knex('reservations')
+      // .insert(req.body)
+      // .returning(['id', 'orderId', 'pickupPartiesId', 'willCallFirstName', 'willCallLastName', 'status', 'discountCodeId'])
+      // .then((data) => {
+      //   res.status(200).json(data[0])
+      // })
     }
   })
 })

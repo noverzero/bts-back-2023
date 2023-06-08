@@ -29,6 +29,8 @@ var reservationsRouter = require('./routes/reservations');
 var usersRouter = require('./routes/users')
 var apiRouter = require('./routes/api').router
 const stripeSync = require('./routes/stripe-sync')
+const manageStripe = require('./routes/manage-stripe')
+
 var app = express();
 var whitelist = process.env.ORIGIN_URL.split(' ')
 var corsOptions = {
@@ -68,6 +70,8 @@ app.use(`/manage-parties`, managePartiesRouter)
 app.use(`/manage-reservations`, manageReservationsRouter)
 app.use(`/reservations`, reservationsRouter);
 app.use('/stripe-sync', stripeSync);
+//app.use('/manage-stripe', manageStripe);
+
 app.use('/products', productsRouter);
 app.use('/purchases', purchasesRouter);
 
@@ -75,6 +79,14 @@ app.use(function(req, res) {
   console.log('next all the way to the end without finding anything req =====>', req.path)
   res.status(404).send('Not Found!');
 });
+
+
+callManageStripe = async () => {
+  const stripeResponse = await manageStripe.getStripeData(new Date('2023-01-01').getTime(), Date.now())
+  console.log('stripeResponse ==>>==>> ', stripeResponse);
+}
+
+ callManageStripe()
 
 apiDataFunction = async () => {
   const allShowsObj = await eventDataHandler.getTicketMasterData()

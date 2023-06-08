@@ -196,7 +196,7 @@ router.patch('/', function (req, res, next) {
               .andWhere('eventsId', req.body.eventId)
               .then((match2) => {
                 match2 = match2[0]
-                if (match2.timesUsedThisEvent > 0) {
+                if (match2.timesUsedThisEvent >= match.usesPerEvent) {
                   return res.status(200).json({ message: 'This code is all used up.' })
                 } else {
                   afterDiscountObj.timesUsed = match.timesUsed + 1

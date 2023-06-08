@@ -49,6 +49,20 @@ function verifyToken(req, res, next){
   }
 }
 
+const verifyAuthenticated = (req, res, next) => {
+    const bearerHeader = req.headers['authorization']
+    const bearerToken = bearerHeader.split(' ')[1];
+    if (typeof bearerToken !== 'undefined') {
+      req.token = bearerToken;
+      next();
+    }
+    else {
+      res.sendStatus(403);
+    }
+
+}
+
+
 router.get('/secure', async (req, res) => {
   (whitelist.indexOf(req.headers.origin) === -1)
     ?
@@ -111,4 +125,4 @@ router.get('/secure', async (req, res) => {
 
 
 
-module.exports = {router, verifyToken};
+module.exports = {router, verifyToken, verifyAuthenticated};
